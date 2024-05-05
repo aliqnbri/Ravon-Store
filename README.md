@@ -14,3 +14,4 @@ pip install -r requerments.txt
 ```
 # Packages
 - Django 5
+- python-decouple
