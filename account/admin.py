@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-
+from account.forms import RegisterUserForm, EditUserForm
 from django.contrib.auth.admin import UserAdmin
 from core.managers import export_to_csv
 from typing import List, Tuple ,Type ,Callable
@@ -13,8 +13,8 @@ class CustomUserAdmin(UserAdmin):
     """
     The forms to add and change user instances
     """
-    form: Type[UserAdminChangeForm] = UserAdminChangeForm
-    add_form: Type[UserAdminCreationForm] = UserAdminCreationForm
+    form: Type[EditUserForm] = EditUserForm
+    add_form: Type[RegisterUserForm] = RegisterUserForm
 
     list_display: List[str] = ['username', 'email', 'role']
     list_filter: List[str] = ['role',]
