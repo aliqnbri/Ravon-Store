@@ -24,7 +24,7 @@ INSTALLED_APPS = [
     #Internal Apps
     'account.apps.AccountConfig',
     'core.apps.CoreConfig',
-    
+
 
 ]
 
@@ -57,6 +57,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Ecommerce.wsgi.application'
+
+
+AUTH_USER_MODEL = "account.CustomUser"
 
 
 # Database
