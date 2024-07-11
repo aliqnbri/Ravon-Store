@@ -22,6 +22,9 @@ INSTALLED_APPS = [
     'rest_framework', 
 
     #Internal Apps
+    'account.apps.AccountConfig',
+    'core.apps.CoreConfig',
+    
 
 ]
 
