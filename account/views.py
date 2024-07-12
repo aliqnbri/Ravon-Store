@@ -29,3 +29,22 @@ class RegisterUserView(GenericAPIView):
 
 
 
+
+class VerifyOtp(GenericAPIView):
+
+    permission_classes = [permissions.AllowAny,]
+
+    def get(self, request):
+        otp = request.query_params['otp']
+        pass 
+
+
+
+
+        # if serializer.is_valid(raise_exception=True):
+        #     email = serializer.validated_data['email']
+        #     otp = serializer.validated_data['otp']
+           
+        #     if check_otp(email=email, otp=otp):
+        #         return Response({"message": "your Account verified"} ,status=status.HTTP_202_ACCEPTED)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
