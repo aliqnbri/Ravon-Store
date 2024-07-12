@@ -3,7 +3,7 @@ import string ,random ,time
 from django.conf import settings
 from celery import shared_task
 from typing import Any
-from Ecommerce.redis_cllient import redis_client
+from Ecommerce.redis_client import redis_client
 cache = redis_client()
 
 
