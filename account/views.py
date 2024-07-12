@@ -13,12 +13,19 @@ class RegisterUserView(GenericAPIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            user = serializer.save()
+            user = serializer.save(commit=False)
             email = user.email
+            try:
 
-            # send verification mail to the registered user
-            send_otp(email=email)
-
-            return Response({"message": f"register successful ! Verify code sent to {email}"}, status=status.HTTP_201_CREATED)
+                # send verification mail to the registered user
+                send_otp(email=email)
+                user.save()
+                return Response({"message": "register successful ! Verify code sent to Email"}, status=status.HTTP_201_CREATED)
+            
+            except Exception as error:
+                return Response({'Error': 'Error sending verification email code', 'Message': error},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 

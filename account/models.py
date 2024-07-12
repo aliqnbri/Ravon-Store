@@ -17,6 +17,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, BaseModel):
     phone_number = models.CharField(max_length=13,null=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
     role = models.CharField(max_length=8, choices=Role.choices, default=Role.CUSTOMER)
 
     USERNAME_FIELD = 'email'
