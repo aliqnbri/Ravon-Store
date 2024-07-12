@@ -40,7 +40,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', False)
         extra_fields.setdefault('is_active', True)
-        extra_fields.setdefault('role', 'Role.OPERATOR')
+        extra_fields.setdefault('role', 'Operator')
 
 
         if extra_fields.get('is_staff') is not True:
