@@ -3,7 +3,7 @@ from rest_framework import permissions , status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from account import serializers
-from account.utils.emails import send
+from account.utils.emails import send_otp , send_mail
 # Create your views here.
 
 
@@ -18,7 +18,7 @@ class RegisterUserView(GenericAPIView):
             email = user.email
 
             # send verification mail to the registered user
-            emails.send_otp(email=email)
+            send_otp(email=email)
 
             return Response({"message": f"register successful ! Verify code sent to {email}"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
