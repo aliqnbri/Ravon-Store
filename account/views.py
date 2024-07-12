@@ -1,9 +1,8 @@
-from django.shortcuts import render
 from rest_framework import permissions , status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from account import serializers
-from account.utils.emails import send_otp , send_mail
+from account.utils.emails import send_otp 
 # Create your views here.
 
 

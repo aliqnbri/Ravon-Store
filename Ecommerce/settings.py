@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #External Apps
     'rest_framework', 
+    'rest_framework_simplejwt',
 
     #Internal Apps
     'account.apps.AccountConfig',
