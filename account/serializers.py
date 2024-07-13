@@ -1,5 +1,15 @@
 from rest_framework import serializers
 from account.models import CustomUser, CustomerProfile
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth import authenticate
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['email'] = user.email
+        return token
+
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -45,4 +55,31 @@ class RegisterSerializer(serializers.ModelSerializer):
         instance.phone_number = validated_data.get('phone_number')
         instance.save()
         return instance
+
+
+class LoginSerilizer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        write_only=True, style={'input_type': 'password'}) 
+
+    class Meta:
+        model = CustomUser
+        fields = ('email','password')
+
+
+    def validate(self,attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        user = authenticate(
+            self.context['request'], email=email, password=password
+        )
+
+        if user:
+            if user.is_active:
+                self.context['user'] = user
+                return attrs
+            else:
+                raise serializers.ValidationError('User is not active or is locked out.')
+        else:
+            raise serializers.ValidationError('Invalid email or password.')
 
