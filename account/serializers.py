@@ -1,16 +1,10 @@
 from rest_framework import serializers
 from account.models import CustomUser, CustomerProfile
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
 
 
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        token['email'] = user.email
-        return token
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -57,9 +51,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         return instance
 
 
-from rest_framework.exceptions import AuthenticationFailed
+
 
 class LoginSerializer(serializers.Serializer):
+
     email = serializers.EmailField()
     password = serializers.CharField(
         write_only=True, style={'input_type': 'password'})
