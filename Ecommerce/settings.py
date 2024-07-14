@@ -20,7 +20,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #External Apps
     'rest_framework', 
-    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'celery',
   
@@ -140,18 +139,18 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.PageNumberPagination',
         'PAGE_SIZE': 5,
 
-    'DEFAULT_AUTHENTICATION_CLASSES': 
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # 'DEFAULT_AUTHENTICATION_CLASSES': 
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
 
     'DEFAULT_SCHEMA_CLASS': 
         'drf_spectacular.openapi.AutoSchema',
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=90),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+    'BLACKLIST_AFTER_ROTATION': False,
     'UPDATE_LAST_LOGIN': False,
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
@@ -160,7 +159,7 @@ SIMPLE_JWT = {
     'ISSUER': None,
     'JWK_URL': None,
     'LEEWAY': 0,
-    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_TYPES': ('Bearer', 'JWT',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
@@ -187,6 +186,8 @@ SIMPLE_JWT = {
     # This can be 'Lax', 'Strict', or None to disable the flag.
 }
 
+
+# AUTHENTICATION_BACKENDS = ['account.utils.authentications.CustomJWTAuthentication']
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Raven Store',
