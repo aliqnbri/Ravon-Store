@@ -1,3 +1,4 @@
+
 from rest_framework import permissions , status
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
@@ -33,12 +34,12 @@ class RegisterUserView(GenericAPIView):
 
 from account.models import CustomUser
 from rest_framework.exceptions import AuthenticationFailed
+import jwt
+import datetime
 
 class LoginView(APIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = serializers.LoginSerializer
-   
-   
 
     def post(self, request):
         email = request.data['email']
@@ -48,7 +49,20 @@ class LoginView(APIView):
         user = CustomUser.objects.filter(email=email).first()
         if user:
             if user.check_password(password):
-                return Response({'Message': 'User loged in successfuly'}, status=200)
+                
+                payload = {
+                    'id': user.id,
+                    'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+                    'iat': datetime.datetime.utcnow()
+                }
+                token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+                response = Response({'Message': 'User loged in successfuly',
+                                 'jwt':token}, status=200)
+                response.set_cookie(key='jwt', value=token, httponly=True)
+
+
+                return response
             raise AuthenticationFailed('incorect password')
         else:    
             raise AuthenticationFailed('user not find')
@@ -67,3 +81,11 @@ class LoginView(APIView):
             'message': 'Please login to continue'
         })
 
+
+class CheckCookie(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request):
+        token = request.COOKIES.get('jwt')
+
+        return Response ({'message': token})
