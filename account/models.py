@@ -31,6 +31,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, BaseModel):
     
 
 
+    
+
 class Address(BaseModel):
     """
     Address Model for user's address 

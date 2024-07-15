@@ -51,7 +51,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         return instance
 
 
-
+class VerifyOtpSerialiser(serializers.Serializer):
+    otp = serializers.CharField(max_length=6, required=True)
+    email = serializers.EmailField()
+   
 
 class LoginSerializer(serializers.Serializer):
 
