@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     #Internal Apps
     'account.apps.AccountConfig',
     'core.apps.CoreConfig',
+    'product.apps.ProductConfig',
 
 
 ]

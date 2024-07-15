@@ -30,19 +30,28 @@ class RegisterUserView(APIView):
 
                 # send verification mail to the registered user
                 send_otp(email=email)
+                payload = {
+                    'id': user.id,
+                    'email':user.email,
+                    'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+                    'iat': datetime.datetime.utcnow()
+                }
+                token = jwt.encode(
+                    payload, settings.SECRET_KEY, algorithm='HS256')
+                response = Response()
+                response.set_cookie(key='jwt', value=token, httponly=True)
                 user.save()
-                
-
                
+                
 
             except Exception as error:
                 return Response({'Error': 'Error sending verification email code', 'Message': str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            return self.get_success_url()
+            return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
     def get_success_url(self,*args,):
-        return reverse('verify_otp')
+        return redirect(reverse('account:verify_otp'))
 
 class VerifyOtp(GenericAPIView):
     serializer_class = serializers.VerifyOtpSerialiser
@@ -50,12 +59,15 @@ class VerifyOtp(GenericAPIView):
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            email = serializer.validated_data['email']
-            otp = serializer.validated_data['otp']
+        jwt_cookie  = request.COOKIES.get('jwt')
+        print(jwt_cookie)
+        payload = jwt.decode(jwt_cookie, settings.SECRET_KEY, algorithms=['HS256'])
+        email = payload['email']
+  
+        otp = serializer.validated_data['otp']
 
-            if check_otp(email=email, otp=otp):
-                return Response({"message": "your Account verified"}, status=status.HTTP_202_ACCEPTED)
+        if check_otp(email=email, otp=otp):
+            return Response({"message": "your Account verified"}, status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
