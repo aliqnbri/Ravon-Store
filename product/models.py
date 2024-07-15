@@ -90,3 +90,8 @@ class Product(BaseModel):
     def get_absolute_url(self):
         return f'/{self.category.slug}/{self.slug}/'    
 
+
+
+class WishList(models.Model):
+    user = models.OneToOneField(CustomerProfile, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product)
