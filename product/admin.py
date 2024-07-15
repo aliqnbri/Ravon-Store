@@ -14,7 +14,7 @@ class CategoryAdmin(admin.ModelAdmin):
         'products_count',  # Added field to display product count
     ]
     list_filter = ['name']
-    readonly_fields = ['created', 'updated']  # Added to hide fields from edit
+    readonly_fields = ['created_at', 'updated_at']  # Added to hide fields from edit
     ordering = ['name']
     search_fields = ['name',]  # Added field to search by description
     fields = ['name', 'slug',]  # Reordered fields
@@ -36,14 +36,14 @@ class ProductAdmin(admin.ModelAdmin):
         'category',
         'price',
         'available',
-        'created',
-        'updated',
+        'created_at',
+        'updated_at',
     ]
     list_filter = ['available', 'brand', 'category',]
     list_editable = ['brand', 'category', 'price', 'available']
     list_per_page = 10
     prepopulated_fields = {'slug': ('name',)}
-    readonly_fields = ['created', 'updated',]
+    readonly_fields = ['created_at', 'updated_at',]
     # Added custom actions
     actions = ['mark_as_unavailable', 'restore_availability', export_to_csv]
 

@@ -2,7 +2,8 @@ from django.shortcuts import render
 from rest_framework import generics , mixins ,permissions , authentication
 from product.models import Product , Category ,Review
 from product.serializers import ProductSerializer , CategorySerializer
-
+from rest_framework.response import Response
+from django.utils.text import slugify
 # Create your views here.
 
 class ProductMixinView(
@@ -11,16 +12,17 @@ class ProductMixinView(
     mixins.RetrieveModelMixin,
     generics.GenericAPIView
 ):
-    queryset = Product.objects.all()
+    permission_classes = [permissions.AllowAny]
     serializer_class = ProductSerializer
     lookup_field = 'slug'
 
     def get_queryset(self):
-        return super().get_queryset()
-    
+        """queryset to include only available Product"""
+        queryset = Product.objects.filter(available=True).order_by('-created_at')
+        return queryset
 
     def get(self,request, *args,**kwargs):
-        slug = self.kwargs.get('slug')
+        slug = self.lookup_field
         if slug is not None:
             return self.retrieve(request, *args, **kwargs)
         return self.list(request, *args, **kwargs)
@@ -31,6 +33,24 @@ class ProductMixinView(
     def perform_create(self, serializer):
         return super().perform_create(serializer)
     
+    def destroy(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+    
+    def update(self, request):
+        slug = self.lookup_field
+        instance = self.get_object(Product,slug=slug)
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        if instance.name != serializer.validated_data.get('name'):
+            instance.slug = slugify(instance.name)
+            instance.save()
+        return instance
+    
 class CategoryMixinView(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
@@ -39,13 +59,13 @@ class CategoryMixinView(
     mixins.UpdateModelMixin,
     generics.GenericAPIView
 ):
-    permission_classes = [permissions.AllowAny]
+ 
     serializer_class = CategorySerializer
     lookup_field = 'slug'
 
     def get_queryset(self):
-        """queryset to include only available products"""
-        queryset = Category.objects.filter(available=True).order_by('-created')
+        """queryset to include only available Category"""
+        queryset = Category.objects.filter(available=True).order_by('-created_at')
         return queryset
     
 
