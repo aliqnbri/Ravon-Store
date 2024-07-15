@@ -33,3 +33,17 @@ class Category(BaseModel):
         """
         self.slug = slugify(self.name)
         super().save(**kwargs)
+
+
+class Review(BaseModel):
+    """
+    A Django model representing a review for a specific book.
+    """
+    user = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE)
+    rating = models.IntegerField(
+        choices=[(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')])
+    comment = models.TextField(max_length=1000, blank=True)
+
+    def __str__(self):
+        return f"{self.CustomerProfile.username} commets:{self.comment}"
+
