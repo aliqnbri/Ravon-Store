@@ -1,0 +1,6 @@
+for dumping data to fixtures use this code 
+python manage.py dumpdata <app_name> --indent=2 --output=<app_name>/fixtures/<app_name>.json
+
+
+for loading data from fixture use this code 
+python manage.py loaddata /<app_name>.json

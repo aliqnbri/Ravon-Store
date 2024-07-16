@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from core.models import BaseModel
 from django.utils.text import slugify
 from account.models import CustomerProfile
@@ -7,12 +8,12 @@ from account.models import CustomerProfile
 
 class Category(BaseModel):
     """
-    A Django model representing a book category in an online bookstore.
+    model representing a book category in an online bookstore.
     """
     name = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(max_length=200, unique=True)
-    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
     image = models.ImageField(upload_to='media/category/', blank=True, null=True)
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
     
     
     class Meta:
@@ -23,8 +24,8 @@ class Category(BaseModel):
     def __str__(self):
         return self.name
     
-    # def get_absolute_url(self):
-    #     return reverse("product:category_list", args=[self.slug])
+    def get_absolute_url(self):
+        return reverse("product:category_filter", args=[self.slug])
     
 
 
@@ -70,7 +71,7 @@ class Product(BaseModel):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     available = models.BooleanField(default=True)
     review = models.ForeignKey(Review, null=True,blank=True, on_delete=models.CASCADE, related_name='reviews')
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')    
+    category = models.ManyToManyField(Category, related_name='products')    
     
     class Meta:
         ordering = ('name',)

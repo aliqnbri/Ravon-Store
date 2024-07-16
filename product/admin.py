@@ -13,10 +13,10 @@ class CategoryAdmin(admin.ModelAdmin):
         'parent',
         'products_count',  # Added field to display product count
     ]
-    list_filter = ['name']
+    list_filter = ['name','parent']
     readonly_fields = ['created_at', 'updated_at']  # Added to hide fields from edit
     ordering = ['name']
-    search_fields = ['name',]  # Added field to search by description
+    search_fields = ['name','parent']  # Added field to search by description
     fields = ['name', 'slug',]  # Reordered fields
     prepopulated_fields = {'slug': ('name',)}
     actions = [export_to_csv]
@@ -33,14 +33,14 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = [
         'name',
         'brand',
-        'category',
+    
         'price',
         'available',
         'created_at',
         'updated_at',
     ]
-    list_filter = ['available', 'brand', 'category',]
-    list_editable = ['brand', 'category', 'price', 'available']
+    list_filter = ['available', 'brand', ]
+    list_editable = ['brand', 'price', 'available']
     list_per_page = 10
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields = ['created_at', 'updated_at',]
@@ -60,6 +60,9 @@ class ProductAdmin(admin.ModelAdmin):
             obj.save()
         self.message_user(
             request, f'{queryset.count()} products restored to availability')
+
+    def product_by_category(self, obj):
+        return ', '.join([category.name for category in obj.category.all()])    
 
     mark_as_unavailable.short_description = 'Mark as unavailable'
     restore_availability.short_description = 'Restore availability'

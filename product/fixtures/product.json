@@ -1,0 +1,103 @@
+[
+{
+  "model": "product.category",
+  "pk": 1,
+  "fields": {
+    "created_at": "2024-07-16T12:57:48.142Z",
+    "updated_at": "2024-07-16T12:57:48.143Z",
+    "name": "Laptop",
+    "slug": "laptop",
+    "image": "",
+    "parent": null
+  }
+},
+{
+  "model": "product.category",
+  "pk": 2,
+  "fields": {
+    "created_at": "2024-07-16T12:58:24.518Z",
+    "updated_at": "2024-07-16T12:58:24.518Z",
+    "name": "Headphones",
+    "slug": "headphones",
+    "image": "",
+    "parent": null
+  }
+},
+{
+  "model": "product.category",
+  "pk": 3,
+  "fields": {
+    "created_at": "2024-07-16T12:59:21.210Z",
+    "updated_at": "2024-07-16T12:59:21.210Z",
+    "name": "Personal Pc",
+    "slug": "personal-pc",
+    "image": "",
+    "parent": null
+  }
+},
+{
+  "model": "product.category",
+  "pk": 4,
+  "fields": {
+    "created_at": "2024-07-16T12:59:33.463Z",
+    "updated_at": "2024-07-16T12:59:33.463Z",
+    "name": "Gaming Console",
+    "slug": "gaming-console",
+    "image": "",
+    "parent": null
+  }
+},
+{
+  "model": "product.category",
+  "pk": 5,
+  "fields": {
+    "created_at": "2024-07-16T12:59:41.055Z",
+    "updated_at": "2024-07-16T12:59:41.055Z",
+    "name": "smart Phones",
+    "slug": "smart-phones",
+    "image": "",
+    "parent": null
+  }
+},
+{
+  "model": "product.category",
+  "pk": 6,
+  "fields": {
+    "created_at": "2024-07-16T13:01:29.838Z",
+    "updated_at": "2024-07-16T13:01:29.838Z",
+    "name": "Apple",
+    "slug": "apple",
+    "image": "",
+    "parent": null
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 1,
+  "fields": {
+    "created_at": "2024-07-16T13:01:50.589Z",
+    "updated_at": "2024-07-16T13:01:50.589Z",
+    "name": "Apple"
+  }
+},
+{
+  "model": "product.product",
+  "pk": 1,
+  "fields": {
+    "created_at": "2024-07-16T13:02:38.928Z",
+    "updated_at": "2024-07-16T13:02:38.928Z",
+    "name": "I phone 15 pro max",
+    "slug": "i-phone-15-pro-max",
+    "brand": 1,
+    "image": "",
+    "description": "",
+    "price": "134.32",
+    "available": true,
+    "review": null,
+    "category": [
+      6,
+      5
+    ]
+  }
+}
+]

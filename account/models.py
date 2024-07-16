@@ -47,7 +47,7 @@ class Address(BaseModel):
 
 
 
-class CustomerProfile(BaseModel):
+class CustomerProfile(models.Model):
     class Gender(models.TextChoices):
         MALE = 'male', _('Male')
         FEMALE = 'F', _('Female')

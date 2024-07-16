@@ -1,0 +1,250 @@
+[
+{
+  "model": "account.customuser",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$CTo5tfZLrL1eX1oNplrhM4$3V/ALDCx9mhFqzT91KXsC/WWnXxeUdzPqOhaya94vD4=",
+    "last_login": "2024-07-16T12:40:36.251Z",
+    "created_at": "2024-07-16T12:40:19.108Z",
+    "updated_at": "2024-07-16T12:52:02.525Z",
+    "username": null,
+    "email": "raven@gmail.com",
+    "phone_number": null,
+    "is_staff": true,
+    "is_superuser": true,
+    "is_verified": false,
+    "role": "admin",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "account.customuser",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$tpvqhcKZog31dLCleHdCby$JNGOLJ4RdYYGqNFkZNqq1Pu2p1RLCJz79DEWeDQb80w=",
+    "last_login": null,
+    "created_at": "2024-07-16T12:48:03.292Z",
+    "updated_at": "2024-07-16T12:49:55.242Z",
+    "username": null,
+    "email": "staff0@mail.com",
+    "phone_number": null,
+    "is_staff": false,
+    "is_superuser": false,
+    "is_verified": false,
+    "role": "operator",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "account.customuser",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$khlCDHYRsrWK14OKZ6YxYx$upQoerr4zUTshFJt+G27LEuO0UJNroHzqvMmL3BAdnU=",
+    "last_login": null,
+    "created_at": "2024-07-16T12:50:27.192Z",
+    "updated_at": "2024-07-16T12:50:31.948Z",
+    "username": null,
+    "email": "staff1@mail.com",
+    "phone_number": null,
+    "is_staff": false,
+    "is_superuser": false,
+    "is_verified": false,
+    "role": "operator",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "account.customuser",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$H3pBqaSf0ksWFVqGoSRxXB$QB9TR8yP2v6ZqcYcXB1S0khDqQ8g5HEyesIBnx4kUno=",
+    "last_login": null,
+    "created_at": "2024-07-16T12:50:48.240Z",
+    "updated_at": "2024-07-16T12:50:55.384Z",
+    "username": null,
+    "email": "staff2@mail.com",
+    "phone_number": null,
+    "is_staff": false,
+    "is_superuser": false,
+    "is_verified": false,
+    "role": "operator",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "account.customuser",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$Dk745HSAFDK3LtAdGpvxhv$bzNK0EYzXXOXY+pjYKIz/vyane8XsK0FWMqT86ax+FY=",
+    "last_login": null,
+    "created_at": "2024-07-16T12:51:26.515Z",
+    "updated_at": "2024-07-16T12:51:28.502Z",
+    "username": null,
+    "email": "customer0@gmail.com",
+    "phone_number": null,
+    "is_staff": false,
+    "is_superuser": false,
+    "is_verified": false,
+    "role": "customer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "account.customuser",
+  "pk": 6,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$Fnu9y4sL4949joHQph9lEc$pvXltpizcoicuvtNoMUYB+j45gCscxL/F2HQ/buFOXs=",
+    "last_login": null,
+    "created_at": "2024-07-16T12:51:48.349Z",
+    "updated_at": "2024-07-16T12:53:02.104Z",
+    "username": null,
+    "email": "customer1@gmail.com",
+    "phone_number": null,
+    "is_staff": false,
+    "is_superuser": false,
+    "is_verified": false,
+    "role": "customer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "account.customuser",
+  "pk": 7,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$R1XDus739dFYeYlcEAJK55$uKi8vdOyx4ZNOVruI+O1uHJihhv62I8ulsGlMr38V6Q=",
+    "last_login": null,
+    "created_at": "2024-07-16T12:52:46.280Z",
+    "updated_at": "2024-07-16T12:52:50.975Z",
+    "username": null,
+    "email": "customer2@gmail.com",
+    "phone_number": null,
+    "is_staff": false,
+    "is_superuser": false,
+    "is_verified": false,
+    "role": "customer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "account.customuser",
+  "pk": 8,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$9P5zcIaIWuy5vuGKaRwfih$qpconZ2ZjPrZfxFpDY6kbHkLF+OWQEXIgOgLFnBufrY=",
+    "last_login": null,
+    "created_at": "2024-07-16T12:53:16.486Z",
+    "updated_at": "2024-07-16T12:53:16.486Z",
+    "username": null,
+    "email": "customer3@gmail.com",
+    "phone_number": null,
+    "is_staff": false,
+    "is_superuser": false,
+    "is_verified": false,
+    "role": "customer",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "account.customerprofile",
+  "pk": 1,
+  "fields": {
+    "user": 1,
+    "first_name": "",
+    "last_name": "",
+    "gender": null,
+    "avatar": "",
+    "address": null
+  }
+},
+{
+  "model": "account.customerprofile",
+  "pk": 2,
+  "fields": {
+    "user": 2,
+    "first_name": "",
+    "last_name": "",
+    "gender": null,
+    "avatar": "",
+    "address": null
+  }
+},
+{
+  "model": "account.customerprofile",
+  "pk": 3,
+  "fields": {
+    "user": 3,
+    "first_name": "",
+    "last_name": "",
+    "gender": null,
+    "avatar": "",
+    "address": null
+  }
+},
+{
+  "model": "account.customerprofile",
+  "pk": 4,
+  "fields": {
+    "user": 4,
+    "first_name": "",
+    "last_name": "",
+    "gender": null,
+    "avatar": "",
+    "address": null
+  }
+},
+{
+  "model": "account.customerprofile",
+  "pk": 5,
+  "fields": {
+    "user": 5,
+    "first_name": "",
+    "last_name": "",
+    "gender": null,
+    "avatar": "",
+    "address": null
+  }
+},
+{
+  "model": "account.customerprofile",
+  "pk": 6,
+  "fields": {
+    "user": 6,
+    "first_name": "",
+    "last_name": "",
+    "gender": null,
+    "avatar": "",
+    "address": null
+  }
+},
+{
+  "model": "account.customerprofile",
+  "pk": 7,
+  "fields": {
+    "user": 7,
+    "first_name": "",
+    "last_name": "",
+    "gender": null,
+    "avatar": "",
+    "address": null
+  }
+},
+{
+  "model": "account.customerprofile",
+  "pk": 8,
+  "fields": {
+    "user": 8,
+    "first_name": "",
+    "last_name": "",
+    "gender": null,
+    "avatar": "",
+    "address": null
+  }
+}
+]

@@ -1,9 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render , get_object_or_404
 from rest_framework import generics , mixins ,permissions , authentication
 from product.models import Product , Category ,Review
 from product.serializers import ProductSerializer , CategorySerializer
 from rest_framework.response import Response
 from django.utils.text import slugify
+
+
 # Create your views here.
 
 class ProductMixinView(
@@ -16,10 +18,21 @@ class ProductMixinView(
     serializer_class = ProductSerializer
     lookup_field = 'slug'
 
+
     def get_queryset(self):
         """queryset to include only available Product"""
+    
+        # category_slug = self.kwargs.get('category_slug')
+        # return Product.objects.filter(category__slug=category_slug)
         queryset = Product.objects.filter(available=True).order_by('-created_at')
         return queryset
+    
+    def get_object(self):
+        queryset = self.get_queryset
+        lookup_url_kwarg = self.lookup_field
+        filter_kwargs = {lookup_url_kwarg: self.kwargs[lookup_url_kwarg]}
+        obj = get_object_or_404(queryset, **filter_kwargs)
+        return obj
 
     def get(self,request, *args,**kwargs):
         slug = self.lookup_field

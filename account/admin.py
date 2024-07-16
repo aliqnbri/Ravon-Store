@@ -21,7 +21,7 @@ class CustomUserAdmin(UserAdmin):
     fieldsets: Tuple[Tuple[str, dict], Tuple[str, dict], Tuple[str, dict]] = (
         (None, {'fields': ('email', 'password')}),
         ('Personal info', {'fields': ()}),
-        ('Permissions', {'fields': ('is_active', 'role')}),
+        ('Permissions', {'fields': ('role',)}),
     )
 
     add_fieldsets = (
