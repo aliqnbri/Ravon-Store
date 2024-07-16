@@ -1,95 +1,91 @@
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
 from decimal import Decimal
 from django.conf import settings
 from product.models import Product
 from coupon.models import Coupon
 
-class Cart:
-    def __init__(self, request):
-        """
-        Initialize the cart.
-        """
-        self.session = request.session
-        cart = self.session.get(settings.CART_SESSION_ID)
+class CartView(APIView):
+    def __init__(self):
+        self.cart_session_id = settings.CART_SESSION_ID
+
+    def get_cart(self, request):
+        cart = request.session.get(self.cart_session_id)
         if not cart:
-            # save an empty cart in the session
-            cart = self.session[settings.CART_SESSION_ID] = {}
-        self.cart = cart
-        # store current applied coupon
-        self.coupon_id = self.session.get('coupon_id')
+            cart = {}
+        return cart
 
-    def __iter__(self):
-        """
-        Iterate over the items in the cart and get the products
-        from the database.
-        """
-        product_ids = self.cart.keys()
-        # get the product objects and add them to the cart
-        products = Product.objects.filter(id__in=product_ids)
-        cart = self.cart.copy()
-        for product in products:
-            cart[str(product.id)]['product'] = product
-        for item in cart.values():
-            item['price'] = Decimal(item['price'])
-            item['total_price'] = item['price'] * item['quantity']
-            yield item
-
-    def __len__(self):
-        """
-        Count all items in the cart.
-        """
-        return sum(item['quantity'] for item in self.cart.values())
-
-    def add(self, product, quantity=1, override_quantity=False):
-        """
-        Add a product to the cart or update its quantity.
-        """
-        product_id = str(product.id)
-        if product_id not in self.cart:
-            self.cart[product_id] = {'quantity': 0,
-                                     'price': str(product.price)}
-        if override_quantity:
-            self.cart[product_id]['quantity'] = quantity
-        else:
-            self.cart[product_id]['quantity'] += quantity
-        self.save()
-
-    def save(self):
-        # mark the session as "modified" to make sure it gets saved
-        self.session.modified = True
-
-    def remove(self, product):
-        """
-        Remove a product from the cart.
-        """
-        product_id = str(product.id)
-        if product_id in self.cart:
-            del self.cart[product_id]
-            self.save()
-
-    def clear(self):
-        # remove cart from session
-        del self.session[settings.CART_SESSION_ID]
-        self.save()
-
-    def get_total_price(self):
-        return sum(Decimal(item['price']) * item['quantity'] for item in self.cart.values())
-
-    @property
-    def coupon(self):
-        if self.coupon_id:
+    def get_coupon(self, request):
+        coupon_id = request.session.get('coupon_id')
+        if coupon_id:
             try:
-                return Coupon.objects.get(id=self.coupon_id)
+                return Coupon.objects.get(id=coupon_id)
             except Coupon.DoesNotExist:
                 pass
         return None
 
-    def get_discount(self):
-        if self.coupon:
-            return (self.coupon.discount / Decimal(100)) \
-                * self.get_total_price()
-        return Decimal(0)
+    def add_to_cart(self, request, product_id, quantity=1, override_quantity=False):
+        cart = self.get_cart(request)
+        product = Product.objects.get(id=product_id)
+        product_id = str(product.id)
+        if product_id not in cart:
+            cart[product_id] = {'quantity': 0, 'price': str(product.price)}
+        if override_quantity:
+            cart[product_id]['quantity'] = quantity
+        else:
+            cart[product_id]['quantity'] += quantity
+        request.session[self.cart_session_id] = cart
+        request.session.modified = True
+        return Response(status=status.HTTP_201_CREATED)
 
-    def get_total_price_after_discount(self):
-        return self.get_total_price() - self.get_discount()
+    def remove_from_cart(self, request, product_id):
+        cart = self.get_cart(request)
+        product_id = str(product_id)
+        if product_id in cart:
+            del cart[product_id]
+            request.session[self.cart_session_id] = cart
+            request.session.modified = True
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-        self.save()           
+    def clear_cart(self, request):
+        del request.session[self.cart_session_id]
+        request.session.modified = True
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get_cart_total(self, request):
+        cart = self.get_cart(request)
+        total_price = sum(Decimal(item['price']) * item['quantity'] for item in cart.values())
+        return Response({'total_price': total_price})
+
+    def get_cart_total_after_discount(self, request):
+        cart = self.get_cart(request)
+        total_price = sum(Decimal(item['price']) * item['quantity'] for item in cart.values())
+        coupon = self.get_coupon(request)
+        if coupon:
+            discount = (coupon.discount / Decimal(100)) * total_price
+            total_price_after_discount = total_price - discount
+        else:
+            total_price_after_discount = total_price
+        return Response({'total_price_after_discount': total_price_after_discount})
+
+    def get(self, request):
+        cart = self.get_cart(request)
+        products = Product.objects.filter(id__in=cart.keys())
+        cart_items = []
+        for product in products:
+            cart_item = cart[str(product.id)]
+            cart_item['product'] = product
+            cart_item['price'] = Decimal(cart_item['price'])
+            cart_item['total_price'] = cart_item['price'] * cart_item['quantity']
+            cart_items.append(cart_item)
+        return Response(cart_items)
+
+    def post(self, request):
+        product_id = request.data.get('product_id')
+        quantity = request.data.get('quantity', 1)
+        override_quantity = request.data.get('override_quantity', False)
+        return self.add_to_cart(request, product_id, quantity, override_quantity)
+
+    def delete(self, request, product_id):
+        return self.remove_from_cart(request, product_id)
