@@ -145,3 +145,6 @@ GitHub.sublime-settings
 #static & templates
 ./static/
 Ecommerce/static/
+Ecommerce/templates/
+./Frontend/
+Raven-store/Frontend/
