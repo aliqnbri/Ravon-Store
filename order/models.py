@@ -1,6 +1,7 @@
 from django.db import models
 from core.models import BaseModel
 from account.models import CustomerProfile
+from product.models import Product
 from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
@@ -46,5 +47,27 @@ class Order(BaseModel):
         return float(0)
   
 
+
+class OrderItem(BaseModel):
+    order = models.ForeignKey(Order,
+                              related_name='order_items',
+                              on_delete=models.CASCADE)
+    product = models.ForeignKey(Product,
+                                related_name='order_items',
+                                on_delete=models.CASCADE)
+    price = models.DecimalField(max_digits=10,
+                                decimal_places=2)
+    quantity = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        verbose_name = _('Order Item')
+        verbose_name_plural = _('Order Items')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Order Item #{self.id} - Product: {self.product.name} X Quantity: {self.quantity}"
+
+    def total_price(self):
+        return self.price * self.quantity
 
 
