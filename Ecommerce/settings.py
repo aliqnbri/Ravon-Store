@@ -18,15 +18,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #External Apps
+    # External Apps
     'debug_toolbar',
-    'rest_framework', 
+    'rest_framework',
     'corsheaders',
     'celery',
-  
-   
 
-    #Internal Apps
+
+
+    # Internal Apps
     'account.apps.AccountConfig',
     'core.apps.CoreConfig',
     'product.apps.ProductConfig',
@@ -118,7 +118,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [ BASE_DIR / 'static' ]
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -138,20 +138,19 @@ EMAIL_HOST_USER = 'aliqnbri1998@gmail.com'
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 
-
 # rest framework setting
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES':
         'rest_framework.permissions.AllowAny',
 
-    'DEFAULT_PAGINATION_CLASS': 
+    'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.PageNumberPagination',
         'PAGE_SIZE': 5,
 
-    # 'DEFAULT_AUTHENTICATION_CLASSES': 
+    # 'DEFAULT_AUTHENTICATION_CLASSES':
     #     'rest_framework_simplejwt.authentication.JWTAuthentication',
 
-    'DEFAULT_SCHEMA_CLASS': 
+    'DEFAULT_SCHEMA_CLASS':
         'drf_spectacular.openapi.AutoSchema',
 }
 
@@ -207,27 +206,33 @@ SPECTACULAR_SETTINGS = {
 }
 
 
-
-
-
+# only for Development
+SESSION_COOKIE_HTTPONLY = False
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = False
+CSRF_TRUSTED_ORIGINS = [
+    'http://*',
+    'https://*',
+    'http://127.0.0.1:5500',
+    'http://127.0.0.1:8000',
+    "http://127.0.0.1",
+    "http://localhost",
+]
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-
-CSRF_TRUSTED_ORIGINS = [
-  'http://*',
-  'https://*',
-  'http://127.0.0.1:5500',
-  'http://127.0.0.1:8000',
-
-]
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = True
+CORS_ORIGIN_ALLOW_ALL = True
+ALLOWED_HOSTS = ["*"]
+CORS_ALLOW_HEADERS = ['*']
+CORS_ORIGIN_ALLOW_ALL = True
+CSRF_USE_SESSIONS = False
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'http://127.0.0.1:*', ]
-
 CORS_ORIGIN_WHITELIST = [
     'http://127.0.0.1:*',
 ]
 CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:*',
-
     # Add other trusted origins as needed
 ]
 

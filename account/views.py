@@ -1,9 +1,8 @@
 
 from account.models import CustomUser
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework import permissions, status, mixins, generics
+from rest_framework import permissions, status, mixins, generics ,views
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView
 from account import serializers
 from account.utils.emails import send_otp, check_otp
 from account.utils import authentications
@@ -14,25 +13,25 @@ from django.urls import reverse
 # Create your views here.
 from account.utils import authentications
 from django.middleware.csrf import get_token
+from rest_framework.generics import GenericAPIView
 
 
-class RegisterUserView(mixins.CreateModelMixin):
+
+
+class RegisterUserView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = serializers.RegisterSerializer
-    queryset = CustomUser.objects.all()
+    authentication_classes = (authentications.CustomJWTAuthentication, )
 
-    
-  
- 
     def post(self, request):
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        refresh, access = authentications.get_tokens_for_user(user)
+        refresh, access = authentications.get_tokens_for_user(user).values()
         csrf_token  =get_token(request)
-        
+        send_otp(serializer.data['email'])
         response = Response({
-            "user": serializers.UserSerializer(user, context=self.get_serializer_context()).data,
+            "user": serializers.RegisterSerializer(user, context=self.get_serializer_context()).data,
             "message": "User Created Successfully.  Now Verify code we sent.",
             "refresh": refresh,
             "access": access
@@ -42,12 +41,26 @@ class RegisterUserView(mixins.CreateModelMixin):
         response.set_cookie(key='csrftoken',
                                     value=csrf_token)
         return response
+       
 
-    def perform_create(self, serializer):
-        serializer.save()
-        send_otp(serializer.data['email'])
-        return serializer.save()
 
+
+
+
+#         refresh, access = authentications.get_tokens_for_user(user)
+#         csrf_token  =get_token(request)
+#         # print(csrf_token)
+#         response = Response({
+#             "user": serializers.UserSerializer(user, context=self.get_serializer_context()).data,
+#             "message": "User Created Successfully.  Now Verify code we sent.",
+#             "refresh": refresh,
+#             "access": access
+#         })
+#         response.set_cookie(key='access_token',
+#                                     value=access,)
+#         response.set_cookie(key='csrftoken',
+#                                     value=csrf_token)
+#         return response
     # def post(self, request):
     #     serializer = self.serializer_class(data=request.data)
     #     if serializer.is_valid(raise_exception=True):

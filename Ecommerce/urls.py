@@ -10,4 +10,5 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('account/', include('account.urls', namespace='account')),
     path('product/', include('product.urls', namespace='product')),
-] + debug_toolbar_urls() #+static(settings.MEDIA_URL, document_root=settingsMEDIA_ROOT)
+    path('__debug__/', include('debug_toolbar.urls')),
+] #+ debug_toolbar_urls() #+static(settings.MEDIA_URL, document_root=settingsMEDIA_ROOT)

@@ -26,7 +26,7 @@ class ProductSerializer(serializers.ModelSerializer):
         
     def get_url(self, obj):
         request = self.context.get('request')
-        return reverse("product-detail", kwargs={"slug": obj.slug}, request=request)
+        return reverse("product:product_detail", kwargs={"slug": obj.slug}, request=request)
 
         
 class ReviewSerializer(serializers.ModelSerializer):
