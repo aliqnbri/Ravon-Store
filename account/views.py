@@ -3,14 +3,13 @@ from account.models import CustomUser
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import permissions, status, mixins, generics, views
 from rest_framework.response import Response
-from account import serializers
-from account.utils.emails import send_otp, check_otp
-from account.utils import authentications
+from account import serializers ,utils ,authentications
+
 from rest_framework.views import APIView
 from django.conf import settings
 
 # Create your views here.
-from account.utils import authentications
+
 from django.middleware.csrf import get_token
 from rest_framework.generics import GenericAPIView
 
@@ -33,7 +32,7 @@ class RegisterUserView(generics.CreateAPIView):
 
         csrf_token = get_token(request)
         try:
-            send_otp(serializer.data['email'])
+            utils.send_otp(serializer.data['email'])
         except Exception as error:
             return Response({'Error': 'Error sending verification email code', 'Message': str(error)},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -207,7 +207,6 @@ SPECTACULAR_SETTINGS = {
 
 
 # only for Development
-SESSION_COOKIE_HTTPONLY = False
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = False
 CSRF_TRUSTED_ORIGINS = [
@@ -218,15 +217,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1",
     "http://localhost",
 ]
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = True
-CORS_ORIGIN_ALLOW_ALL = True
-ALLOWED_HOSTS = ["*"]
-CORS_ALLOW_HEADERS = ['*']
-CORS_ORIGIN_ALLOW_ALL = True
-CSRF_USE_SESSIONS = False
+
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'http://127.0.0.1:*', ]
 CORS_ORIGIN_WHITELIST = [
     'http://127.0.0.1:*',
@@ -236,7 +227,14 @@ CORS_ALLOWED_ORIGINS = [
     # Add other trusted origins as needed
 ]
 
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'login'
 
+AUTHENTICATION_BACKENDS = [
+    'accounts.utils.backendauthenticate.CustomBackend',
+    # 'django.contrib.auth.backends.ModelBackend',  # Include the default ModelBackend
+]
 
 INTERNAL_IPS = [
     # ...
