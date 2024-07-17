@@ -3,24 +3,32 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 from core.models import BaseModel
 from account.utils.managers import CustomUserManager
+from django.contrib import admin
 # Create your models here.
 
 class CustomUser(AbstractBaseUser, PermissionsMixin, BaseModel):
     class Role(models.TextChoices):
         ADMIN = 'admin', _('Admin')
-        OPERATOR = 'operator', _('Operator')
+        STAFF= "staff",_("Staff")
         CUSTOMER = 'customer', _('Customer')
-        GUEST = 'guest', _('Guest')
 
-    username = models.CharField(max_length=16,null=True)
+    class StaffRoles(models.TextChoices):
+        PRODUCT_MANAGER = "PM" , _("ProductManager")    
+        SUPERVISOR = "SV" , _("Supervisor")
+        OPERATOR = "OP", _("Operator")    
+
+
     email = models.EmailField(max_length=255, unique=True)
     phone_number = models.CharField(max_length=13,null=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
     role = models.CharField(max_length=8, choices=Role.choices, default=Role.CUSTOMER)
+    staff_role = models.CharField(choices = StaffRoles, max_length = 2, null=True, blank=True, default=None)
+
 
     USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ('email','phone_number')
 
 
     objects = CustomUserManager()
@@ -61,9 +69,9 @@ class CustomerProfile(models.Model):
 
 
 
-    @property
-    def get_full_name(self):
-        return f'{self.first_name} {self.last_name}'
+    @admin.display
+    def full_name(self):
+        return self.first_name + " " + self.last_name
 
     @property
     def get_username(self):
