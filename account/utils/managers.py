@@ -21,10 +21,10 @@ class CustomUserManager(BaseUserManager):
         if not password:
             raise ValueError (_("The Password must be set"))    
 
-        if phone_number:
-            if not re.match(r'^(\+98|0)?9\d{9}$', phone_number):
-                raise ValidationError(_("Invalid phone number format for Iran. It should start with '+98' followed by 10 digits.")
-                    )    
+        # if phone_number:
+        #     if not re.match(r'^(\+98|0)?9\d{9}$', phone_number):
+        #         raise ValidationError(_("Invalid phone number format for Iran. It should start with '+98' followed by 10 digits.")
+        #             )    
 
         email = self.normalize_email(email)
         user = self.model(email=email,phone_number=phone_number, **extra_fields)
