@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         # todo you can use password validator min_length=8, max_length=128,
@@ -16,7 +17,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('email', 'password', 'password2')
+        fields = ('email','phone_number' ,'password', 'password2')
 
     def validate(self, attrs):
 
@@ -33,6 +34,18 @@ class RegisterSerializer(serializers.ModelSerializer):
         if CustomUser.objects.filter(email=email).exists():
             raise serializers.ValidationError(
                 {'email': 'Email already exists.'})
+        
+        if CustomUser.objects.filter(phone_number=phone_number).exists():
+            raise serializers.ValidationError(
+                {'phone_number': 'Phone number already exists.'})
+
+
+        #//tod do phone number and password validater
+         
+        # if phone_number:
+        #     if not re.match(r'^(\+98|0)?9\d{9}$', phone_number):
+        #         raise ValidationError(_("Invalid phone number format for Iran. It should start with '+98' followed by 10 digits.")
+        #             )    
 
         attrs.pop('password2')  # Remove password2 from attributes since it is
         return attrs

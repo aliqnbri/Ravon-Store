@@ -27,16 +27,16 @@ class ProductMixinView(
         queryset = Product.objects.filter(available=True).order_by('-created_at')
         return queryset
     
-    def get_object(self):
-        queryset = self.get_queryset
-        lookup_url_kwarg = self.lookup_field
-        filter_kwargs = {lookup_url_kwarg: self.kwargs[lookup_url_kwarg]}
-        obj = get_object_or_404(queryset, **filter_kwargs)
-        return obj
+    # def get_object(self):
+    #     queryset = self.get_queryset
+    #     lookup_url_kwarg = self.lookup_field
+    #     filter_kwargs = {lookup_url_kwarg: self.kwargs[lookup_url_kwarg]}
+    #     obj = get_object_or_404(queryset, **filter_kwargs)
+    #     return obj
 
     def get(self,request, *args,**kwargs):
         slug = self.lookup_field
-        if slug is not None:
+        if slug:
             return self.retrieve(request, *args, **kwargs)
         return self.list(request, *args, **kwargs)
     

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from product.models import Category , Product , Review
-
+from rest_framework.reverse import reverse
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -11,6 +11,7 @@ class CategorySerializer(serializers.ModelSerializer):
             }
 
 class ProductSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Product
         fields = '__all__'
@@ -22,6 +23,11 @@ class ProductSerializer(serializers.ModelSerializer):
             'description': {'required': True},
             'image': {'required': True}
             }
+        
+    def get_url(self, obj):
+        request = self.context.get('request')
+        return reverse("product-detail", kwargs={"slug": obj.slug}, request=request)
+
         
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:

@@ -39,12 +39,12 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
@@ -212,15 +212,25 @@ SPECTACULAR_SETTINGS = {
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
 CSRF_TRUSTED_ORIGINS = [
   'http://*',
   'https://*',
+  'http://127.0.0.1:5500',
+  'http://127.0.0.1:8000',
+
 ]
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'http://127.0.0.1:5500', 'http://127.0.0.1:6379']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'http://127.0.0.1:*', ]
 
 CORS_ORIGIN_WHITELIST = [
-    'http://127.0.0.1:5500',
+    'http://127.0.0.1:*',
 ]
+CORS_ALLOWED_ORIGINS = [
+    'http://127.0.0.1:*',
+
+    # Add other trusted origins as needed
+]
+
 
 
 INTERNAL_IPS = [
