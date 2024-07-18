@@ -154,8 +154,14 @@ REST_FRAMEWORK = {
         'drf_spectacular.openapi.AutoSchema',
 }
 
+AUTHENTICATION_BACKENDS = [
+    'accounts.backend_authenticate.CustomBackend',
+    # 'django.contrib.auth.backends.ModelBackend',  # Include the default ModelBackend
+]
+
+
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': False,
@@ -232,7 +238,7 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
 
 AUTHENTICATION_BACKENDS = [
-    'accounts.utils.backendauthenticate.CustomBackend',
+    'accounts.backend_authenticate.CustomBackend',
     # 'django.contrib.auth.backends.ModelBackend',  # Include the default ModelBackend
 ]
 

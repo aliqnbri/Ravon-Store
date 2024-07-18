@@ -4,15 +4,27 @@ from rest_framework import exceptions
 from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
+from django.contrib.auth import authenticate,logout
+from rest_framework.response import Response 
+from rest_framework import status
+from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+     
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
         token['email'] = user.email
         token['phone_number'] = user.phone_number
+        token['password'] = user.password
         return token
+
+
+
+          
+
+            
+
 
 
 def get_tokens_for_user(user) -> dict:
