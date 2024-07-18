@@ -2,7 +2,8 @@ from django.urls import path
 from account import views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
-    TokenRefreshView
+    TokenRefreshView,
+    TokenVerifyView
 )
 
 
@@ -11,10 +12,16 @@ app_name = 'account'
 urlpatterns = [
     path('register/', views.RegisterUserView.as_view(), name='register'),
     path('verify-otp/', views.VerifyOtp.as_view(), name='verify-otp'),
+    path('token/', views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', views.CustomTokenRefreshView.as_view(), name='token_refresh'),
+    # path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    # path('login/', views.LoginView.as_view()),
+    # path('logout/', views.LogoutView.as_view()),
+    # path('profile/', views.ProfileView.as_view()),
+    # path('profile/update/', views.UpdateProfileView.as_view()),
+    # path('profile/update/password/', views.UpdatePasswordView.as_view()),
+    # path('profile/update/phone_number/', views.UpdatePhoneView.as_view()),
+    # path('profile/update/email/', views.UpdateEmailView.as_view()),
 
-    # path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('login/', views.LoginView.as_view()),
-    path('checkcookie/', views.CheckCookie.as_view()),
-    # path('verify_otp/', views.VerifyOtp.as_view(), name='otp')
+
 ]

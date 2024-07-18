@@ -4,9 +4,10 @@ from django.utils.translation import gettext_lazy as _
 from core.models import BaseModel
 from account.managers import CustomUserManager
 from django.contrib import admin
+from django.utils import timezone
 # Create your models here.
 
-class CustomUser(AbstractBaseUser, PermissionsMixin, BaseModel):
+class CustomUser(AbstractBaseUser, PermissionsMixin):
     class Role(models.TextChoices):
         ADMIN = 'admin', _('Admin')
         STAFF= "staff",_("Staff")
@@ -17,14 +18,19 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, BaseModel):
         SUPERVISOR = "SV" , _("Supervisor")
         OPERATOR = "OP", _("Operator")    
 
-
+    username = models.CharField(max_length = 20, unique = True, null=True, blank=True)
     email = models.EmailField(max_length=255, unique=True)
     phone_number = models.CharField(max_length=13,null=True)
+    first_name = models.CharField(max_length=30, verbose_name='First Name')
+    last_name = models.CharField(max_length=30,verbose_name='Last Name')
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
+    is_active = models.BooleanField(default = True)
+    date_joined = models.DateField(default=timezone.now)
     role = models.CharField(max_length=8, choices=Role.choices, default=Role.CUSTOMER)
     staff_role = models.CharField(choices = StaffRoles, max_length = 2, null=True, blank=True, default=None)
+
 
 
     USERNAME_FIELD = 'email'
@@ -36,6 +42,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, BaseModel):
 
     def __str__(self) -> str:
         return f"user : {self.email} with {self.role} Role"
+    
+    @admin.display
+    def full_name(self):
+        return self.first_name + " " + self.last_name
     
 
 
@@ -61,8 +71,6 @@ class CustomerProfile(models.Model):
         FEMALE = 'F', _('Female')
 
     user = models.OneToOneField(CustomUser ,on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=30, verbose_name='First Name')
-    last_name = models.CharField(max_length=30,verbose_name='Last Name')
     gender = models.CharField(max_length=6, choices=Gender.choices, null=True, blank=True)
     avatar = models.ImageField(upload_to='media/avatars/', null=True, blank=True)
     address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE )
