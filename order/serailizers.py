@@ -3,7 +3,7 @@ from rest_framework import serializers
 from order.models import Order, Coupon, OrderItem
 
 from account.models import Address
-from order.cart import CartView
+from cart.models import Cart
 
 from product.serializers import ProductSerializer, SimpleProductSerializer
 from product.models import Product
@@ -70,7 +70,7 @@ class CreateOrderSerializer(serializers.Serializer):
                                          postal_code = request.user.address.postal_code,
                                         address = request.user.address.detail,
                                          )
-            cart = CartView(request)
+            cart = Cart(request)
             orderitems = [
                 OrderItem(order=order, 
                     product=Product.objects.get(id = item['product']['id']), 
