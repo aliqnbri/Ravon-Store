@@ -41,10 +41,10 @@ class CustomUserAdmin(UserAdmin):
     filter_horizontal = ()
 
 
-    def get_inline_instances(self, request, obj=None):
-        if not obj:
-            return list()
-        return super(CustomUserAdmin, self).get_inline_instances(request, obj)
+    # def get_inline_instances(self, request, obj=None):
+    #     if not obj:
+    #         return list()
+    #     return super(CustomUserAdmin, self).get_inline_instances(request, obj)
 
 
 

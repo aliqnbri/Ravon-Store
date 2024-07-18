@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'product.apps.ProductConfig',
     'order.apps.OrderConfig',
-    'coupon.apps.CouponConfig',
 
 
 ]
@@ -238,7 +237,7 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
 
 AUTHENTICATION_BACKENDS = [
-    'accounts.backend_authenticate.CustomBackend',
+    'accounts.backend.CustomBackendAuthenticate',
     # 'django.contrib.auth.backends.ModelBackend',  # Include the default ModelBackend
 ]
 

@@ -35,28 +35,28 @@ class ProductAdmin(admin.ModelAdmin):
         'brand',
     
         'price',
-        'available',
+        'is_available',
         'created_at',
         'updated_at',
     ]
-    list_filter = ['available', 'brand', ]
-    list_editable = ['brand', 'price', 'available']
+    list_filter = ['is_available', 'brand', ]
+    list_editable = ['brand', 'price', 'is_available']
     list_per_page = 10
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields = ['created_at', 'updated_at',]
     # Added custom actions
-    actions = ['mark_as_unavailable', 'restore_availability', export_to_csv]
+    actions = ['mark_as_unis_available', 'restore_availability', export_to_csv]
 
-    def mark_as_unavailable(self, request, queryset):
-        for obj in queryset.filter(available=True):
-            obj.available = False
+    def mark_as_unis_available(self, request, queryset):
+        for obj in queryset.filter(is_available=True):
+            obj.is_available = False
             obj.save()
         self.message_user(
-            request, f'{queryset.count()} products marked as unavailable')
+            request, f'{queryset.count()} products marked as unis_available')
 
     def restore_availability(self, request, queryset):
-        for obj in queryset.filter(available=False):
-            obj.available = True
+        for obj in queryset.filter(is_available=False):
+            obj.is_available = True
             obj.save()
         self.message_user(
             request, f'{queryset.count()} products restored to availability')
@@ -64,7 +64,7 @@ class ProductAdmin(admin.ModelAdmin):
     def product_by_category(self, obj):
         return ', '.join([category.name for category in obj.category.all()])    
 
-    mark_as_unavailable.short_description = 'Mark as unavailable'
+    mark_as_unis_available.short_description = 'Mark as unis_available'
     restore_availability.short_description = 'Restore availability'
 
 

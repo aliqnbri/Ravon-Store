@@ -33,8 +33,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ('email','phone_number')
+    USERNAME_FIELD = ('email')
+    REQUIRED_FIELDS = ('phone_number',)
 
 
     objects = CustomUserManager()

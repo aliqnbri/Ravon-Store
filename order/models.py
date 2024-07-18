@@ -2,50 +2,78 @@ from django.db import models
 from core.models import BaseModel
 from account.models import CustomerProfile
 from product.models import Product
+from coupon.models import Coupon
 from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
+
+class Coupon(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    code = models.CharField(max_length=10)
+    discount = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, blank=True)
+    discount_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True)
+    expiration_date = models.DateField(editable=True, blank=True, null=True)
+    valid_from = models.DateTimeField()
+    is_active = models.BooleanField(default=False)
+
+    def calculate_discounted_price(self):
+        if self.discount_percent is not None:
+            return self.product.price * (1 - (self.discount_percent / 100))
+        elif self.discount_amount is not None:
+            return self.product.price - self.discount_amount
+        else:
+            return self.product.price
+
+
+
 class Order(BaseModel):
     """Reprisent customers orders"""
-    
-    class ORDER_STATUS(models.TextChoices):
+
+    class OrderStatus(models.TextChoices):
         PENDING = 'pending', _('Pending')
         SHIPPED = 'shipped', _('Shipped'),
         DELIVERD = 'delivered', _('Delivered'),
-        CANCELLED = 'cancelled', _('Cancelled'),
-        RETURNED = 'returned', _('Returned')
-
-
-
+        CANCELED = 'canceled', _('Canceled'),
+        RETURNED = 'returned', _('Returned'),
+        CONFIRMED = "confirmed", _("Confirmed")
+        PAYED = "paid", _("Paid")
 
     customer = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    order_status = models.CharField(max_length=10, 
-                                    choices=ORDER_STATUS.choices, 
-                                    default=ORDER_STATUS.PENDING)
+    order_status = models.CharField(max_length=10,
+                                    choices=OrderStatus.choices,
+                                    default=OrderStatus.PENDING)
     discount = models.IntegerField(null=True, blank=True)
+    coupon = models.ForeignKey(Coupon,related_name='orders',on_delete = models.SET_NULL,null=True,blank = True)
+
     class Meta:
         verbose_name = _('Order')
         verbose_name_plural = _('Orders')
-        ordering = ['-updated_at']
+        ordering = ['-updated_at' , '-created_at']
         indexes = [
             models.Index(fields=['-created_at']),
         ]
 
     def __str__(self):
-        return f'Order {self.id} - {self.customer.first_name} {self.customer.last_name}'
-    
+        return f'Order {self.id}'
 
     def get_total_cost(self):
         total_cost = self.get_total_cost_before_discount()
         return total_cost - self.get_discount()
-    
+
     def get_discount(self):
         total_cost = self.get_total_cost_before_discount()
         if self.discount:
             return total_cost * (self.discount / float(100))
         return float(0)
-  
+    
+    def __len__(self):
+        """
+        Count all items in the order
+        """
+        return sum(item["quantity"] for item in self.items.values())
 
 
 class OrderItem(BaseModel):
@@ -69,5 +97,6 @@ class OrderItem(BaseModel):
 
     def total_price(self):
         return self.price * self.quantity
-
-
+    
+    def get_customer_name(self):
+        return self.order.customer.full_name() if self.order.customer else "Unknown"

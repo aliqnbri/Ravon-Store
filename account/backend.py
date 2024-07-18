@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 
 
 """
-CustomBackend
+CustomBackendAuthenticate
 
 This class serves as a custom authentication backend for authenticating users in a Django application.
 
@@ -37,7 +37,7 @@ Methods:
                 - None if the user does not exist.
 """
 
-class CustomBackend(BaseBackend):
+class CustomBackendAuthenticate(BaseBackend):
     def authenticate(self, request, email=None , password=None, **kwargs):
         
         # Retrieve the User model
