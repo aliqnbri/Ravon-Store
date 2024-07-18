@@ -7,16 +7,19 @@ from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
 
-class Coupon(models.Model):
+class Coupon(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     code = models.CharField(max_length=10)
     discount = models.DecimalField(
         max_digits=5, decimal_places=2, null=True, blank=True)
     discount_amount = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True)
-    expiration_date = models.DateField(editable=True, blank=True, null=True)
+    
+
     valid_from = models.DateTimeField()
-    is_active = models.BooleanField(default=False)
+    expiration_date = models.DateField(editable=True, blank=True, null=True)
+    count = models.IntegerField()
+
 
     def calculate_discounted_price(self):
         if self.discount_percent is not None:
