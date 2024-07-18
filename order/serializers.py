@@ -56,6 +56,11 @@ class OrderSerializer(serializers.ModelSerializer):
             return data
 
 
+class CouponSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Coupon
+        fields = ['id', 'code', 'valid_from', 'valid_to', 'discount', 'is_active', 'count']
+
 
 # incompite cart
 class CreateOrderSerializer(serializers.Serializer):
