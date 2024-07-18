@@ -112,16 +112,26 @@ class RegisterUserView(generics.CreateAPIView):
 #             'message': 'Please login to continue'
 #         })
 
+class LogoutView(APIView):
+    authentication_classes = [authentications.CustomJWTAuthentication]
 
-# class CheckCookie(APIView):
-#     permission_classes = (permissions.AllowAny,)
+    def post(self, request):
+        if request.user.is_authenticated:
+            logout(request)
+            response = Response()
+            response.delete_cookie('access_token', '/')
+            response.delete_cookie('refresh_token', '/')
+            response.delete_cookie('username','/')
+            response.data = {'message': 'Logout successful'}
+            response.status = status.HTTP_200_OK
+            return response
+        else:
+            return Response({'message': 'User is not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
 
-#     def get(self, request):
-#         token = request.COOKIES.get('jwt')
-
-#         return Response({'message': token})
 
 
+from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
+from django.contrib.auth import authenticate,logout
 
 class MyTokenObtainPairView(TokenObtainPairView):
 
@@ -155,4 +165,18 @@ class MyTokenObtainPairView(TokenObtainPairView):
             response.data = {"message": "login successfull"}
             response.status = status.HTTP_200_OK
             return response
-            
+
+class CustomTokenRefreshView(TokenRefreshView):
+    authentication_classes = [authentications.CustomJWTAuthentication]
+
+    def post(self,request,*args,**kwargs):
+        response = super().post(request, *args, **kwargs)
+        response.set_cookie(
+            key='access_token',
+            value=response.data['access'],
+            httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+            max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+            secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE']
+        )
+        response.data = "new access set to cookies"
+        return response            
