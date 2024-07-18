@@ -7,6 +7,7 @@ from account import serializers ,utils ,authentications
 from rest_framework.views import APIView
 from django.conf import settings
 from django.views.generic import TemplateView 
+import jwt
 
 # Create your views here.
 
@@ -42,75 +43,36 @@ class RegisterUserView(generics.CreateAPIView):
 
         response = redirect(reverse('account:verify-otp'))
         response.set_cookie(key='access_token', value=access,)
+        response.set_cookie(key='refresh_token', value=refresh,)
         response.set_cookie(key='csrftoken', value=csrf_token)
         return response
 
 
 
+class VerifyOtp(GenericAPIView):
+    serializer_class = serializers.VerifyOtpSerialiser
+    permission_classes = [permissions.AllowAny,]
 
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        jwt_cookie = request.COOKIES.get('access_token')
+        print(jwt_cookie)
+        payload = jwt.decode(
+            jwt_cookie, settings.SECRET_KEY, algorithms=['HS256'])
+        email = payload['email']
 
+        otp = serializer.validated_data['otp']
 
-# class VerifyOtp(GenericAPIView):
-#     serializer_class = serializers.VerifyOtpSerialiser
-#     permission_classes = [permissions.AllowAny,]
+        if utils.check_otp(email=email, otp=otp):
+            user = CustomUser.objects.get(email=email)
+            user.is_verified =True
 
-#     def post(self, request):
-#         serializer = self.serializer_class(data=request.data)
-#         jwt_cookie = request.COOKIES.get('jwt')
-#         print(jwt_cookie)
-#         payload = jwt.decode(
-#             jwt_cookie, settings.SECRET_KEY, algorithms=['HS256'])
-#         email = payload['email']
+            return Response({"message": "your Account verified"}, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#         otp = serializer.validated_data['otp']
+    def get(self, request):
+        return Response({"message": "register successful ! Verify code sent to Email"}, status=status.HTTP_201_CREATED)
 
-#         if check_otp(email=email, otp=otp):
-#             return Response({"message": "your Account verified"}, status=status.HTTP_202_ACCEPTED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     def get(self, request):
-#         return Response({"message": "register successful ! Verify code sent to Email"}, status=status.HTTP_201_CREATED)
-
-
-# class LoginView(APIView):
-#     permission_classes = (permissions.AllowAny,)
-#     serializer_class = serializers.LoginSerializer
-#     authentication_classes = (authentications.CustomJWTAuthentication,)
-
-#     def post(self, request):
-#         email = request.data['email']
-#         password = request.data['password']
-
-#         user = CustomUser.objects.filter(email=email).first()
-#         if user:
-#             if user.check_password(password):
-
-#                 payload = {
-#                     'id': user.id,
-#                     'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
-#                     'iat': datetime.datetime.utcnow()
-#                 }
-#                 token = jwt.encode(
-#                     payload, settings.SECRET_KEY, algorithm='HS256')
-
-#                 response = Response({'Message': 'User loged in successfuly',
-#                                      'jwt': token}, status=200)
-#                 response.set_cookie(key='jwt', value=token, httponly=True)
-
-#                 return response
-#             raise AuthenticationFailed('incorect password')
-#         else:
-#             raise AuthenticationFailed('user not find')
-
-#     def get(self, request):
-#         # Check if the user is already logged in
-#         if request.user.is_authenticated:
-#             return Response({
-#                 'message': 'You are already logged in'
-#             })
-#         return Response({
-#             'message': 'Please login to continue'
-#         })
 
 class LogoutView(APIView):
     authentication_classes = [authentications.CustomJWTAuthentication]
@@ -121,7 +83,6 @@ class LogoutView(APIView):
             response = Response()
             response.delete_cookie('access_token', '/')
             response.delete_cookie('refresh_token', '/')
-            response.delete_cookie('username','/')
             response.data = {'message': 'Logout successful'}
             response.status = status.HTTP_200_OK
             return response
@@ -133,7 +94,7 @@ class LogoutView(APIView):
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 from django.contrib.auth import authenticate,logout
 
-class MyTokenObtainPairView(TokenObtainPairView):
+class MyTokenObtainPairView(TokenObtainPairView): # I use this for login user.
 
     def post(self,request, *args,**kwargs):
         response = super().post(request, *args, **kwargs)
