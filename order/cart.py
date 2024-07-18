@@ -4,7 +4,7 @@ from rest_framework import status
 from decimal import Decimal
 from django.conf import settings
 from product.models import Product
-from coupon.models import Coupon
+from order.models import Coupon
 
 class CartView(APIView):
     def __init__(self):

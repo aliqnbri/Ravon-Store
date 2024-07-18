@@ -2,7 +2,7 @@ from django.db import models
 from core.models import BaseModel
 from account.models import CustomerProfile
 from product.models import Product
-from coupon.models import Coupon
+
 from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
@@ -45,7 +45,7 @@ class Order(BaseModel):
 
     customer = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    order_status = models.CharField(max_length=10,
+    status = models.CharField(max_length=10,
                                     choices=OrderStatus.choices,
                                     default=OrderStatus.PENDING)
     discount = models.IntegerField(null=True, blank=True)
