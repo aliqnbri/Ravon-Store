@@ -4,6 +4,11 @@ from django.http import HttpResponse
 from django.utils import timezone
 import csv
 
+class SoftDeleteManager(models.Manager):
+    def get_queryset(self):
+        # Exclude soft-deleted items by default
+        return super().get_queryset().filter(deleted_at__isnull=True)
+
 
 
 def export_to_csv(modeladmin, request, queryset):
