@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from customer.models import Address,WishListItem,Comment
-from accounts.models import CustomUser
+from customer.models import CustomUser
 
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:

@@ -56,7 +56,7 @@ Methods:
 
 class CustomUserManager(BaseUserManager):
 
-    def _create_user(self, email, password=None ,phone_number=None ,**extra_fields):
+    def _create_user (self,username=None, email=None, password=None ,phone_number=None ,**extra_fields):
         """
         Create and save a user with the given email and password.
         """
