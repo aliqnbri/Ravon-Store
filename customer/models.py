@@ -1,7 +1,6 @@
 from django.db import models
 from core.models import BaseModel
 from account.models import CustomUser
-from product.models import Product
 from django.utils.translation import gettext_lazy as _
 
 
@@ -31,7 +30,7 @@ class Address(BaseModel):
 class CustomerProfile(models.Model):
     class Gender(models.TextChoices):
         MALE = 'male', _('Male')
-        FEMALE = 'F', _('Female')
+        FEMALE = 'female', _('Female')
 
     user = models.OneToOneField(CustomUser ,on_delete=models.CASCADE)
     gender = models.CharField(max_length=6, choices=Gender.choices, null=True, blank=True)
@@ -39,9 +38,7 @@ class CustomerProfile(models.Model):
     address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE )
 
 
-class WishListItem(BaseModel):
-    customer = models.ForeignKey(CustomerProfile,on_delete=models.CASCADE)
-    product = models.ForeignKey(Product,on_delete = models.PROTECT)    
+
 
 
 

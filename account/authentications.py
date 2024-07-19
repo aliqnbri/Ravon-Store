@@ -13,7 +13,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
         token['email'] = user.email
         token['phone_number'] = user.phone_number
-        token['password'] = user.password
         return token
 
 

@@ -19,8 +19,6 @@ from django.shortcuts import redirect
 
 
 
-
-
 class RegisterUserView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = serializers.RegisterSerializer
@@ -141,3 +139,8 @@ class CustomTokenRefreshView(TokenRefreshView):
         )
         response.data = "new access set to cookies"
         return response            
+    
+
+# Create your views here.
+class SignUpView(TemplateView):
+    template_name = 'signup.html'    

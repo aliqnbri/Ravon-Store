@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static%}
+{% block title %}
+Verify
+{% endblock title %}
+{% block content %}
+
+    {% include "_pre_loader.html" %}
+    {% include "header.html" %}
+    <main>
+        <!-- Hero Area Start-->
+        <div class="slider-area ">
+            <div class="single-slider slider-height2 d-flex align-items-center">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xl-12">
+                            <div class="hero-cap text-center">
+                                <h2>Login</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Hero Area End-->
+        <!--================login_part Area =================-->
+        <section class="login_part section_padding ">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 col-md-6">
+                        <div class="login_part_text text-center">
+                            
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="login_part_form">
+                            <div class="login_part_form_iner">
+                                <h3>Welcome Back ! <br>
+                                    Please Verify Your Email</h3>
+                                
+                                    <div class="col-md-12 form-group p_star">
+                                        <input type="text" class="form-control" id="otp" name="otp" value=""
+                                            placeholder="code">
+                                    </div>
+                                   
+                                    <div class="col-md-12 form-group" id="logbtn">
+                                        
+                                        <button onclick="verify()" type="submit" id='verify' value="submit" class="btn_3">
+                                            Verify
+                                        </button>
+                                        
+                                    </div>
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--================login_part end =================-->
+    </main>
+    {% include "footer.html" %}
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="{% static 'js/verifyotp.js' %}"></script>
+{% endblock content %}

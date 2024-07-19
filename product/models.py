@@ -114,6 +114,6 @@ class Product(BaseModel):
 
 
 
-class WishList(models.Model):
-    user = models.OneToOneField(CustomerProfile, on_delete=models.CASCADE)
-    products = models.ManyToManyField(Product)
+class WishListItem(BaseModel):
+    customer = models.OneToOneField(CustomerProfile,on_delete=models.CASCADE)
+    product = models.ForeignKey(Product,on_delete = models.PROTECT)        

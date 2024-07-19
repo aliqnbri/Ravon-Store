@@ -43,24 +43,6 @@ def check_otp(email: str, otp: str) -> bool:
     return False
 
 
-# get user role number and set instance privileges for that role in pre_save signal
-def get_set_role(user_instance):
-    match user_instance.role:
-        case 'ADMIN':
-            user_instance.is_staff = True
-            user_instance.is_superuser = True
-            user_instance.staff_role = None
-            return "ADMIN"
-        case 'STAFF':
-            user_instance.is_staff = True
-            user_instance.is_superuser = False
-            return "STAFF"
-        case 'CUSTOMER':
-            user_instance.is_staff = False
-            user_instance.is_superuser = False
-            user_instance.staff_role = None
-            return "CLIENT"
-        case _:
-            return "Invalid role ID"
+
         
         
