@@ -5,8 +5,8 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from rest_framework import permissions,filters,viewsets
-from django_filters.rest_framework import DjangoFilterBackend
-from accounts.authenticate import CustomJWTAuthentication
+# from django_filters.rest_framework import DjangoFilterBackend
+from account.authentications import CustomJWTAuthentication
 from customer.serializers import AddressSerializer,WishListItemSerializer
 from customer.models import Address,WishListItem
 # Create your views here.
