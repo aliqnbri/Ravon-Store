@@ -2,7 +2,7 @@ from django.db import transaction
 from rest_framework import serializers
 from order.models import Order, Coupon, OrderItem
 
-from account.models import Address
+from customer.models import Address
 from cart.models import Cart
 
 from product.serializers import ProductSerializer, SimpleProductSerializer

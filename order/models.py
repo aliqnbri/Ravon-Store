@@ -1,6 +1,6 @@
 from django.db import models
 from core.models import BaseModel
-from account.models import CustomerProfile
+from customer.models import CustomerProfile
 from product.models import Product
 
 from django.utils.translation import gettext_lazy as _

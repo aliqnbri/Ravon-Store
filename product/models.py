@@ -2,7 +2,7 @@ from django.db import models
 from django.urls import reverse
 from core.models import BaseModel
 from django.utils.text import slugify
-from account.models import CustomerProfile
+from customer.models import CustomerProfile
 
 # Create your models here.
 

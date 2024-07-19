@@ -2,6 +2,8 @@ from django.db import models
 from core.models import BaseModel
 from account.models import CustomUser
 from product.models import Product
+from django.utils.translation import gettext_lazy as _
+
 
 from django.contrib.contenttypes.fields import GenericForeignKey , GenericRelation
 from django.contrib.contenttypes.models import ContentType
