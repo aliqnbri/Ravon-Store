@@ -1,16 +1,13 @@
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.authentication import CSRFCheck
 from rest_framework import exceptions
 from django.conf import settings
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.contrib.auth import authenticate,logout
-from rest_framework.response import Response 
-from rest_framework import status
-from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-     
+
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
@@ -18,13 +15,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['phone_number'] = user.phone_number
         token['password'] = user.password
         return token
-
-
-
-          
-
-            
-
 
 
 def get_tokens_for_user(user) -> dict:
@@ -40,7 +30,6 @@ def enforce_csrf(request):
     reason = check.process_view(request, None, (), {})
     if reason:
         raise exceptions.PermissionDenied('CSRF Failed: %s' % reason)
-
 
 
 class CustomJWTAuthentication(JWTAuthentication):
