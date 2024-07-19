@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from account.models import CustomUser, CustomerProfile
+from account.models import CustomUser
+from django.db.models import Q
 
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
@@ -30,14 +31,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         if password != password2:
             raise serializers.ValidationError(
                 {'password': 'Passwords do not match.'})
-
-        if CustomUser.objects.filter(email=email).exists():
-            raise serializers.ValidationError(
-                {'email': 'Email already exists.'})
         
-        if CustomUser.objects.filter(phone_number=phone_number).exists():
-            raise serializers.ValidationError(
-                {'phone_number': 'Phone number already exists.'})
+        # Check for existing email and phone number
+        existing_user = CustomUser.objects.filter(Q(email=email) | Q(phone_number=phone_number)).first()
+        if existing_user:
+            if existing_user.email == email:
+                raise serializers.ValidationError({'email': 'Email already exists.'})
+            if existing_user.phone_number == phone_number:
+                raise serializers.ValidationError({'phone_number': 'Phone number already exists.'})
+        
 
 
         #//tod do phone number and password validater
@@ -52,7 +54,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = CustomUser.objects._create_user(**validated_data)
-        user.set_password(validated_data.get('password'))
         return user
 
     def update(self, instance, validated_data):
@@ -75,31 +76,4 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(
         write_only=True, style={'input_type': 'password'})
 
-    def validate(self, attrs):
-        email = attrs.get('email')
-        password = attrs.get('password')
 
-        user = CustomUser.objects.filter(email=email).first()
-        if not user:
-            raise serializers.ValidationError('User not found')
-        if not user.check_password(password):
-            raise serializers.ValidationError('Incorrect password')
-        return attrs
-
-
-
-
-
-
-# ser = authenticate(request=self.context.get('request'),
-#                                 email=email, password=password
-#                                 )
-
-#             if not user:
-#                 msg = _('Unable to log in with provided credentials.')
-#                 raise serializers.ValidationError(msg, code='authorization')
-#             attrs['user'] = user
-#             return attrs
-#         else:
-#             msg = _('Must include "username" and "password".')
-#             raise serializers.ValidationError(msg, code='authorization')

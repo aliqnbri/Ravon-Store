@@ -1,6 +1,7 @@
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth import get_user_model
-
+from django.core.exceptions import ImproperlyConfigured
+from django.utils.translation import gettext_lazy as _
 
 """
 CustomBackendAuthenticate
@@ -37,35 +38,35 @@ Methods:
                 - None if the user does not exist.
 """
 
+
 class CustomBackendAuthenticate(BaseBackend):
-    def authenticate(self, request, email=None , password=None, **kwargs):
-        
-        # Retrieve the User model
-        User = get_user_model()
-        
+    def __init__(self):
+        self.User = get_user_model()
+        if not self.User:
+            raise ImproperlyConfigured(_("You must define a User model"))
+
+    def authenticate(self, request, email: str = None, password: str = None, **kwargs) -> object:
+
         # Attempt to retrieve the user object based on the provided username
         try:
-            user = User.objects.get(email =email)
-        except User.DoesNotExist:
+            user = self.User.objects.get(email=email)
+        except self.User.DoesNotExist:
             # If the user does not exist, return None
             return None
-        
+
         # Check if the provided password matches the user's password
         if user.check_password(password):
             # If the passwords match, return the authenticated user object
             return user
-        
+
         # If the passwords do not match, return None
         return None
 
-    def get_user(self, user_id):
-        
-        # Retrieve the User model
-        User = get_user_model()
-        
+    def get_user(self, user_id: int) -> object:
+
         # Attempt to retrieve the user object based on the provided user ID
         try:
-            return User.objects.get(pk=user_id)
-        except User.DoesNotExist:
+            return self.User.objects.get(pk=user_id)
+        except self.User.DoesNotExist:
             # If the user does not exist, return None
             return None
