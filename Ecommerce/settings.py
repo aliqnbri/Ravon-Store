@@ -56,7 +56,7 @@ ROOT_URLCONF = 'Ecommerce.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -64,7 +64,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'cart.context_processors.cart',
+                'cart.context_processor.cart',
             ],
         },
     },
@@ -74,6 +74,7 @@ WSGI_APPLICATION = 'Ecommerce.wsgi.application'
 
 
 AUTH_USER_MODEL = "account.CustomUser"
+CART_SESSION_ID = 'cart'
 
 
 # Database

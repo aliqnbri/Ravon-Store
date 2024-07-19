@@ -6,7 +6,7 @@ router = routers.DefaultRouter()
 router.register(r'order',OrderViewSet)
 router.register(r'coupon',CouponViewSet)
 
-app_name = 'orders'
+app_name = 'order'
 
 
 urlpatterns =[
