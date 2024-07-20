@@ -1,9 +1,12 @@
-from django.core.mail import send_mail
-import string ,random ,time
+from rest_framework_simplejwt.tokens import RefreshToken
+import string ,random
 from django.conf import settings
 from celery import shared_task
-from typing import Any
+from django.core.mail import send_mail
 from Ecommerce.redis_client import redis_client
+import jwt
+
+
 cache = redis_client()
 
 
@@ -41,6 +44,32 @@ def check_otp(email: str, otp: str) -> bool:
         cache.delete(email)
         return True
     return False
+
+
+
+
+
+def generate_tokens(user):
+    refresh = RefreshToken.for_user(user)
+    access_token = str(refresh.access_token)
+    
+    # Store email and phone number in the token's payload
+    payload = jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
+    payload['email'] = user.email
+    payload['phone_number'] = user.phone_number
+    payload['exp'] = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME']  # Set token expiry
+    access_token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+    return access_token, str(refresh)
+
+def decode_token(token):
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+        return payload
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
 
 
 

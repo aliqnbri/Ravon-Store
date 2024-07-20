@@ -50,7 +50,7 @@ class RegisterUserView(generics.CreateAPIView):
 
 
 
-class VerifyOtp(GenericAPIView):
+class VerifyOtp(APIView):
     serializer_class = serializers.VerifyOtpSerialiser
     permission_classes = [permissions.AllowAny,]
     authentication_classes = (CustomJWTAuthentication,)
