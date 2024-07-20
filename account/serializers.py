@@ -1,10 +1,9 @@
 from rest_framework import serializers
 from account.models import CustomUser
 from django.db.models import Q
-
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
-
 
 
 
@@ -75,5 +74,34 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(
         write_only=True, style={'input_type': 'password'})
+
+from rest_framework_simplejwt.tokens import RefreshToken
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    @classmethod
+    def get_access_token(cls, user):
+        access_token = super().get_token(user)
+        access_token['email'] = user.email
+        access_token['phone_number'] = user.phone_number
+
+        return str(access_token)
+    
+    @classmethod
+    def get_refresh_token(cls, user):
+        refresh_token = RefreshToken.for_user(user)
+        return str(refresh_token)
+    
+    @classmethod
+    def get_access_refresh_token(cls,user):
+        access_token = cls.get_access_token(user)
+        refresh_token = cls.get_refresh_token(user)
+        return {
+        'refresh_token': str(refresh_token),
+        'access_token': str(access_token), }
+
+
+
+
 
 

@@ -152,15 +152,16 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.PageNumberPagination',
         'PAGE_SIZE': 5,
 
-    # 'DEFAULT_AUTHENTICATION_CLASSES':
-    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+    'DEFAULT_AUTHENTICATION_CLASSES':
+        'account.authentications.CustomJWTAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
 
     'DEFAULT_SCHEMA_CLASS':
         'drf_spectacular.openapi.AutoSchema',
 }
 
 AUTHENTICATION_BACKENDS = [
-    'accounts.backend_authenticate.CustomBackend',
+    'account.backend.CustomBackendAuthenticate',
     # 'django.contrib.auth.backends.ModelBackend',  # Include the default ModelBackend
 ]
 
@@ -206,7 +207,7 @@ SIMPLE_JWT = {
 }
 
 
-# AUTHENTICATION_BACKENDS = ['account.utils.authentications.CustomJWTAuthentication']
+
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Raven Store',
@@ -242,10 +243,7 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
 
-AUTHENTICATION_BACKENDS = [
-    'accounts.backend.CustomBackendAuthenticate',
-    # 'django.contrib.auth.backends.ModelBackend',  # Include the default ModelBackend
-]
+
 
 INTERNAL_IPS = [
     # ...
