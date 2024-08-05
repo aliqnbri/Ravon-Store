@@ -43,9 +43,14 @@ class CustomJWTAuthentication(JWTAuthentication):
 
 def get_tokens_for_user(user) -> dict:
     refresh = RefreshToken.for_user(user)
+    access = refresh.access_token
+
+    access['email'] = user.email
+    access['phone_number'] = user.phone_number
+    
     return {
         'refresh': str(refresh),
-        'access': str(refresh.access_token), }
+        'access': str(access), }
 
 
 def enforce_csrf(request):

@@ -50,17 +50,14 @@ def check_otp(email: str, otp: str) -> bool:
 
 
 def generate_tokens(user):
-    refresh = RefreshToken.for_user(user)
+    refresh_token = RefreshToken.for_user(user)
     access_token = str(refresh.access_token)
-    
-    # Store email and phone number in the token's payload
-    payload = jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
-    payload['email'] = user.email
-    payload['phone_number'] = user.phone_number
-    payload['exp'] = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME']  # Set token expiry
-    access_token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+    access_token['email'] = user.email
+    access_token['phone_number'] = user.phone_number
 
-    return access_token, str(refresh)
+    return map(str, (access_token, refresh_token))
+
+    
 
 def decode_token(token):
     try:
@@ -73,5 +70,7 @@ def decode_token(token):
 
 
 
-        
+
+
+
         

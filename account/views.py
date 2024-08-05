@@ -32,19 +32,21 @@ class RegisterUserView(generics.CreateAPIView):
             return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
         
         user = serializer.save()
-        access, refresh = serializers.MyTokenObtainPairSerializer.get_access_refresh_token(user).values()
-        print(access)
-        print(refresh)
+        access_token, refresh_token= utils.generate_tokens(user)
+        
+        try:
+            utils.send_otp(user.email)
 
-        # try:
-        #     utils.send_otp(serializer.data['email'])
-        # except Exception as error:
-        #     return Response({'Error': 'Error sending verification email code', 'Message': str(error)},
-        #                     status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        response = Response({'message': "Regiser was Successful"})
-        # response = redirect(reverse('account:verify-otp'))
-        response.set_cookie(key='access_token', value=access)
-        response.set_cookie(key='refresh_token', value=refresh)
+        except Exception as error:
+            return Response({'Error': 'Error sending verification email code', 'Message': str(error)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+        # response = Response({'message': "Regiser was Successful"})
+        response = redirect(reverse('account:verify-otp'))
+        # response.set_cookie(key='csrftoken', value=get_token(request), httponly=True)
+        response.set_cookie(key='access_token', value=str(access_token))
+        response.set_cookie(key='refresh_token', value=str(refresh_token))
 
         return response
 
@@ -58,11 +60,17 @@ class VerifyOtp(APIView):
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        jwt_cookie = request.COOKIES.get('access_token')
+    
+        access_token = request.COOKIES.get('access_token')
+        if not access_token:
+            return Response({'detail': 'Access token missing.'}, status=status.HTTP_400_BAD_REQUEST)
+        
         if not serializer.is_valid(raise_exception=True):
             return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
-        payload = jwt.decode(
-            jwt_cookie, settings.SECRET_KEY, algorithms=['HS256'])
+        
+        payload = utils.decode_token(access_token)
+        if not payload:
+            return Response({'detail': 'Invalid or expired access token.'}, status=status.HTTP_400_BAD_REQUEST)
         
         print (payload)
         email = payload['email']
