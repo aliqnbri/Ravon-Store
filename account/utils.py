@@ -5,7 +5,8 @@ from celery import shared_task
 from django.core.mail import send_mail
 from Ecommerce.redis_client import redis_client
 import jwt
-
+from typing import Optional
+import datetime
 
 cache = redis_client()
 
@@ -51,7 +52,7 @@ def check_otp(email: str, otp: str) -> bool:
 
 def generate_tokens(user):
     refresh_token = RefreshToken.for_user(user)
-    access_token = str(refresh.access_token)
+    access_token = refresh_token.access_token
     access_token['email'] = user.email
     access_token['phone_number'] = user.phone_number
 
@@ -67,6 +68,82 @@ def decode_token(token):
         return None
     except jwt.InvalidTokenError:
         return None
+    
+
+
+class JWTService:
+    secret_key = settings.SECRET_KEY
+    algorithm = 'HS256'
+
+    @classmethod
+    def token_generator(cls, user: dict, expiry_days: int = 7) -> str:
+        payload = {
+            'user_id': user['id'],
+            'username': user['username'],
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days),
+            'iat': datetime.datetime.utcnow()
+        }
+        token = jwt.encode(payload, cls.secret_key, cls.algorithm)
+        return token
+
+    @classmethod
+    def refresh_token_generator(self, user: dict, expiry_days: int = 30) -> str:
+        """
+        Generates a refresh token for a user.
+        """
+        payload = {
+            'user_id': user['id'],
+            'username': user['username'],
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days),
+            'iat': datetime.datetime.utcnow()
+        }
+        refresh_token = jwt.encode(
+            payload, self.secret_key, algorithm=self.algorithm)
+        return refresh_token
+
+    @classmethod
+    def new_token_generator(cls, refresh_token: str) -> Optional[str]:
+        """
+        Generates a new access token if the provided refresh token is valid.
+        """
+        if not (payload := cls.is_token_valid(refresh_token)):
+            return None
+
+        user = {
+            'id': payload['user_id'],
+            'username': payload['username']
+        }
+        new_access_token = cls.token_generator(user)
+        return new_access_token
+
+    @classmethod
+    def is_token_valid(cls, token: str) -> Optional[dict]:
+        try:
+            payload = jwt.decode(token, cls.secret_key,
+                                 algorithms=[cls.algorithm])
+            return payload
+        except jwt.ExpiredSignatureError:
+            # Token has expired
+            return None
+        except jwt.InvalidTokenError:
+            # Token is invalid or corrupted
+            return None
+        except jwt.DecodeError:
+            # Token cannot be decoded
+            return None
+        
+    @classmethod
+    def decode_token(cls, token: str) -> Optional[dict]:
+        """
+        Decodes a JWT token and returns the payload.
+        """
+        try:
+            payload = jwt.decode(token, cls.secret_key, algorithms=[cls.algorithm])
+            return payload
+        except jwt.ExpiredSignatureError:
+            return None
+        except jwt.InvalidTokenError:
+            return None    
 
 
 
