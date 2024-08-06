@@ -5,6 +5,15 @@ from rest_framework.response import Response
 from django.utils.text import slugify
 from rest_framework.decorators import action
 from account.authentications import CustomJWTAuthentication
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.pagination import PageNumberPagination
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 
 class ProductViewSet(viewsets.ModelViewSet):
     """
@@ -12,6 +21,10 @@ class ProductViewSet(viewsets.ModelViewSet):
     """
     serializer_class = ProductSerializer
     authentication_classes = [CustomJWTAuthentication,]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['name', 'description']
+    ordering_fields = ['created_at', 'price']
     permission_classes = [permissions.AllowAny,]
     lookup_field = 'slug'
 
@@ -22,14 +35,14 @@ class ProductViewSet(viewsets.ModelViewSet):
     def list(self, request):
         """List all available categories"""
         queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True,context={'request': request, 'view': self})
+        return Response(serializer.data,status=status.HTTP_200_OK)
 
-    def retrieve(self, request, slug=None):
+    def retrieve(self, request, *args, **kwargs):
         """Retrieve a single category by slug"""
         product = self.get_object()
-        serializer = self.get_serializer(product)
-        return Response(serializer.data)
+        serializer = self.get_serializer(product,context={'request': request, 'view': self})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
     def create(self, request):
@@ -46,7 +59,13 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(product, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def destroy(self, request, slug=None):
+        """Delete a category"""
+        product = self.get_object()
+        self.perform_destroy(product)
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
     @action(detail=True, methods=['get'], url_path='category/(?P<category_slug>[^/.]+)')
     def filter_by_category(self, request, category_slug=None):
@@ -56,7 +75,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(products, many=True)
-        return Response(serializer.data)        
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):

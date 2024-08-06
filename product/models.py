@@ -87,10 +87,10 @@ class Product(BaseModel):
     image = models.ImageField(upload_to='media/products/', blank=True, null=True)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    discount = models.DecimalField(max_digits=20,decimal_places=2)
+    discount = models.DecimalField(max_digits=20,decimal_places=2, null=True, blank=True)
     is_available = models.BooleanField(default=True)
     brand = models.ForeignKey(Brand,on_delete=models.CASCADE )
-    reviews = models.ManyToManyField(Review, blank=True, related_name='products')
+    reviews = models.ManyToManyField(Review, blank=True, null=True, related_name='products')
     category = models.ManyToManyField(Category, related_name='products')    
     
     class Meta:

@@ -3,101 +3,125 @@
   "model": "product.category",
   "pk": 1,
   "fields": {
-    "created_at": "2024-07-16T12:57:48.142Z",
-    "updated_at": "2024-07-16T12:57:48.143Z",
+    "created_at": "2024-08-06T12:08:37.132Z",
+    "updated_at": "2024-08-06T12:08:37.132Z",
+    "is_active": true,
     "name": "Laptop",
     "slug": "laptop",
     "image": "",
-    "parent": null
+    "parent": null,
+    "is_available": true
   }
 },
 {
   "model": "product.category",
   "pk": 2,
   "fields": {
-    "created_at": "2024-07-16T12:58:24.518Z",
-    "updated_at": "2024-07-16T12:58:24.518Z",
-    "name": "Headphones",
-    "slug": "headphones",
+    "created_at": "2024-08-06T12:08:47.783Z",
+    "updated_at": "2024-08-06T12:08:47.783Z",
+    "is_active": true,
+    "name": "Smart Phone",
+    "slug": "smart-phone",
     "image": "",
-    "parent": null
+    "parent": null,
+    "is_available": true
   }
 },
 {
   "model": "product.category",
   "pk": 3,
   "fields": {
-    "created_at": "2024-07-16T12:59:21.210Z",
-    "updated_at": "2024-07-16T12:59:21.210Z",
-    "name": "Personal Pc",
-    "slug": "personal-pc",
+    "created_at": "2024-08-06T12:08:58.625Z",
+    "updated_at": "2024-08-06T12:08:58.626Z",
+    "is_active": true,
+    "name": "Tv",
+    "slug": "tv",
     "image": "",
-    "parent": null
+    "parent": null,
+    "is_available": true
   }
 },
 {
   "model": "product.category",
   "pk": 4,
   "fields": {
-    "created_at": "2024-07-16T12:59:33.463Z",
-    "updated_at": "2024-07-16T12:59:33.463Z",
-    "name": "Gaming Console",
-    "slug": "gaming-console",
+    "created_at": "2024-08-06T12:09:12.573Z",
+    "updated_at": "2024-08-06T12:09:12.573Z",
+    "is_active": true,
+    "name": "Memory",
+    "slug": "memory",
     "image": "",
-    "parent": null
+    "parent": null,
+    "is_available": true
   }
 },
 {
   "model": "product.category",
   "pk": 5,
   "fields": {
-    "created_at": "2024-07-16T12:59:41.055Z",
-    "updated_at": "2024-07-16T12:59:41.055Z",
-    "name": "smart Phones",
-    "slug": "smart-phones",
+    "created_at": "2024-08-06T12:09:20.756Z",
+    "updated_at": "2024-08-06T12:09:20.756Z",
+    "is_active": true,
+    "name": "Hard Disk",
+    "slug": "hard-disk",
     "image": "",
-    "parent": null
-  }
-},
-{
-  "model": "product.category",
-  "pk": 6,
-  "fields": {
-    "created_at": "2024-07-16T13:01:29.838Z",
-    "updated_at": "2024-07-16T13:01:29.838Z",
-    "name": "Apple",
-    "slug": "apple",
-    "image": "",
-    "parent": null
+    "parent": null,
+    "is_available": true
   }
 },
 {
   "model": "product.brand",
   "pk": 1,
   "fields": {
-    "created_at": "2024-07-16T13:01:50.589Z",
-    "updated_at": "2024-07-16T13:01:50.589Z",
-    "name": "Apple"
+    "created_at": "2024-08-06T12:05:46.629Z",
+    "updated_at": "2024-08-06T12:05:46.629Z",
+    "is_active": true,
+    "name": "Apple",
+    "about": "Apple Inc. is an American multinational corporation and technology company headquartered in Cupertino, California, in Silicon Valley. It is best known for its consumer electronics, software, and services"
   }
 },
 {
-  "model": "product.product",
-  "pk": 1,
+  "model": "product.brand",
+  "pk": 2,
   "fields": {
-    "created_at": "2024-07-16T13:02:38.928Z",
-    "updated_at": "2024-07-16T13:02:38.928Z",
-    "name": "I phone 15 pro max",
-    "slug": "i-phone-15-pro-max",
-    "brand": 1,
-    "image": "",
-    "description": "",
-    "price": "134.32",
-    "available": true,
-    "review": null,
-    "category": [
-      6,
-      5
-    ]
+    "created_at": "2024-08-06T12:06:12.400Z",
+    "updated_at": "2024-08-06T12:06:12.400Z",
+    "is_active": true,
+    "name": "Dell",
+    "about": "Dell Inc. is an American technology company that develops, sells, repairs, and supports computers and related products and services. Dell is owned by its parent company, Dell Technologies."
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 3,
+  "fields": {
+    "created_at": "2024-08-06T12:06:38.658Z",
+    "updated_at": "2024-08-06T12:06:38.658Z",
+    "is_active": true,
+    "name": "Asus",
+    "about": "ASUSTeK Computer Inc. is a Taiwanese multinational computer, phone hardware and electronics manufacturer headquartered in Beitou District, Taipei, Taiwan"
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 4,
+  "fields": {
+    "created_at": "2024-08-06T12:07:31.663Z",
+    "updated_at": "2024-08-06T12:07:31.663Z",
+    "is_active": true,
+    "name": "Samsung",
+    "about": "Samsung Group is a South Korean multinational manufacturing conglomerate headquartered in Samsung Digital City, Suwon, South Korea."
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 5,
+  "fields": {
+    "created_at": "2024-08-06T12:08:16.982Z",
+    "updated_at": "2024-08-06T12:08:16.982Z",
+    "is_active": true,
+    "name": "Xiaomi",
+    "about": "Xiaomi Corporation commonly known as Xiaomi (registered as Xiaomi Inc.), is a Chinese designer and manufacturer of consumer electronics and related software ."
   }
 }
 ]
