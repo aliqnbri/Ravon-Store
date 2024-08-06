@@ -14,6 +14,8 @@ class Category(BaseModel):
     slug = models.SlugField(max_length=200, unique=True)
     image = models.ImageField(upload_to='media/category/', blank=True, null=True)
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True,related_name="child")
+    is_available = models.BooleanField(default=True)
+
 
     def get_descendants(self, include_self=False):
         descendants = []
@@ -88,7 +90,7 @@ class Product(BaseModel):
     discount = models.DecimalField(max_digits=20,decimal_places=2)
     is_available = models.BooleanField(default=True)
     brand = models.ForeignKey(Brand,on_delete=models.CASCADE )
-    review = models.ForeignKey(Review, null=True,blank=True, on_delete=models.CASCADE, related_name='reviews')
+    reviews = models.ManyToManyField(Review, blank=True, related_name='products')
     category = models.ManyToManyField(Category, related_name='products')    
     
     class Meta:
@@ -105,11 +107,10 @@ class Product(BaseModel):
     def __str__(self):
         return self.name
 
-    # def get_absolute_url(self):
-    #     return f'/{self.category.slug}/{self.slug}/'    
+    def get_absolute_url(self):
+        return reverse('product:product_detail', args=[self.slug])
 
-    def get_absolute_url(self) -> object:
-        return reverse('productdetail', args=[self.pk])
+
 
 
 

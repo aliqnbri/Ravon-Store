@@ -2,6 +2,7 @@ from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.backends import ModelBackend
 
 """
 CustomBackendAuthenticate
@@ -39,20 +40,27 @@ Methods:
 """
 
 
-class CustomBackendAuthenticate(BaseBackend):
+class CustomBackendAuthenticate(ModelBackend):
     def __init__(self):
         self.User = get_user_model()
         if not self.User:
             raise ImproperlyConfigured(_("You must define a User model"))
 
-    def authenticate(self, request, email: str = None, password: str = None, **kwargs) -> object:
+    def authenticate(self, request, username:str=None,email:str=None, password: str = None, **kwargs) -> object:
 
         # Attempt to retrieve the user object based on the provided username
         try:
-            user = self.User.objects.get(email=email)
+            user = self.User.objects.get(email=username)
         except self.User.DoesNotExist:
-            # If the user does not exist, return None
-            return None
+            # If the user does not exist,  check by usernmae
+            try:
+                user = self.User.objects.get(username=username)
+            except self.User.DoesNotExist:
+                return None
+        
+        # Check if the user is active
+        # if not user.is_active:
+        #     return None
 
         # Check if the provided password matches the user's password
         if user.check_password(password):

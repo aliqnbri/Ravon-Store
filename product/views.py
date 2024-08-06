@@ -1,103 +1,73 @@
-# from django.shortcuts import render , get_object_or_404
-# from rest_framework import generics , mixins ,permissions , authentication
-# from product.models import Product , Category ,Review
-# from product.serializers import ProductSerializer , CategorySerializer
-# from rest_framework.response import Response
-# from django.utils.text import slugify
+from rest_framework import viewsets, permissions ,status
+from product.models import Product , Category ,Review
+from product.serializers import ProductSerializer , CategorySerializer
+from rest_framework.response import Response
+from django.utils.text import slugify
+from rest_framework.decorators import action
+from account.authentications import CustomJWTAuthentication
+
+class ProductViewSet(viewsets.ModelViewSet):
+    """
+    A viewset for viewing and editing product instances.
+    """
+    serializer_class = ProductSerializer
+    authentication_classes = [CustomJWTAuthentication,]
+    permission_classes = [permissions.AllowAny,]
+    lookup_field = 'slug'
+
+    def get_queryset(self):
+        """Queryset to include only available Products"""
+        return Product.objects.filter(is_available=True).order_by('-created_at')
+    
+    def list(self, request):
+        """List all available categories"""
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, slug=None):
+        """Retrieve a single category by slug"""
+        product = self.get_object()
+        serializer = self.get_serializer(product)
+        return Response(serializer.data)
 
 
-# # Create your views here.
-
-# class ProductMixinView(
-#     mixins.CreateModelMixin,
-#     mixins.ListModelMixin,
-#     mixins.RetrieveModelMixin,
-#     generics.GenericAPIView
-# ):
-#     permission_classes = [permissions.AllowAny]
-#     serializer_class = ProductSerializer
-#     lookup_field = 'slug'
-
-
-
-#     def get_queryset(self):
-#         """queryset to include only available Product"""
-    
-#         # category_slug = self.kwargs.get('category_slug')
-#         # return Product.objects.filter(category__slug=category_slug)
-#         queryset = Product.objects.filter(available=True).order_by('-created_at')
-#         return queryset
-    
-#     def get_object(self):
-#         queryset = self.get_queryset
-#         lookup_url_kwarg = self.lookup_field
-#         filter_kwargs = {lookup_url_kwarg: self.kwargs[lookup_url_kwarg]}
-#         obj = get_object_or_404(queryset, **filter_kwargs)
-#         return obj
-
-#     def get(self,request, *args,**kwargs):
-#         slug = kwargs.get('slug')
-    
-#         if slug is not None:
-#             return self.retrieve(request, *args, **kwargs)
-#         return self.list(request, *args, **kwargs)
-    
-#     def post(self, request, *args, **kwargs):
-#         return self.create(request, *args, **kwargs)
-    
-#     def perform_create(self, serializer):
-#         return super().perform_create(serializer)
-    
-#     def destroy(self, request, *args, **kwargs):
-#         return self.destroy(request, *args, **kwargs)
-    
-#     def update(self, request):
-#         slug = self.lookup_field
-#         instance = self.get_object(Product,slug=slug)
-#         serializer = self.get_serializer(instance, data=request.data, partial=True)
-#         serializer.is_valid(raise_exception=True)
-#         self.perform_update(serializer)
-#         return Response(serializer.data)
-
-#     def perform_update(self, serializer):
-#         instance = serializer.save()
-#         if instance.name != serializer.validated_data.get('name'):
-#             instance.slug = slugify(instance.name)
-#             instance.save()
-#         return instance
-    
-# class CategoryMixinView(
-#     mixins.CreateModelMixin,
-#     mixins.ListModelMixin,
-#     mixins.RetrieveModelMixin,
-#     mixins.DestroyModelMixin,
-#     mixins.UpdateModelMixin,
-#     generics.GenericAPIView
-# ):
- 
-#     serializer_class = CategorySerializer
-#     lookup_field = 'slug'
-
-#     def get_queryset(self):
-#         """queryset to include only available Category"""
-#         queryset = Category.objects.filter(available=True).order_by('-created_at')
-#         return queryset
+    def create(self, request):
+        """Create a new category"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     
 
-#     def get(self,request, *args,**kwargs):
-#         slug = self.kwargs.get('slug')
-#         if slug is not None:
-#             return self.retrieve(request, *args, **kwargs)
-#         return self.list(request, *args, **kwargs)
+    def update(self, request, slug=None):
+        """Update an existing category"""
+        product = self.get_object()
+        serializer = self.get_serializer(product, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
     
-#     def post(self, request, *args, **kwargs):
-#         return self.create(request, *args, **kwargs)
-    
-#     def destroy(self, request, *args, **kwargs):
-#         return self.destroy(request, *args, **kwargs)
-    
-#     def update(self, request, *args, **kwargs):
-#         return self.update(request, *args, **kwargs)
-       
-    
+    @action(detail=True, methods=['get'], url_path='category/(?P<category_slug>[^/.]+)')
+    def filter_by_category(self, request, category_slug=None):
+        products = self.get_queryset().filter(category__slug=category_slug)
+        page = self.paginate_queryset(products)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(products, many=True)
+        return Response(serializer.data)        
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    authentication_classes = [CustomJWTAuthentication,]
+    serializer_class = CategorySerializer
+
+    permission_classes = [permissions.AllowAny,]
+    lookup_field = 'slug'
+
+    def get_queryset(self):
+        """Queryset to include only available Categories"""
+        return Category.objects.filter(is_available=True).order_by('-created_at')
+
 

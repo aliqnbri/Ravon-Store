@@ -1,14 +1,14 @@
 from django.db import models
-from core.managers import SoftDeleteManager
+# from core.managers import SoftDeleteManager
 from django.utils import timezone
 
 # Create your models here.
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
-    is_active = models.BooleanField()
+    is_active = models.BooleanField(default=True)
 
-    objects = SoftDeleteManager()
+    # objects = SoftDeleteManager()
 
     def delete(self, using=None, keep_parents=False):
         self.deleted_at = timezone.now()

@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'cart.apps.CartConfig',
     'customer.apps.CustomerConfig',
     'payment.apps.PaymentConfig',
-    
+
 
 
 ]
@@ -152,17 +152,20 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.PageNumberPagination',
         'PAGE_SIZE': 5,
 
-    'DEFAULT_AUTHENTICATION_CLASSES':
-        'account.authentications.CustomJWTAuthentication',
-        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny',],
 
-    'DEFAULT_SCHEMA_CLASS':
-        'drf_spectacular.openapi.AutoSchema',
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'account.authentications.CustomJWTAuthentication',],
+
+
+    # 'DEFAULT_SCHEMA_CLASS':
+    #     'drf_spectacular.openapi.AutoSchema',
 }
 
 AUTHENTICATION_BACKENDS = [
     'account.backend.CustomBackendAuthenticate',
-    # 'django.contrib.auth.backends.ModelBackend',  # Include the default ModelBackend
+    # 'django.contrib.auth.backends.ModelBackend',  
 ]
 
 
@@ -207,8 +210,6 @@ SIMPLE_JWT = {
 }
 
 
-
-
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Raven Store',
     'DESCRIPTION': 'Django DRF Ecommerce',
@@ -239,10 +240,9 @@ CORS_ALLOWED_ORIGINS = [
     # Add other trusted origins as needed
 ]
 
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'login'
-
+# LOGIN_URL = 'login'
+# LOGIN_REDIRECT_URL = 'home'
+# LOGOUT_REDIRECT_URL = 'login'
 
 
 INTERNAL_IPS = [
