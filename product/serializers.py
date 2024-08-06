@@ -33,8 +33,9 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     detail_url = serializers.SerializerMethodField(read_only=True)
-    category = CategorySerializer()
     brand = BrandSerializer()
+
+    # category = CategorySerializer(many=True)
 
     class Meta:
         model = Product
@@ -86,6 +87,10 @@ class ProductSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+    
+    def delete(self, instance):
+        instance.delete()
+
 
     def to_representation(self, instance: Product) -> Dict[str, Any]:
         """ Returns the representation of the product instance."""
@@ -94,14 +99,17 @@ class ProductSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         view = self.context.get('view')
         data['detail_url'] = self.get_detail_url(instance)
-        data['category'] = instance.category.name
+        data['category'] = [category.name for category in instance.category.all()]
+
         data['brand'] = instance.brand.name
 
         match view.action:
-            case 'list':
+            case 'list'| 'filter_by_category':
                 excluded_fields = ['created_at', 'updated_at', 'is_active', 'slug', 'description',  'reviews']
                 for field in excluded_fields:
                     data.pop(field, None)
+            case _:
+                data.pop('detail_url', None)        
         return data        
 
 

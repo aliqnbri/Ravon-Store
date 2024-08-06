@@ -23,8 +23,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     authentication_classes = [CustomJWTAuthentication,]
     pagination_class = StandardResultsSetPagination
     filter_backends = [SearchFilter, OrderingFilter]
-    search_fields = ['name', 'description']
-    ordering_fields = ['created_at', 'price']
+    search_fields = ['name','category__name', 'brand__name']
+    ordering_fields = ['name','created_at', 'price']
     permission_classes = [permissions.AllowAny,]
     lookup_field = 'slug'
 
@@ -32,11 +32,11 @@ class ProductViewSet(viewsets.ModelViewSet):
         """Queryset to include only available Products"""
         return Product.objects.filter(is_available=True).order_by('-created_at')
     
-    def list(self, request):
-        """List all available categories"""
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True,context={'request': request, 'view': self})
-        return Response(serializer.data,status=status.HTTP_200_OK)
+    # def list(self, request):
+    #     """List all available categories"""
+    #     queryset = self.get_queryset()
+    #     serializer = self.get_serializer(queryset, many=True,context={'request': request, 'view': self})
+    #     return Response(serializer.data,status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
         """Retrieve a single category by slug"""
@@ -64,11 +64,13 @@ class ProductViewSet(viewsets.ModelViewSet):
     def destroy(self, request, slug=None):
         """Delete a category"""
         product = self.get_object()
-        self.perform_destroy(product)
+        serializer = self.get_serializer(product)
+        serializer.delete(product)
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-    @action(detail=True, methods=['get'], url_path='category/(?P<category_slug>[^/.]+)')
-    def filter_by_category(self, request, category_slug=None):
+    @action(detail=False, methods=['get'], url_path='category/(?P<category_slug>[^/.]+)')
+    def filter_by_category(self, request, category_slug=None,):
+    
         products = self.get_queryset().filter(category__slug=category_slug)
         page = self.paginate_queryset(products)
         if page is not None:
