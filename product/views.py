@@ -32,11 +32,6 @@ class ProductViewSet(viewsets.ModelViewSet):
         """Queryset to include only available Products"""
         return Product.objects.filter(is_available=True).order_by('-created_at')
     
-    # def list(self, request):
-    #     """List all available categories"""
-    #     queryset = self.get_queryset()
-    #     serializer = self.get_serializer(queryset, many=True,context={'request': request, 'view': self})
-    #     return Response(serializer.data,status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
         """Retrieve a single category by slug"""
@@ -80,15 +75,5 @@ class ProductViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
-    authentication_classes = [CustomJWTAuthentication,]
-    serializer_class = CategorySerializer
-
-    permission_classes = [permissions.AllowAny,]
-    lookup_field = 'slug'
-
-    def get_queryset(self):
-        """Queryset to include only available Categories"""
-        return Category.objects.filter(is_available=True).order_by('-created_at')
 
 

@@ -8,7 +8,7 @@ app_name = 'product'
 
 router = DefaultRouter()
 router.register(r'products', views.ProductViewSet, basename='products')
-router.register(r'categories', views.CategoryViewSet, basename='category')
+
 
 urlpatterns = [
     path('', include(router.urls)),
