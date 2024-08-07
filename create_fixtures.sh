@@ -2,7 +2,7 @@
 
 
 # Set the project directory
-PROJECT_DIR=$(dirname $(dirname $(dirname $0 | tr -d '\n')))echo "Project directory: $PROJECT_DIR"
+PROJECT_DIR=$(dirname $(dirname $(dirname $0 | tr -d '\n')))
 
 # Change to the project directory
 cd "$PROJECT_DIR"
