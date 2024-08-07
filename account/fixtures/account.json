@@ -1,2 +1,22 @@
 [
+{
+  "model": "account.customuser",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$iRO0xQbCm8n9ukaArRnZzx$z9lKHNoexeakMhHDAYpYW2flumwq3TJwHkse6IMBrgE=",
+    "last_login": null,
+    "username": null,
+    "email": "aliqnbri1998@gmail.com",
+    "phone_number": "09104518727",
+    "is_staff": true,
+    "is_superuser": true,
+    "is_verified": false,
+    "is_active": true,
+    "date_joined": "2024-08-07",
+    "role": "admin",
+    "staff_role": null,
+    "groups": [],
+    "user_permissions": []
+  }
+}
 ]

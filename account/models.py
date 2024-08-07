@@ -41,9 +41,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self) -> str:
         return f"user : {self.email} with {self.role} Role"
     
-    @admin.display
-    def full_name(self):
-        return self.first_name + " " + self.last_name
     
 
 
@@ -74,12 +71,3 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 #     address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE )
 
 
-
-    @admin.display
-    def full_name(self):
-        return self.first_name + " " + self.last_name
-
-    @property
-    def get_username(self):
-        return f'{self.username}'
-    

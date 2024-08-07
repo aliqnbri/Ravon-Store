@@ -34,6 +34,8 @@ class CustomerProfile(models.Model):
         FEMALE = 'female', _('Female')
 
     customer = models.OneToOneField(CustomUser ,on_delete=models.CASCADE, related_name='customer_profile')
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
     gender = models.CharField(max_length=6, choices=Gender.choices, null=True, blank=True)
     avatar = models.ImageField(upload_to='media/avatars/', null=True, blank=True)
     address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE )
