@@ -20,33 +20,51 @@ class CustomBackendAuthenticate(ModelBackend):
             raise ImproperlyConfigured(_("You must define a User model"))
 
     def authenticate(self, request, username: Optional[str] = None, email: Optional[str] = None, password: Optional[str] = None, **kwargs) -> Optional[AbstractBaseUser]:
-
-        if password is None:
-            return None
-
-        user = self._get_user_by_identifier(username, email)
-        if user and user.check_password(password):
-            return user
-        return None
-    
-    def _get_user_by_identifier(self, username: Optional[str], email: Optional[str]) -> Optional[AbstractBaseUser]:
-        if username:
-            return self._get_user_by_username(username)
-        if email:
-            return self._get_user_by_email(email)
-        return None
-    
-    def _get_user_by_username(self, username: str):
+                # Attempt to retrieve the user object based on the provided username
         try:
-            return self.User.objects.get(username=username)
+            user = self.User.objects.get(email=username)
+            if user and user.check_password(password):
+                return user
         except self.User.DoesNotExist:
-            return None
+            # If the user does not exist,  check by usernmae
+            try:
+                user = self.User.objects.get(username=username)
+                if user and user.check_password(password):
+                    return user
+            except self.User.DoesNotExist:
+                return None
 
-    def _get_user_by_email(self, email: str):
-        try:
-            return self.User.objects.get(email=email)
-        except self.User.DoesNotExist:
-            return None
+        # Check if the user is active
+        # if not user.is_active:
+        #     return None
+
+
+    #     if password is None:
+    #         return None
+
+    #     user = self._get_user_by_identifier(username, email)
+    #     if user and user.check_password(password):
+    #         return user
+    #     return None
+    
+    # def _get_user_by_identifier(self, username: Optional[str]=None, email: Optional[str]= None) -> Optional[AbstractBaseUser]:
+    #     if username:
+    #         return self._get_user_by_username(username)
+    #     if email:
+    #         return self._get_user_by_email(email)
+    #     return None
+    
+    # def _get_user_by_username(self, username: str):
+    #     try:
+    #         return self.User.objects.get(username=username)
+    #     except self.User.DoesNotExist:
+    #         return None
+
+    # def _get_user_by_email(self, email: str):
+    #     try:
+    #         return self.User.objects.get(email=email)
+    #     except self.User.DoesNotExist:
+    #         return None
 
     def get_user(self, user_id: int) -> object:
 

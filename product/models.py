@@ -92,6 +92,15 @@ class Product(BaseModel):
     brand = models.ForeignKey(Brand,on_delete=models.CASCADE )
     reviews = models.ManyToManyField(Review, blank=True, related_name='products')
     category = models.ManyToManyField(Category, related_name='products')    
+    available_quantity = models.IntegerField(default=1)
+
+
+
+    def reduce_quantity(self, quantity):
+        self.available_quantity -= quantity
+        if self.available_quantity == 0:
+            self.is_available = False
+        self.save()
     
     class Meta:
         ordering = ('name',)

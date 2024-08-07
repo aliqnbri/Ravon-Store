@@ -2,6 +2,7 @@ from django.db import models
 from core.models import BaseModel
 from account.models import CustomUser
 from django.utils.translation import gettext_lazy as _
+from django.contrib import admin
 
 
 from django.contrib.contenttypes.fields import GenericForeignKey , GenericRelation
@@ -37,6 +38,13 @@ class CustomerProfile(models.Model):
     avatar = models.ImageField(upload_to='media/avatars/', null=True, blank=True)
     address = models.ForeignKey(Address, null=True, blank=True, on_delete=models.CASCADE )
 
+    @admin.display
+    def full_name(self):
+        return self.first_name + " " + self.last_name
+
+    @property
+    def get_username(self):
+        return f'{self.username}'
 
 
 

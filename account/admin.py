@@ -1,10 +1,10 @@
 from django.contrib import admin
-from account.models import CustomUser , Address
+from account.models import CustomUser 
 from account.forms import CustomUserCreationForm , CustomUserChangeForm
 from django.contrib.auth.admin import UserAdmin
 from core.managers import export_to_csv
 from django.utils.translation import gettext_lazy as _
-
+from customer.models import Address
 
 admin.site.site_header = 'Ali Qanbari Admin'
 admin.site.site_title = 'Ali Qanbari'

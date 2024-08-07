@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from account.models import CustomUser , CustomerProfile
-
+from account.models import CustomUser
+from customer.models import CustomerProfile
 
 
 
