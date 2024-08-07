@@ -1,12 +1,20 @@
+from cart import views
 from django.urls import path
-from cart.views import CartAPI ,CartTemplateView,CheckOutTemplateView
 
-app_name= 'cart'
+
+app_name = 'cart'
+
 
 urlpatterns = [
-    
-    path('api/', CartAPI.as_view(), name='cartapi'),
-    path('',CartTemplateView.as_view(),name= 'cart'),
-    path('checkout/',CheckOutTemplateView.as_view(),name="checkout")
-    
+    path('cart/', views.CartAPI.as_view()),
+    path('cart-detail/', views.CartRetrieveUpdateDestroyView.as_view(), name='cart_detail'),
 ]
+
+# urlpatterns = [
+#     path('cart/', views.CartRetrieveUpdateDestroyView.as_view(), name='cart_detail'),
+#     path('cart/add/<int:product_pk>/',
+#          views.CartAddView.as_view(), name='cart_add'),
+#     path('cart/remove/<int:product_pk>/',
+#          views.CartRemoveView.as_view(), name='cart_remove'),
+#     path('cart/clear/', views.CartClearView.as_view(), name='cart_clear'),
+# ]

@@ -5,27 +5,33 @@ from order.models import Order, Coupon, OrderItem
 from customer.models import Address
 from cart.models import Cart
 
-from product.serializers import ProductSerializer, SimpleProductSerializer
+from product.serializers import ProductSerializer
 from product.models import Product
 
+class SimpleProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'price']
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product = SimpleProductSerializer()
 
     class Meta:
         model = OrderItem
-        fields = ["id", "product", "price", "quantity"]
+        fields = ["id", "product", "price", "quantity","total_price"]
         depth = 1
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True, read_only=True)
+    customer = serializers.StringRelatedField()
+
+    items = OrderItemSerializer(many=True)
     modified_at = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = ["id", "customer", "items", "status", "coupon", "dicount",
-                  "total_amount", "get_total_cost", "get_diccount", "__len__"]
+        fields = ["id", "customer", "items", "status", "coupon", "discount","modified_at",
+                  "total_amount", "get_total_cost", "get_discount", "__len__"]
         read_only_fields = ['items', 'customer',
                             'get_total_cost', 'created_at', 'modified_at']
 

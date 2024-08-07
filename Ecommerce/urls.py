@@ -12,10 +12,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('',include('core.urls')),
     # path('api-auth/', include('rest_framework.urls')),
-    path('account/', include('account.urls', namespace='account')),
+    path('', include('account.urls', namespace='account')),
     path('', include('product.urls', namespace='product')),
-    # path('cart/', include('cart.urls', namespace='cart')),
-    # path('order/', include('order.urls', namespace='order')),
+    path('', include('order.urls', namespace='order')),
+    path('cart/', include('cart.urls', namespace='cart')),
     # path('payment/', include('payment.urls', namespace='payment')),
 
 ] 

@@ -10,21 +10,58 @@ from cart.models import Cart
 
 # Create your views here.
 
-class CartTemplateView(TemplateView):
-    template_name = "cart.html"
 
 
-class CheckOutTemplateView(TemplateView):
-    template_name = "checkout.html"
+from rest_framework import generics
+from .models import Cart
+from .serializers import CartSerializer
+
+class CartListCreateView(generics.ListCreateAPIView):
+    # queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+
+
+    def get_queryset(self):
+        cart = Cart(self.request)
+        return list(cart)
     
-    def dispatch(self, request, *args, **kwargs):
-        if request.COOKIES.get('access_token') != None:
+
+    def perform_create(self, serializer):
+        cart = Cart(self.request)
+        product_id = serializer.validated_data.get('product_id')
+        quantity = serializer.validated_data.get('quantity', 1)
+        cart.add(product_id, quantity)
+        return Response(serializer.data)
+
+
+class CartRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    # queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+
+    def get_queryset(self):
+        cart = Cart(self.request)
+        return list(cart)
+
+# class CartTemplateView(TemplateView):
+#     template_name = "cart.html"
+
+
+# class CheckOutTemplateView(TemplateView):
+#     template_name = "checkout.html"
+    
+#     def dispatch(self, request, *args, **kwargs):
+#         if request.COOKIES.get('access_token') != None:
             
-            return super().dispatch(request, *args, **kwargs)
-        else :
-            return redirect(reverse_lazy('login'))
-    
-    
+#             return super().dispatch(request, *args, **kwargs)
+#         else :
+#             return redirect(reverse_lazy('login'))
+
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from cart.models import Cart
+from .serializers import CartSerializer
+
+
 class CartAPI(APIView):
     """
     Single API to handle cart operations

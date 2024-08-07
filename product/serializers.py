@@ -6,6 +6,8 @@ from rest_framework.reverse import reverse_lazy
 from typing import Dict, Any
 
 
+
+
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
         model = Brand
