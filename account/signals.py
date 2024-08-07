@@ -20,4 +20,4 @@ def create_customer_profile(sender, instance, created, **kwargs):
         None
     """
     if created and instance.Role.CUSTOMER :
-        CustomerProfile.objects.create(user=instance)
+        CustomerProfile.objects.create(customer=instance)
