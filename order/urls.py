@@ -9,6 +9,7 @@ app_name = 'order'
 router = DefaultRouter()
 router.register(r'orders', views.OrderViewSet, basename='order')
 router.register(r'order-items', views.OrderItemViewSet, basename='orderitem')
+router.register(r'cart', views.CartViewSet, basename='cart')
 
 urlpatterns = [
     path('', include(router.urls)),
