@@ -52,36 +52,9 @@ class OrderViewSet(viewsets.ModelViewSet):
             return CreateOrderSerializer
         return OrderSerializer
     
-    def create(self, request, *args, **kwargs):
-
-        serializer = self.get_serializer_class()(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        order = serializer.save()
-        response_serializer = OrderSerializer(order)
-        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+ 
     
-    @action(detail=False, methods=['get'])
-    def cart(self, request):
-        cart = Cart(request)
-        serializer = OrderSerializer(cart, many=True)
-        return Response(serializer.data)
-    
-    @action(detail=False, methods=['post'])
-    def add_to_cart(self, request):
-        product_id = request.data.get('product_id')
-        quantity = request.data.get('quantity')
-        cart = Cart(request)
-        product = Product.objects.get(id=product_id)
-        cart.add(product=product, quantity=quantity)
-        return Response({'message': 'Product added to cart'}, status=status.HTTP_201_CREATED)
-
-    @action(detail=False, methods=['post'])
-    def remove_from_cart(self, request):
-        product_id = request.data.get('product_id')
-        cart = Cart(request)
-        product = Product.objects.get(id=product_id)
-        cart.remove(product)
-        return Response({'message': 'Product removed from cart'}, status=status.HTTP_200_OK)
+ 
 
 
 class OrderItemViewSet(viewsets.ModelViewSet):
@@ -89,6 +62,11 @@ class OrderItemViewSet(viewsets.ModelViewSet):
     serializer_class = OrderItemSerializer
     permission_classes = [permissions.AllowAny]
     authentication_classes = [CustomJWTAuthentication,]
+    
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return CreateOrderSerializer
+        return OrderSerializer
 
     
     def create(self, request, *args, **kwargs):

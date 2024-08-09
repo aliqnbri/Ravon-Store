@@ -10,10 +10,12 @@ from product.models import Product
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all(),
-                                                 read_only=False,
-                                                 allow_null=False,
-                                                 required=True)
+    product = serializers.StringRelatedField()
+
+    # product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all(),
+    #                                              read_only=False,
+    #                                              allow_null=False,
+    #                                              required=True)
     quantity = serializers.ChoiceField(
         choices=[(i, i) for i in range(1, 100)],  # adjust the range as needed
         required=True)
@@ -27,7 +29,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ["id", "product", "price", "quantity", "total_price"]
+        fields = ["product", "price", "quantity", "total_price"]
         depth = 1
 
     def validate(self, data):
@@ -48,26 +50,14 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     customer = serializers.StringRelatedField()
     items = OrderItemSerializer(many=True,source='order_items')
-    modified_at = serializers.SerializerMethodField()
+
 
     class Meta:
         model = Order
-        fields = ["id", "customer", "items", "status", "coupon", "discount", "modified_at",
+        fields = ["customer", "items", "status", "coupon", "discount", 
                   "total_amount", ]
-        read_only_fields = ['items', 'customer', 'created_at', 'modified_at']
+        read_only_fields = ['items', 'customer', 'created_at',"updated_at","total_amount",  "status"]
 
-    def get_created_at(self, obj):
-        try:
-            return obj.created_at.strftime("%Y-%m-%d %H:%M:%S")
-        except:
-            return None
-
-    def get_modified_at(self, obj):
-        try:
-            return obj.modified_at.strftime("%Y-%m-%d %H:%M:%S")
-        except:
-            None
-            
     def create(self, validated_data):
         items_data = validated_data.pop('items')
         order = Order.objects.create(**validated_data)
@@ -90,6 +80,12 @@ class OrderSerializer(serializers.ModelSerializer):
             else:
                 OrderItem.objects.create(order=instance, **item_data)
         return instance        
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        items = data.pop('items')
+        data['items'] = items
+        return data
 
     class CouponSerializer(serializers.ModelSerializer):
         product = ProductSerializer(read_only=True)
@@ -115,17 +111,14 @@ from django.core.exceptions import ValidationError
 
 
 class CreateOrderSerializer(serializers.Serializer):
-    # products = serializers.ListField(
-    #     child=serializers.DictField(),  # Expecting a list of dictionaries with product 'id' and 'quantity'.
-    #     allow_empty=False)
-    # products = ProductOrderSerializer(many=True)  # Expecting a list of product IDs and quantities
     products = serializers.PrimaryKeyRelatedField(many=True, read_only=False, queryset=Product.objects.all())
     coupon_code = serializers.CharField(required=False, allow_blank=True)
 
 
 
     def validate_products(self, products):
-        for product in products:
+        for product_id in products:
+            product = Product.objects.get(id=product_id)
             if product.available_quantity <1:
                 raise serializers.ValidationError(
                     f"Insufficient quantity for product {product.name}"
@@ -143,22 +136,21 @@ class CreateOrderSerializer(serializers.Serializer):
         coupon = None
 
         for product_data in products:
-            # product = Product.objects.select_for_update().get(id=product_data['id'])
+            product_instance = Product.objects.get().get(id=product_data)
             quantity = 1
-            price = product_data.price
-            
-           
+            price = product_instance.price
+        
             if coupon:
                 discounted_price = coupon.calculate_discounted_price()
                 price = min(price, discounted_price)  # Ensuring we get the lower price if the coupon applies
 
-            order_item = OrderItem(order=order, product=product_data, quantity=quantity, price=price)
+            order_item = OrderItem(order=order, product=product_instance, quantity=quantity, price=price)
             order_items.append(order_item)
             total_price += price * quantity
             
             # Update product's available quantity
-            product_data.available_quantity -= quantity
-            product_data.save()
+            product_instance.available_quantity -= quantity
+            product_instance.save()
 
         OrderItem.objects.bulk_create(order_items)
         order.total_amount = total_price
@@ -170,9 +162,6 @@ class CreateOrderSerializer(serializers.Serializer):
         coupon_code = validated_data.get("coupon_code", None)
         customer = request.user.customer_profile
         print(customer, 'this is the customer')
-        address = customer.address
-
-        
         with transaction.atomic():
             coupon = None
             if coupon_code:
