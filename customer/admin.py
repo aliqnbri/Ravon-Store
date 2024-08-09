@@ -5,9 +5,9 @@ from django.contrib import admin
 from .models import Address, CustomerProfile, Comment
 
 class AddressAdmin(admin.ModelAdmin):
-    list_display = ('city', 'street', 'postal_code', 'detail')
+    list_display = ('city', 'street', 'postal_code', 'secondary_address')
     list_filter = ('city', 'state', 'country')
-    search_fields = ('city', 'street', 'postal_code', 'detail')
+    search_fields = ('city', 'street', 'postal_code', 'secondary_address')
     ordering = ('city', 'street')
 
 class CustomerProfileAdmin(admin.ModelAdmin):

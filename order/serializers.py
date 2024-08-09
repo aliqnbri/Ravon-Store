@@ -23,7 +23,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
     def get_total_price(self, obj):
-        return obj.price * obj.quantity
+        return obj.total_price()
 
     class Meta:
         model = OrderItem
@@ -47,15 +47,14 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     customer = serializers.StringRelatedField()
-    items = OrderItemSerializer(many=True)
+    items = OrderItemSerializer(many=True,source='order_items')
     modified_at = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = ["id", "customer", "items", "status", "coupon", "discount", "modified_at",
-                  "total_amount", "get_total_cost", "get_discount", "__len__"]
-        read_only_fields = ['items', 'customer',
-                            'get_total_cost', 'created_at', 'modified_at']
+                  "total_amount", ]
+        read_only_fields = ['items', 'customer', 'created_at', 'modified_at']
 
     def get_created_at(self, obj):
         try:
@@ -68,6 +67,29 @@ class OrderSerializer(serializers.ModelSerializer):
             return obj.modified_at.strftime("%Y-%m-%d %H:%M:%S")
         except:
             None
+            
+    def create(self, validated_data):
+        items_data = validated_data.pop('items')
+        order = Order.objects.create(**validated_data)
+        for item_data in items_data:
+            OrderItem.objects.create(order=order, **item_data)
+        return order        
+            
+    def update(self, instance, validated_data):
+        items_data = validated_data.pop('items', [])
+        instance.status = validated_data.get('status', instance.status)
+        instance.coupon = validated_data.get('coupon', instance.coupon)
+        instance.discount = validated_data.get('discount', instance.discount)
+        instance.save()
+        for item_data in items_data:
+            order_item = OrderItem.objects.filter(id=item_data['id'], order=instance).first()
+            if order_item:
+                order_item.quantity = item_data.get('quantity', order_item.quantity)
+                order_item.price = item_data.get('price', order_item.price)
+                order_item.save()
+            else:
+                OrderItem.objects.create(order=instance, **item_data)
+        return instance        
 
     class CouponSerializer(serializers.ModelSerializer):
         product = ProductSerializer(read_only=True)
@@ -84,12 +106,6 @@ class OrderSerializer(serializers.ModelSerializer):
             return data
 
 
-class CouponSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Coupon
-        fields = ['id', 'code', 'valid_from',
-                  'valid_to', 'discount', 'is_active', 'count']
-
 
 
 from typing import Any, Dict
@@ -97,15 +113,20 @@ from django.db import transaction
 from rest_framework import serializers
 from django.core.exceptions import ValidationError
 
+
 class CreateOrderSerializer(serializers.Serializer):
-    products = serializers.PrimaryKeyRelatedField(many=True, queryset=Product.objects.all())
-    coupon_code = serializers.CharField(required=False)
-    address = serializers.PrimaryKeyRelatedField(read_only=True)
+    # products = serializers.ListField(
+    #     child=serializers.DictField(),  # Expecting a list of dictionaries with product 'id' and 'quantity'.
+    #     allow_empty=False)
+    # products = ProductOrderSerializer(many=True)  # Expecting a list of product IDs and quantities
+    products = serializers.PrimaryKeyRelatedField(many=True, read_only=False, queryset=Product.objects.all())
+    coupon_code = serializers.CharField(required=False, allow_blank=True)
+
 
 
     def validate_products(self, products):
         for product in products:
-            if product.available_quantity < product.quantity:
+            if product.available_quantity <1:
                 raise serializers.ValidationError(
                     f"Insufficient quantity for product {product.name}"
                 )
@@ -116,95 +137,95 @@ class CreateOrderSerializer(serializers.Serializer):
         self.validate_products(products)
         return data
 
-    def create_order_items(self, order: Order, products: Dict[str, Any], coupon_code: str) -> None:
+    def create_order_items(self, order: Order, products: list, coupon: Coupon = None) -> None:
         order_items = []
         total_price = 0
-
         coupon = None
-        if coupon_code:
-            coupon = Coupon.objects.filter(code=coupon_code, is_active=True).first()
 
         for product_data in products:
-            product = Product.objects.get(id=product_data['id'])
-            quantity = product_data['quantity']
-            price = product.price
+            # product = Product.objects.select_for_update().get(id=product_data['id'])
+            quantity = 1
+            price = product_data.price
+            
+           
             if coupon:
-                price -= (price * coupon.discount_percentage) / 100
+                discounted_price = coupon.calculate_discounted_price()
+                price = min(price, discounted_price)  # Ensuring we get the lower price if the coupon applies
 
-            order_item = OrderItem(order=order, product=product, quantity=quantity, price=price)
+            order_item = OrderItem(order=order, product=product_data, quantity=quantity, price=price)
             order_items.append(order_item)
             total_price += price * quantity
+            
+            # Update product's available quantity
+            product_data.available_quantity -= quantity
+            product_data.save()
 
         OrderItem.objects.bulk_create(order_items)
-        order.total_price = total_price
+        order.total_amount = total_price
         order.save()
 
     def create(self, validated_data: Dict[str, Any]) -> Order:
         request = self.context.get('request')
-
         products = validated_data.pop('products')
-        coupon_code = validated_data.get("coupon_code")
-
-
-        customer = request.user.customerprofile
+        coupon_code = validated_data.get("coupon_code", None)
+        customer = request.user.customer_profile
         print(customer, 'this is the customer')
         address = customer.address
 
+        
         with transaction.atomic():
-            order = Order.objects.create(
-                customer=customer,
-                city=customer.address.city,
-                postal_code=customer.address.postal_code,
-                address=customer.address.detail
-            )
+            coupon = None
+            if coupon_code:
+                coupon = Coupon.objects.filter(code=coupon_code, is_active=True).first()
+                if not coupon:
+                    raise ValidationError("Invalid coupon code provided.")
+            order = Order.objects.create(customer=customer)
             self.create_order_items(order, products, coupon_code)
             return order
 
 
-        with transaction.atomic():
-            order = Order.objects.create(customer=self.context["request"].user)
-            self.create_order_items(order, products, coupon_code)
-            return order
 
-    def save(self, **kwargs) -> Order:
-        with transaction.atomic():
-            request = self.context.get("request")
-            # address = Address.objects.filter(id=request.data['address']).first()
 
-            # if not address:
-            #     raise ValidationError("Invalid address")
-            print(request, 'this is request in create order')
-            customer = request.user.customerprofile
+    # def save(self, **kwargs) -> Order:
+    #     with transaction.atomic():
+    #         request = self.context.get("request")
+    #         # address = Address.objects.filter(id=request.data['address']).first()
 
-            order = Order.objects.create(
-                customer=customer,
-                city=customer.address.city,
-                postal_code=request.user.address.postal_code,
-                address= request.user.address.detail,
-            )
+    #         # if not address:
+    #         #     raise ValidationError("Invalid address")
+    #         print(request, 'this is request in create order')
+    #         customer = request.user.customer_profile
+    #         address = customer.address
 
-            cart = Cart(request)
-            products = [{'product': Product.objects.get(id=item['product']['id']), 'quantity': item['quantity'], 'price': item['price']} for item in cart]
+    #         order = Order.objects.create(
+    #             customer=customer,
+    #             city=address.city,
+    #             postal_code=address.postal_code,
+    #             address=address.get_address(),
+    #         )
 
-            self.validate_products([product['product'] for product in products])
+    #         cart = Cart(request)
+    #         products = [{'product': Product.objects.get(id=item['product']['id']), 'quantity': item['quantity'], 'price': item['price']} for item in cart]
 
-            order_items = [
-                OrderItem(
-                    order=order,
-                    product=product['product'],
-                    quantity=product['quantity'],
-                    price=product['price']
-                )
-                for product in products
-            ]
-            OrderItem.objects.bulk_create(order_items)
+    #         self.validate_products([product['product'] for product in products])
 
-            for item in cart:
-                product = Product.objects.get(id=item['product']['id'])
-                product.reduce_quantity(item['quantity'])
+    #         order_items = [
+    #             OrderItem(
+    #                 order=order,
+    #                 product=product['product'],
+    #                 quantity=product['quantity'],
+    #                 price=product['price']
+    #             )
+    #             for product in products
+    #         ]
+    #         OrderItem.objects.bulk_create(order_items)
 
-            cart.clear()
-            return order
+    #         for item in cart:
+    #             product = Product.objects.get(id=item['product']['id'])
+    #             product.reduce_quantity(item['quantity'])
+
+    #         cart.clear()
+    #         return order
 
 
 # class CreateOrderSerializer(serializers.Serializer):

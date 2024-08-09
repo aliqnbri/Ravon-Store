@@ -20,12 +20,11 @@ class Address(BaseModel):
     city = models.CharField(max_length=50)
     street = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=20)
-    detail = models.TextField()
     latitude = models.DecimalField(
         max_digits=9, decimal_places=2, null=True, blank=True)
     longitude = models.DecimalField(
         max_digits=9, decimal_places=2, null=True, blank=True)
-    description = models.TextField(null=True, blank=True)
+    secondary_address = models.TextField(null=True, blank=True)
 
     def get_address(self):
         return f"Address : {self.city} ,{self.street}, {self.postal_code}"
@@ -68,11 +67,12 @@ class Comment(BaseModel):
     customer = models.ForeignKey(CustomerProfile, on_delete=models.PROTECT)
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     object_id = models.CharField(max_length=200)
     content_object = GenericForeignKey('content_type', 'object_id')
 
-    comment = GenericRelation("Comment", related_query_name='comment')
+    comment = GenericRelation("Comment", related_query_name='comments', related_name='parent_comment')
+
 
     def __str__(self):
         return self.body

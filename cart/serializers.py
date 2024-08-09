@@ -3,9 +3,7 @@ from .models import Cart
 from product.serializers import ProductSerializer
 
 class CartItemSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    name = serializers.CharField()
-    price = serializers.DecimalField(max_digits=3,decimal_places=2 )
+    product = ProductSerializer()
     quantity = serializers.IntegerField()
     total_price = serializers.DecimalField(max_digits=3,decimal_places=2)
 
@@ -13,12 +11,13 @@ class CartItemSerializer(serializers.Serializer):
 
 
 class CartSerializer(serializers.Serializer):
-    product_id = serializers.IntegerField()
-    quantity = serializers.IntegerField(default=1)
-    coupon = serializers.SerializerMethodField()
-    discount = serializers.DecimalField(max_digits=3,decimal_places=2)
-    total_price = serializers.DecimalField(max_digits=3,decimal_places=2)
     items = CartItemSerializer(many=True)
+    subtotal = serializers.DecimalField(max_digits=10, decimal_places=2)
+    tax = serializers.DecimalField(max_digits=10, decimal_places=2)
+    discount = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total_amount = serializers.DecimalField(max_digits=10, decimal_places=2)
+    coupon = serializers.SerializerMethodField()
+
 
     def get_coupon(self, obj):
         if obj.coupon:

@@ -125,6 +125,149 @@
   }
 },
 {
+  "model": "product.brand",
+  "pk": 6,
+  "fields": {
+    "created_at": "2024-08-06T12:08:16.982Z",
+    "updated_at": "2024-08-06T12:08:16.982Z",
+    "is_active": true,
+    "name": "Lenovo",
+    "about": null
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 7,
+  "fields": {
+    "created_at": "2024-08-06T12:08:16.982Z",
+    "updated_at": "2024-08-06T12:08:16.982Z",
+    "is_active": true,
+    "name": "LG",
+    "about": null
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 8,
+  "fields": {
+    "created_at": "2024-08-06T12:08:16.982Z",
+    "updated_at": "2024-08-06T12:08:16.982Z",
+    "is_active": true,
+    "name": "Allview",
+    "about": null
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 9,
+  "fields": {
+    "created_at": "2024-08-06T12:08:16.982Z",
+    "updated_at": "2024-08-06T12:08:16.982Z",
+    "is_active": true,
+    "name": "Sony",
+    "about": null
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 10,
+  "fields": {
+    "created_at": "2024-08-06T12:08:16.982Z",
+    "updated_at": "2024-08-06T12:08:16.982Z",
+    "is_active": true,
+    "name": "HTC",
+    "about": null
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 11,
+  "fields": {
+    "created_at": "2024-08-06T12:08:16.982Z",
+    "updated_at": "2024-08-06T12:08:16.982Z",
+    "is_active": true,
+    "name": "Nokia",
+    "about": null
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 12,
+  "fields": {
+    "created_at": "2024-08-06T12:08:16.982Z",
+    "updated_at": "2024-08-06T12:08:16.982Z",
+    "is_active": true,
+    "name": "HP",
+    "about": null
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 13,
+  "fields": {
+    "created_at": "2024-08-06T12:08:16.982Z",
+    "updated_at": "2024-08-06T12:08:16.982Z",
+    "is_active": true,
+    "name": "ZTE",
+    "about": null
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 14,
+  "fields": {
+    "created_at": "2024-08-06T12:08:16.982Z",
+    "updated_at": "2024-08-06T12:08:16.982Z",
+    "is_active": true,
+    "name": "Telit",
+    "about": null
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 15,
+  "fields": {
+    "created_at": "2024-08-06T12:08:16.982Z",
+    "updated_at": "2024-08-06T12:08:16.982Z",
+    "is_active": true,
+    "name": "Oppo",
+    "about": null
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 16,
+  "fields": {
+    "created_at": "2024-08-06T12:08:16.982Z",
+    "updated_at": "2024-08-06T12:08:16.982Z",
+    "is_active": true,
+    "name": "Motorola",
+    "about": null
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 17,
+  "fields": {
+    "created_at": "2024-08-06T12:08:16.982Z",
+    "updated_at": "2024-08-06T12:08:16.982Z",
+    "is_active": true,
+    "name": "Nokia",
+    "about": null
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 18,
+  "fields": {
+    "created_at": "2024-08-06T12:08:16.982Z",
+    "updated_at": "2024-08-06T12:08:16.982Z",
+    "is_active": true,
+    "name": "verykool",
+    "about": null
+  }
+},
+{
   "model": "product.product",
   "pk": 1,
   "fields": {

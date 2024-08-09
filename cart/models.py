@@ -73,9 +73,28 @@ class Cart:
         Count all items in the cart
         """
         return sum(item["quantity"] for item in self.cart.values())
-
-    def get_total_price(self):
+    
+    def get_subtotal(self):
+        """
+        Calculate the subtotal of the cart
+        """
         return sum(Decimal(item["price"]) * item["quantity"] for item in self.cart.values())
+    
+    def get_tax(self, tax_rate):
+        """
+        Calculate the tax amount based on the subtotal and tax rate
+        """
+        subtotal = self.get_subtotal()
+        return subtotal * (tax_rate / 100)
+
+    def get_total_price(self, tax_rate):
+        """
+        Calculate the total price of the cart
+        """
+        subtotal = self.get_subtotal()
+        tax = self.get_tax(tax_rate)
+        discount = self.get_discount()
+        return subtotal + tax - discount
     
     @property
     def coupon(self):
@@ -87,17 +106,17 @@ class Cart:
         return None
 
     def get_discount(self):
+        """
+        Calculate the discount amount
+        """
         if self.coupon:
-            return (self.coupon.discount / Decimal(100)) \
-                * self.get_total_price()
-        return Decimal(0)
+            return (self.coupon.discount / 100) * self.get_subtotal()
+        return 0
 
-    def get_total_price_after_discount(self):
-        return self.get_total_price() - self.get_discount()
+    
     def save(self):
-
-    # mark the session as "modified" to make sure it gets saved
-       self.session.modified = True
+        # Mark the session as "modified" to make sure it gets saved
+        self.session.modified = True
 
 
     def clear(self):

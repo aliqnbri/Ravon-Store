@@ -44,12 +44,12 @@ class Order(BaseModel):
         PAYED = "paid", _("Paid")
 
     customer = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=10,
-                                    choices=OrderStatus.choices,
-                                    default=OrderStatus.PENDING)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     discount = models.IntegerField(null=True, blank=True)
     coupon = models.ForeignKey(Coupon,related_name='orders',on_delete = models.SET_NULL,null=True,blank = True)
+    status = models.CharField(max_length=10,
+                                    choices=OrderStatus.choices,
+                                    default=OrderStatus.PENDING, blank=True)
 
     class Meta:
         verbose_name = _('Order')
@@ -72,11 +72,16 @@ class Order(BaseModel):
             return total_cost * (self.discount / float(100))
         return float(0)
     
-    def __len__(self):
-        """
-        Count all items in the order
-        """
-        return sum(item["quantity"] for item in self.items.values())
+    # @property
+    # def total_quantity(self):
+    #     return sum(item.quantity for item in self.orderitem_set.all())
+    
+    # def __len__(self):
+    #     """
+    #     Count all items in the order
+    #     """
+    #     return self.orderitem_set.count()
+    #     return sum(item["quantity"] for item in self.items.values())
 
 
 class OrderItem(BaseModel):

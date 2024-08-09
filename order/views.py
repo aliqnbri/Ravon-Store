@@ -27,11 +27,12 @@ class OrderViewSet(viewsets.ModelViewSet):
         return OrderSerializer
     
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer_class(data=request.data, context={'request': request})
+        serializer = self.get_serializer_class()(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         order = serializer.save()
-        serializer = OrderSerializer(order)
-        return Response(serializer.data)
+        response_serializer = OrderSerializer(order)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
 
 class OrderItemViewSet(viewsets.ModelViewSet):
     queryset = OrderItem.objects.all().select_related('order', 'product')
@@ -40,14 +41,13 @@ class OrderItemViewSet(viewsets.ModelViewSet):
     authentication_classes = [CustomJWTAuthentication,]
 
     
-
-
     def create(self, request, *args, **kwargs):
-        serializer = CreateOrderSerializer(data=request.data,context={'request': request})
+        serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        order_item = serializer.save()
+        response_serializer = OrderItemSerializer(order_item)
+        headers = self.get_success_headers(response_serializer.data)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
 
     def update(self, request, *args, **kwargs):
@@ -64,7 +64,11 @@ class OrderItemViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-
+class CouponViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAdminUser]
+    authentication_classes = [CustomJWTAuthentication]
+    queryset = Coupon.objects.all()
+    serializer_class = CouponSerializer
 
 
 
@@ -120,8 +124,3 @@ class OrderItemViewSet(viewsets.ModelViewSet):
 #             return Order.objects.all()
 #         return Order.objects.filter(customer=user)
     
-class CouponViewSet(viewsets.ViewSet):
-    permission_classes = [permissions.IsAdminUser]
-    authentication_classes = [CustomJWTAuthentication]
-    queryset = Coupon.objects.all()
-    serializer_class = CouponSerializer
