@@ -4,26 +4,14 @@ from decimal import Decimal
 from product.models import Product
 from cart.models import Cart
 from product.serializers import ProductSerializer
-from order.models import Coupon
-
-class CartItemSerializer(serializers.Serializer):
-    product = ProductSerializer()
-    quantity = serializers.IntegerField()
-    total_price = serializers.DecimalField(max_digits=10, decimal_places=2)
-    
-    def to_representation(self, instance: Dict[str, Any]) -> Dict[str, Any]:
-        product_data = ProductSerializer(instance['product']).data
-        return {
-            'product': product_data,
-            'quantity': instance['quantity'],
-            'total_price': instance['total_price']
-        }
+from order.models import Coupon , OrderItem
+from order.serializers import OrderItemSerializer
 
 
 
 
 class CartSerializer(serializers.Serializer):
-    items = CartItemSerializer(many=True)
+    items = OrderItemSerializer(many=True,source='order_items')
     subtotal = serializers.DecimalField(max_digits=10, decimal_places=2)
     tax = serializers.DecimalField(max_digits=10, decimal_places=2)
     discount = serializers.DecimalField(max_digits=10, decimal_places=2)
@@ -43,25 +31,14 @@ class CartSerializer(serializers.Serializer):
                 'count': obj.coupon.count,
             }
         return None
-
-
-    def get_coupon(self, obj):
-        if obj.coupon:
-            return {
-                'id': obj.coupon.id,
-                'code': obj.coupon.code,
-                'discount': obj.coupon.discount,
-                'discount_amount': obj.coupon.discount_amount,
-                'valid_from': obj.coupon.valid_from,
-                'expiration_date': obj.coupon.expiration_date,
-                'count': obj.coupon.count,
-            }
-        return None
     
-    def to_representation(self, instance):
-        product = instance['product']
+    def to_representation(self, instance: Cart) -> Dict[str, Any]:
+        items = [OrderItemSerializer(item).data for item in instance.get_items()]
         return {
-            'product': ProductSerializer(product).data,
-            'quantity': instance['quantity'],
-            'total_price': instance['total_price']
+            'items': items,
+            'subtotal': instance.get_subtotal(),
+            'tax': instance.get_tax(),
+            'discount': instance.get_discount(),
+            'total_amount': instance.get_total_price(Decimal(0.1)),
+            'coupon': self.get_coupon(instance),
         }

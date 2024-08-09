@@ -2,7 +2,7 @@ from decimal import Decimal
 from django.conf import settings
 from product.serializers import ProductSerializer
 from product.models import Product
-from order.models import Coupon
+from order.models import Coupon , OrderItem
 
 
 class Cart:
@@ -16,6 +16,7 @@ class Cart:
             # save an empty cart in session
             cart = self.session[settings.CART_SESSION_ID] = {}
         self.cart = cart
+        self.coupon_id = self.session.get('coupon_id')
 
     def add(self, product, quantity=1, overide_quantity=False):
         """
@@ -73,7 +74,7 @@ class Cart:
         """
         return sum(Decimal(item["price"]) * item["quantity"] for item in self.cart.values())
 
-    def get_tax(self, tax_rate):
+    def get_tax(self, tax_rate=Decimal(0.1)):
         """
         Calculate the tax amount based on the subtotal and tax rate
         """
@@ -88,6 +89,25 @@ class Cart:
         tax = self.get_tax(tax_rate)
         discount = self.get_discount()
         return subtotal + tax - discount
+    
+    def get_items(self):
+        product_ids = self.cart.keys()
+        products = Product.objects.filter(id__in=product_ids)
+        items = []
+        for product in products:
+            item = OrderItem(
+                product=product,
+                price=Decimal(self.cart[str(product.id)]['price']),
+                quantity=self.cart[str(product.id)]['quantity']
+            )
+            items.append(item)
+        return items
+    
+    def apply_coupon(self, coupon_id):
+        self.session['coupon_id'] = coupon_id
+        self.coupon_id = coupon_id
+        self.save()
+
 
     @property
     def coupon(self):

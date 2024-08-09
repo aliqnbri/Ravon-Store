@@ -1,8 +1,14 @@
-from cart.serializers import CartSerializer, CartItemSerializer
-from rest_framework import viewsets, status
+
+from decimal import Decimal
+from typing import Optional
+from django.db import transaction
+from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
+from cart.serializers import CartSerializer
+
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from rest_framework import filters, viewsets, permissions, status
+from rest_framework import filters, viewsets, permissions ,status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from cart.models import Cart
@@ -14,32 +20,6 @@ from order.serializers import (
     CreateOrderSerializer,
     OrderItemSerializer
 )
-
-# Create your views here.
-# class OrderViewSet(viewsets.ModelViewSet):
-#     queryset = Order.objects.all()
-#     serializer_class = OrderSerializer
-#     permission_classes = [permissions.AllowAny]
-#     authentication_classes = [CustomJWTAuthentication]
-
-#     def create(self, request, *args, **kwargs):
-#         cart = Cart(request)
-#         order = Order.objects.create(user=request.user, total=cart.get_total_price())
-#         for item in cart.items.all():
-#             OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
-#         cart.clear()
-#         serializer = OrderSerializer(order)
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-#     def list(self, request, *args, **kwargs):
-#         orders = Order.objects.filter(user=request.user)
-#         serializer = OrderSerializer(orders, many=True)
-#         return Response(serializer.data)
-
-#     def retrieve(self, request, *args, **kwargs):
-#         order = Order.objects.get(id=kwargs.get('pk'))
-#         serializer = OrderSerializer(order)
-#         return Response(serializer.data)
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -53,29 +33,36 @@ class OrderViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
 
     def get_serializer_class(self):
-        if self.action in ['create', 'update', 'partial_update']:
+        if self.action in ['create', 'update']:
             return CreateOrderSerializer
         return OrderSerializer
 
-    def create(self, request, *args, **kwargs):
+    @transaction.atomic
+    def create(self, request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         order = serializer.save()
-        print(order, 'this is order in orderviewset')
+
+        # Recalculate the total cost after creating the order
+        order.total_amount = order.get_total_cost()
+        order.save()
+
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
-    def retrieve(self, request, *args, **kwargs):
+    @transaction.atomic
+    def update(self, request, *args, **kwargs) -> Response:
         instance = self.get_object()
-        customer = request.user.customer_profile
-        if instance.customer != customer:
-            return Response("You are not authorized to view this order.", status=status.HTTP_403_FORBIDDEN)
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        order = serializer.save()
 
-    def update(self, request, *args, **kwargs):
-        return Response("Orders cannot be updated.", status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        # Update the order's total cost after modifying it
+        order.total_amount = order.get_total_cost()
+        order.save()
 
-    def destroy(self, request, *args, **kwargs):
+        return Response(OrderSerializer(order).data)
+
+    def destroy(self, request, *args, **kwargs) -> Response:
         return Response("Orders cannot be deleted.", status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
@@ -85,41 +72,46 @@ class OrderItemViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
     authentication_classes = [CustomJWTAuthentication,]
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(
-            data=request.data, context={'request': request})
+    @transaction.atomic
+    def create(self, request, *args, **kwargs) -> Response:
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         order_item = serializer.save()
-        response_serializer = OrderItemSerializer(order_item)
-        headers = self.get_success_headers(response_serializer.data)
-        return Response(response_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def update(self, request, *args, **kwargs):
+        # Update the order's total cost after adding an item
+        order = order_item.order
+        order.total_amount = order.get_total_cost()
+        order.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs) -> Response:
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
-        serializer = self.get_serializer(
-            instance, data=request.data, partial=partial)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        order_item = serializer.save()
+
+        # Update the order's total cost after modifying an item
+        order = order_item.order
+        order.total_amount = order.get_total_cost()
+        order.save()
+
         return Response(serializer.data)
 
-    def destroy(self, request, *args, **kwargs):
+    @transaction.atomic
+    def destroy(self, request, *args, **kwargs) -> Response:
         instance = self.get_object()
+        order = instance.order
         self.perform_destroy(instance)
+
+        # Update the order's total cost after removing an item
+        order.total_amount = order.get_total_cost()
+        order.save()
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import get_object_or_404
-from django.db import transaction
-from typing import Optional
-from decimal import Decimal
-from product.models import Product
-from cart.models import Cart
-from cart.serializers import CartSerializer
 
 class CartViewSet(viewsets.ViewSet):
 
@@ -142,15 +134,15 @@ class CartViewSet(viewsets.ViewSet):
         """
         product_id: Optional[int] = request.data.get('product_id')
         quantity: int = int(request.data.get('quantity', 1))
-        
+
         if not product_id:
             return Response({"error": "Product ID is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         product = get_object_or_404(Product, id=product_id)
-        
+
         if product.available_quantity < quantity:
             return Response({"error": "Insufficient product quantity available"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         cart = Cart(request)
         cart.add(product=product, quantity=quantity)
         serializer = CartSerializer(cart)
@@ -162,12 +154,12 @@ class CartViewSet(viewsets.ViewSet):
         Update the quantity of a product in the cart.
         """
         quantity: int = int(request.data.get('quantity', 1))
-        
+
         product = get_object_or_404(Product, id=pk)
-        
+
         if product.available_quantity < quantity:
             return Response({"error": "Insufficient product quantity available"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         cart = Cart(request)
         cart.add(product=product, quantity=quantity, overide_quantity=True)
         serializer = CartSerializer(cart)
@@ -193,35 +185,3 @@ class CartViewSet(viewsets.ViewSet):
         total_price: Decimal = cart.get_total_price()
         total_items: int = len(cart)
         return Response({'total_price': total_price, 'total_items': total_items}, status=status.HTTP_200_OK)
-
-
-# class ConformationTemplateView(TemplateView):
-#     template_name = 'conformorder.html'
-#     def dispatch(self, request, *args, **kwargs):
-#         # print(request.user)
-#         if request.COOKIES.get('username') != None:
-
-#             return super().dispatch(request, *args, **kwargs)
-#         else :
-#             return redirect(reverse_lazy('login'))
-
-
-# class OrderViewSet(viewsets.ModelViewSet):
-#     permission_classes = [permissions.IsAuthenticated]
-#     authentication_classes = [CustomJWTAuthentication]
-#     queryset = Order.objects.all()
-#     serializer_class = OrderSerializer
-#     filterset_fields = ['payment_id']
-
-#     def create(self, request, *args, **kwargs):
-#         serializer = CreateOrderSerializer(data=request.data, context={ "request":request})
-#         serializer.is_valid(raise_exception=True)
-#         order = serializer.save()
-#         serializer = OrderSerializer(order)
-#         return Response(serializer.data)
-
-#     def get_queryset(self):
-#         user = self.request.user
-#         if user.is_staff:
-#             return Order.objects.all()
-#         return Order.objects.filter(customer=user)

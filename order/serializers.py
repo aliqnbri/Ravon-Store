@@ -1,7 +1,7 @@
 from django.db import transaction
 from rest_framework import serializers
 from order.models import Order, Coupon, OrderItem
-
+from typing import Dict , Any
 from customer.models import Address
 from cart.models import Cart
 
@@ -10,14 +10,10 @@ from product.models import Product
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all(),
-                                                 read_only=False,
-                                                 allow_null=False,
-                                                 required=True)
+    product = ProductSerializer()
     quantity = serializers.ChoiceField(
         choices=[(i, i) for i in range(1, 100)],  # adjust the range as needed
         required=True)
-    
     total_price = serializers.SerializerMethodField(read_only=True)
     price = serializers.DecimalField(max_digits=10, decimal_places=2,)
 
@@ -44,6 +40,13 @@ class OrderItemSerializer(serializers.ModelSerializer):
         product.available_quantity -= quantity
         product.save()
         return super().create(validated_data)
+    
+    def to_representation(self, instance: OrderItem) -> Dict[str, Any]:
+        return {
+            'product': ProductSerializer(instance.product).data,
+            'quantity': instance.quantity,
+            'total_price': instance.total_price(),  # Using the total_price method from OrderItem
+        }
 
 class OrderSerializer(serializers.ModelSerializer):
     customer = serializers.StringRelatedField()
