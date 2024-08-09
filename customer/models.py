@@ -59,6 +59,9 @@ class CustomerProfile(models.Model):
     
     def get_default_address(self):
         return self.address_set.filter(is_default=True).first()
+    
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
 
 
 class Comment(BaseModel):
