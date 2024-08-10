@@ -30,7 +30,21 @@ class OrderViewSet(viewsets.ModelViewSet):
     authentication_classes = [CustomJWTAuthentication]
     filter_backends = [filters.SearchFilter]
     search_fields = ['customer__username', 'customer__email']
-    lookup_field = 'slug'
+ 
+
+    def create(self, request, *args, **kwargs):
+        serializer = CreateOrderSerializer(data=request.data, context={ "request":request})
+        serializer.is_valid(raise_exception=True)
+        order = serializer.save()
+        serializer = OrderSerializer(order)
+        return Response(serializer.data)
+    
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Order.objects.all()
+        user = user.customer_profile
+        return Order.objects.filter(customer=user)
 
     def get_serializer_class(self):
         if self.action in ['create', 'update']:
@@ -64,53 +78,6 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs) -> Response:
         return Response("Orders cannot be deleted.", status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-
-class OrderItemViewSet(viewsets.ModelViewSet):
-    queryset = OrderItem.objects.all().select_related('order', 'product')
-    serializer_class = OrderSerializer
-    permission_classes = [permissions.AllowAny]
-    authentication_classes = [CustomJWTAuthentication,]
-
-    @transaction.atomic
-    def create(self, request, *args, **kwargs) -> Response:
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        order_item = serializer.save()
-
-        # Update the order's total cost after adding an item
-        order = order_item.order
-        order.total_amount = order.get_total_cost()
-        order.save()
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    @transaction.atomic
-    def update(self, request, *args, **kwargs) -> Response:
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        order_item = serializer.save()
-
-        # Update the order's total cost after modifying an item
-        order = order_item.order
-        order.total_amount = order.get_total_cost()
-        order.save()
-
-        return Response(serializer.data)
-
-    @transaction.atomic
-    def destroy(self, request, *args, **kwargs) -> Response:
-        instance = self.get_object()
-        order = instance.order
-        self.perform_destroy(instance)
-
-        # Update the order's total cost after removing an item
-        order.total_amount = order.get_total_cost()
-        order.save()
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CartViewSet(viewsets.ViewSet):

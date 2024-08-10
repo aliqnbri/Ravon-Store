@@ -44,26 +44,27 @@ class OrderItemSerializer(serializers.ModelSerializer):
         product.save()
         return super().create(validated_data)
 
-    def to_representation(self, instance: OrderItem) -> Dict[str, Any]:
-        return {
-            'product': ProductSerializer(instance.product).data,
-            'quantity': instance.quantity,
-            # Using the total_price method from OrderItem
-            'total_price': instance.total_price(),
-        }
+    # def to_representation(self, instance: OrderItem) -> Dict[str, Any]:
+    #     return {
+    #         'product': ProductSerializer(instance.product).data,
+    #         'quantity': instance.quantity,
+    #         # Using the total_price method from OrderItem
+    #         'total_price': instance.total_price(),
+    #     }
 
 
 class OrderSerializer(serializers.ModelSerializer):
     customer = serializers.StringRelatedField()
-    items = OrderItemSerializer(many=True, source='order_items')
+    items = OrderItemSerializer(many=True)
+    created_at = serializers.SerializerMethodField()
+    modified_at = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'items', 'status', 'coupon', 'country','state','city','postal_code','address', 'get_total_cost','__len__' ,'created_at', 'modified_at']
+        fields = ['id', 'customer', 'items', 'status', 'coupon', 'country','state','city','postal_code','address','get_total_cost','__len__' ,'created_at', 'modified_at']
+        read_only_fields = ['items','customer','get_total_cost','created_at', 'modified_at']
 
-        read_only_fields = ['customer', 'created_at',
-                            "updated_at", "total_amount",  "status", "items"]
-        depth = 1
+    
 
     def get_created_at(self, obj):
         try:
@@ -147,6 +148,12 @@ class CreateOrderSerializer(serializers.Serializer):
             OrderItem.objects.bulk_create(orderitems)
             cart.clear()
             return order
+        
+
+class UpdateOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order 
+        fields = ["status"]        
 
 
 
@@ -268,78 +275,3 @@ class CreateOrderSerializer(serializers.Serializer):
             return order
 
 
-# class CreateOrderSerializer(serializers.Serializer):
-#     products = serializers.PrimaryKeyRelatedField(many=True, read_only=False, queryset=Product.objects.all())
-#     coupon_code = serializers.CharField(required=False)
-
-
-#     def validate(self, data):
-#         products = data["products"]
-#         for product_data in products:
-#             product_id = product_data["id"]
-#             quantity = product_data["quantity"]
-#             product = Product.objects.get(id=product_id)
-#             if product.available_quantity < quantity:
-#                 raise serializers.ValidationError(
-#                     f"Insufficient quantity for product {product.name}"
-#                 )
-#         return data
-
-
-#     def create(self, validated_data):
-#         # products = validated_data["products"]
-#         products = validated_data.pop('products')
-
-#         coupon_code = validated_data.get("coupon_code")
-#         order = Order.objects.create(customer=self.context["request"].user)
-#         order_items = []
-#         total_price = 0
-#         for product_data in products:
-#             product_id = product_data["id"]
-#             quantity = product_data["quantity"]
-#             product = Product.objects.get(id=product_id)
-#             price = product.price
-#             if coupon_code:
-#                 coupon = Coupon.objects.get(code=coupon_code)
-#                 if coupon.is_active:
-#                     discount_percentage = coupon.discount_percentage
-#                     price -= (price * discount_percentage) / 100
-#             order_item = OrderItem(order=order, product=product, quantity=quantity, price=price)
-#             order_items.append(order_item)
-#             total_price += price * quantity
-#         OrderItem.objects.bulk_create(order_items)
-#         order.total_price = total_price
-#         order.save()
-#         return order
-
-#     def save(self, **kwargs):
-#         with transaction.atomic():
-#             request = self.context.get("request")
-#             address = Address.objects.filter(
-#                 id=request.data['address']).first()
-
-#             order = Order.objects.create(customer=request.user,
-#                                          city=request.user.address.city,
-#                                          postal_code=request.user.address.postal_code,
-#                                          address=request.user.address.detail,
-#                                          )
-#             cart = Cart(request)
-#             for item in cart:
-#                 product = Product.objects.get(id=item['product']['id'])
-#                 if product.available_quantity < item['quantity']:
-#                     raise serializers.ValidationError(
-#                         f"Insufficient quantity for product {product.name}"
-#                     )
-#             orderitems = [
-#                 OrderItem(order=order,
-#                           product=Product.objects.get(
-#                               id=item['product']['id']),
-#                           quantity=item['quantity'],
-#                           price=item['price']
-#                           )
-#                 for item in cart
-#             ]
-#             OrderItem.objects.bulk_create(orderitems)
-#             product.reduce_quantity(item['quantity'])
-#             cart.clear()
-#             return order
