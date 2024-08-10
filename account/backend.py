@@ -19,7 +19,10 @@ class CustomBackendAuthenticate(ModelBackend):
     def authenticate(self, request, username: Optional[str] = None, email: Optional[str] = None, password: Optional[str] = None, **kwargs) -> Optional[AbstractBaseUser]:
         user = None
         try:
-            user = self.User.objects.filter(Q(email=username) | Q(username=username)).first()
+            if email:
+                user = self.User.objects.filter(email=email).first()
+            elif username:
+                user = self.User.objects.filter(Q(email=username) | Q(username=username)).first()    
         except self.User.DoesNotExist:
             pass
 

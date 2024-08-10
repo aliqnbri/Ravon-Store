@@ -21,7 +21,6 @@ class CartSerializer(serializers.Serializer):
     def get_coupon(self, obj: Cart) -> Optional[Dict[str, Any]]:
         if obj.coupon:
             return {
-                'id': obj.coupon.id,
                 'code': obj.coupon.code,
                 'discount': obj.coupon.discount,
                 'discount_amount': obj.coupon.discount_amount,
@@ -35,10 +34,10 @@ class CartSerializer(serializers.Serializer):
         items = [OrderItemSerializer(
             item).data for item in instance.get_items()]
         return {
-            'items': items,
             'subtotal': instance.get_subtotal(),
-            'tax': instance.get_tax(),
             'discount': instance.get_discount(),
-            'total_amount': instance.get_total_price(tax_rate=Decimal(0.1)),
+            'tax': instance.get_tax(),
+            'total_price': instance.get_total_price(tax_rate=Decimal(0.5)),
             'coupon': self.get_coupon(instance),
+            'items': items,
         }

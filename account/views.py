@@ -87,7 +87,7 @@ class LogoutView(APIView):
 
     def post(self, request: Any) -> Response:
         if (a:= request.user.is_authenticated):
-            print(a)
+        
             logout(request)
             response = Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
             response.delete_cookie('access_token', '/')
@@ -103,12 +103,25 @@ class MyTokenObtainPairView(TokenObtainPairView):  # I use this for login user.
         response = super().post(request, *args, **kwargs)
 
         email: Optional[str] = request.data.get('email')
+        print(email, 'this is email')
         password: Optional[str] = request.data.get('password')
         user = authenticate(email=email, password=password)
+        print(user, 'this is user form login')
+        if user is None:
+            raise AuthenticationFailed('Invalid email or password')
 
         if user:
             if not user.is_verified:
-                return Response({"message": "Email verification required"}, status=status.HTTP_403_FORBIDDEN)
+                try:
+                    utils.send_otp(user.email)
+                    access_token, refresh_token = utils.generate_tokens(user)
+                except Exception as error:
+                    return Response({'Error': 'Error sending verification email code', 'Message': str(error)},
+                                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                response = redirect(reverse('account:verify-otp'))
+                response.set_cookie(key='access_token', value=str(access_token))
+                response.set_cookie(key='refresh_token', value=str(refresh_token))
+                return response
 
             response.set_cookie(
                 key='access_token',
@@ -148,6 +161,3 @@ class CustomTokenRefreshView(TokenRefreshView):
         return response
 
 
-# # # Create your views here.
-# class SignUpView(TemplateView):
-#     template_name = 'signup.html'

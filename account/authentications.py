@@ -30,11 +30,6 @@ class CustomJWTAuthentication(JWTAuthentication):
          # Validate the token
         validated_token = self.get_validated_token(raw_token)
      
-
-        # for more secure force CSRF token
-        # enforce_csrf(request)
-
-        # Get the user associated with the validated token
         return self.get_user(validated_token), validated_token
 
 

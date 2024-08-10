@@ -71,12 +71,13 @@ class Cart:
         """
         return sum(Decimal(item["price"]) * item["quantity"] for item in self.cart.values())
 
-    def get_tax(self, tax_rate: Decimal = Decimal(0.1)) -> Decimal:
+    def get_tax(self, tax_rate: Decimal = Decimal(0.2)) -> Decimal:
         """
         Calculate the tax amount based on the subtotal and tax rate.
         """
         subtotal = self.get_subtotal()
-        return subtotal * tax_rate / 100
+        tax = subtotal * tax_rate / 100
+        return round(tax,2)
 
     def get_total_price(self, tax_rate: Decimal) -> Decimal:
         """
