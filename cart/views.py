@@ -1,98 +1,92 @@
-from django.urls import reverse_lazy
-from django.shortcuts import redirect
-from django.views.generic import TemplateView
 
+from decimal import Decimal
 from rest_framework import status
-from rest_framework.views import APIView
 from rest_framework.response import Response
-
+from typing import Optional
 from cart.models import Cart
-
-# Create your views here.
-
-
-
-from rest_framework import generics
+from django.shortcuts import get_object_or_404
+from django.db import transaction
+from rest_framework import viewsets ,status ,permissions
 from .models import Cart
-from .serializers import CartSerializer
+from .serializers import CartSerializer 
+from rest_framework.decorators import action
+from order.serializers import CreateOrderSerializer
+from account.authentications import CustomJWTAuthentication
+from product.models import Product
 
-class CartListCreateView(generics.ListCreateAPIView):
-    # queryset = Cart.objects.all()
-    serializer_class = CartSerializer
 
 
-    def get_queryset(self):
-        cart = Cart(self.request)
-        return list(cart)
-    
+class CartViewSet(viewsets.ViewSet):
 
-    def perform_create(self, serializer):
-        cart = Cart(self.request)
-        product_id = serializer.validated_data.get('product_id')
-        quantity = serializer.validated_data.get('quantity', 1)
-        cart.add(product_id, quantity)
+    serializer_class = CreateOrderSerializer
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = [CustomJWTAuthentication]
+    lookup_field = 'slug'
+
+    def list(self, request):
+        """
+        Display the current items in the cart, along with the total price and total items.
+        """
+        cart = Cart(request)
+        serializer = CartSerializer(cart)
         return Response(serializer.data)
 
+    @transaction.atomic
+    def create(self, request, *args, **kwargs) -> Response:
+        """
+        Add a product to the cart or update its quantity.
+        """
+        product_slug: Optional[str] = request.data.get('product')
 
-class CartRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    # queryset = Cart.objects.all()
-    serializer_class = CartSerializer
+        quantity: int = int(request.data.get('quantity', 1))
 
-    def get_queryset(self):
-        cart = Cart(self.request)
-        return list(cart)
+        if not product_slug:
+            return Response({"error": "Product slug is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-# class CartTemplateView(TemplateView):
-#     template_name = "cart.html"
+        product = get_object_or_404(Product, slug=product_slug)
 
+        if product.available_quantity < quantity:
+            return Response({"error": "Insufficient product quantity available"}, status=status.HTTP_400_BAD_REQUEST)
 
-# class CheckOutTemplateView(TemplateView):
-#     template_name = "checkout.html"
-    
-#     def dispatch(self, request, *args, **kwargs):
-#         if request.COOKIES.get('access_token') != None:
-            
-#             return super().dispatch(request, *args, **kwargs)
-#         else :
-#             return redirect(reverse_lazy('login'))
-
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from cart.models import Cart
-from .serializers import CartSerializer
-
-
-class CartAPI(APIView):
-    """
-    Single API to handle cart operations
-    """
-    def get(self, request, format=None):
         cart = Cart(request)
+        cart.add(product=product, quantity=quantity)
+        serializer = CartSerializer(cart)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        return Response(
-            {"data": list(cart.__iter__()), 
-            "count":cart.__len__(),
-            "cart_total_price": cart.get_total_price()},
-            status=status.HTTP_200_OK
-            )
+    @transaction.atomic
+    def update(self, request, pk: Optional[int] = None) -> Response:
+        """
+        Update the quantity of a product in the cart.
+        """
+        quantity: int = int(request.data.get('quantity', 1))
 
-    def post(self, request, **kwargs):
+        product = get_object_or_404(Product, id=pk)
+
+        if product.available_quantity < quantity:
+            return Response({"error": "Insufficient product quantity available"}, status=status.HTTP_400_BAD_REQUEST)
+
         cart = Cart(request)
-        action = request.data.get('action')
+        cart.add(product=product, quantity=quantity, overide_quantity=True)
+        serializer = CartSerializer(cart)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-        match action:
-            case 'remove':
-                cart.remove(request.data["product"])
-            case 'clear':
-                cart.clear()
-            case 'add':
-                product = request.data
-                cart.add(
-                    product=product["product"],
-                    quantity=product["quantity"],
-                    overide_quantity=product.get("overide_quantity", False)
-                )
+    @transaction.atomic
+    def destroy(self, request, pk: Optional[int] = None) -> Response:
+        """
+        Remove a product from the cart.
+        """
+        product = get_object_or_404(Product, id=pk)
+        cart = Cart(request)
+        cart.remove(product)
+        serializer = CartSerializer(cart)
+        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
 
-        return Response(
-            {"message": "cart updated"},
-            status=status.HTTP_202_ACCEPTED)
+    @action(detail=False, methods=['get'])
+    def get_total(self, request) -> Response:
+        """
+        Get the total price and total number of items in the cart.
+        """
+        cart = Cart(request)
+        total_price: Decimal = cart.get_total_price()
+        total_items: int = len(cart)
+        return Response({'total_price': total_price, 'total_items': total_items}, status=status.HTTP_200_OK)

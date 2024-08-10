@@ -5,8 +5,43 @@ from product.models import Product
 from cart.models import Cart
 from product.serializers import ProductSerializer
 from order.models import Coupon, OrderItem
-from order.serializers import OrderItemSerializer
 
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = serializers.SerializerMethodField()
+    slug = serializers.SerializerMethodField(read_only=True)
+    quantity = serializers.ChoiceField(
+        choices=[(i, i) for i in range(1, 100)],  # adjust the range as needed
+        required=True)
+
+    class Meta:
+        model = OrderItem
+        fields = ["product","slug", "price", "quantity"]
+        depth = 1
+
+    def get_slug(self,obj):
+        if obj.product: 
+            return obj.product.slug
+    def get_product(self, obj):
+        if obj.product:
+            return obj.product.name
+        return "Product not in list"    
+
+    def validate(self, data):
+        product = data['product']
+        quantity = data['quantity']
+        if product.available_quantity < quantity:
+            raise serializers.ValidationError(
+                f"Insufficient quantity for product {product.name}")
+        return data
+
+    def create(self, validated_data):
+        product = validated_data['product']
+        quantity = validated_data['quantity']
+        product.available_quantity -= quantity
+        product.save()
+        return super().create(validated_data)
 
 
 
@@ -31,8 +66,7 @@ class CartSerializer(serializers.Serializer):
         return None
 
     def to_representation(self, instance: Cart) -> Dict[str, Any]:
-        items = [OrderItemSerializer(
-            item).data for item in instance.get_items()]
+        items = [OrderItemSerializer(item).data for item in instance.get_items()]
         return {
             'subtotal': instance.get_subtotal(),
             'discount': instance.get_discount(),
@@ -40,4 +74,5 @@ class CartSerializer(serializers.Serializer):
             'total_price': instance.get_total_price(tax_rate=Decimal(0.5)),
             'coupon': self.get_coupon(instance),
             'items': items,
+            "total_items_quantity": instance.__len__()
         }

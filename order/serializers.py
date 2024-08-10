@@ -7,7 +7,7 @@ from order.models import Order, Coupon, OrderItem
 
 from customer.models import Address
 from cart.models import Cart
-
+from cart.serializers import CartSerializer
 from product.serializers import ProductSerializer
 from product.models import Product
 
@@ -15,19 +15,28 @@ from product.models import Product
 class SimpleProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ["id", "name", "price"]
+        fields = ["name"]
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    product = SimpleProductSerializer()
+    product = serializers.SerializerMethodField()
+    slug = serializers.SerializerMethodField(read_only=True)
     quantity = serializers.ChoiceField(
         choices=[(i, i) for i in range(1, 100)],  # adjust the range as needed
         required=True)
 
     class Meta:
         model = OrderItem
-        fields = ["id", "product", "price", "quantity"]
+        fields = ["product","slug", "price", "quantity"]
         depth = 1
+
+    def get_slug(self,obj):
+        if obj.product: 
+            return obj.product.slug
+    def get_product(self, obj):
+        if obj.product:
+            return obj.product.name
+        return "Product not in list"    
 
     def validate(self, data):
         product = data['product']
@@ -48,15 +57,21 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     customer = serializers.StringRelatedField()
-    items = OrderItemSerializer(many=True)
+    items = CartSerializer
     created_at = serializers.SerializerMethodField()
     modified_at = serializers.SerializerMethodField()
+    
+
 
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'items', 'status', 'coupon', 'address', 'get_total_cost', '__len__', 'created_at', 'modified_at']
+        fields = ['id', 'created_at', 'modified_at', 'customer','items']
+
+  
         read_only_fields = ['items', 'customer',
-                            'get_total_cost', 'created_at', 'modified_at']
+                            'get_total_cost', 'created_at', 'modified_at','address','status',  'discount', 'tax', 'total_price','coupon', 'total_items_quantity']
+
+    
 
     def get_created_at(self, obj):
         try:
