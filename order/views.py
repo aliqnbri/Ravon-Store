@@ -115,7 +115,7 @@ class OrderItemViewSet(viewsets.ModelViewSet):
 
 class CartViewSet(viewsets.ViewSet):
 
-    serializer_class = CartSerializer
+    serializer_class = CreateOrderSerializer
     permission_classes = [permissions.AllowAny]
     authentication_classes = [CustomJWTAuthentication]
 

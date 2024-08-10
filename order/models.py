@@ -44,6 +44,13 @@ class Order(BaseModel):
         PAYED = "paid", _("Paid")
 
     customer = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE)
+    country = models.CharField(max_length = 200,null = True , blank = True)
+    state = models.CharField(max_length = 200,null = True , blank = True)
+    city = models.CharField(max_length = 200,null = True , blank = True)
+    postal_code = models.CharField(max_length = 200,null = True , blank = True)
+    address = models.TextField(null = True , blank = True) 
+    payment_id = models.CharField(max_length = 100 ,null = True , blank = True )
+    ref_id = models.CharField(max_length = 25,null = True , blank = True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     discount = models.IntegerField(null=True, blank=True)
     coupon = models.ForeignKey(Coupon,related_name='orders',on_delete = models.SET_NULL,null=True,blank = True)
@@ -63,8 +70,7 @@ class Order(BaseModel):
         return f'Order {self.id}'
 
     def get_total_cost(self):
-        total_cost = self.get_total_cost_before_discount()
-        return total_cost - self.get_discount()
+        return sum(item.get_cost() for item in self.items.all())
 
     def get_discount(self):
         total_cost = self.get_total_cost_before_discount()
@@ -72,16 +78,13 @@ class Order(BaseModel):
             return total_cost * (self.discount / float(100))
         return float(0)
     
-    # @property
-    # def total_quantity(self):
-    #     return sum(item.quantity for item in self.orderitem_set.all())
+
     
-    # def __len__(self):
-    #     """
-    #     Count all items in the order
-    #     """
-    #     return self.orderitem_set.count()
-    #     return sum(item["quantity"] for item in self.items.values())
+    def __len__(self):
+        """
+        Count all items in the order
+        """
+        return sum(item["quantity"] for item in self.items.values())
 
 
 class OrderItem(BaseModel):
@@ -89,9 +92,9 @@ class OrderItem(BaseModel):
                               related_name='order_items',
                               on_delete=models.CASCADE)
     product = models.ForeignKey(Product,
-                                related_name='order_items',
+                                related_name='items',
                                 on_delete=models.CASCADE)
-    price = models.DecimalField(max_digits=10,
+    price = models.DecimalField(max_digits=1000,
                                 decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
 

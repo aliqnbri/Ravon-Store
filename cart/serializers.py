@@ -4,20 +4,17 @@ from decimal import Decimal
 from product.models import Product
 from cart.models import Cart
 from product.serializers import ProductSerializer
-from order.models import Coupon , OrderItem
+from order.models import Coupon, OrderItem
 from order.serializers import OrderItemSerializer
 
 
-
-
 class CartSerializer(serializers.Serializer):
-    items = OrderItemSerializer(many=True,source='order_items')
+    items = OrderItemSerializer(many=True, source='order_items')
     subtotal = serializers.DecimalField(max_digits=10, decimal_places=2)
     tax = serializers.DecimalField(max_digits=10, decimal_places=2)
     discount = serializers.DecimalField(max_digits=10, decimal_places=2)
     total_amount = serializers.DecimalField(max_digits=10, decimal_places=2)
     coupon = serializers.SerializerMethodField()
-    
 
     def get_coupon(self, obj: Cart) -> Optional[Dict[str, Any]]:
         if obj.coupon:
@@ -31,9 +28,10 @@ class CartSerializer(serializers.Serializer):
                 'count': obj.coupon.count,
             }
         return None
-    
+
     def to_representation(self, instance: Cart) -> Dict[str, Any]:
-        items = [OrderItemSerializer(item).data for item in instance.get_items()]
+        items = [OrderItemSerializer(
+            item).data for item in instance.get_items()]
         return {
             'items': items,
             'subtotal': instance.get_subtotal(),
