@@ -44,10 +44,6 @@ class Order(BaseModel):
         PAYED = "paid", _("Paid")
 
     customer = models.ForeignKey(CustomerProfile, on_delete=models.CASCADE)
-    country = models.CharField(max_length = 200,null = True , blank = True)
-    state = models.CharField(max_length = 200,null = True , blank = True)
-    city = models.CharField(max_length = 200,null = True , blank = True)
-    postal_code = models.CharField(max_length = 200,null = True , blank = True)
     address = models.TextField(null = True , blank = True) 
     payment_id = models.CharField(max_length = 100 ,null = True , blank = True )
     ref_id = models.CharField(max_length = 25,null = True , blank = True)

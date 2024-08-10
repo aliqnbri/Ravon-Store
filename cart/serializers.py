@@ -13,7 +13,7 @@ class CartSerializer(serializers.Serializer):
     subtotal = serializers.DecimalField(max_digits=10, decimal_places=2)
     tax = serializers.DecimalField(max_digits=10, decimal_places=2)
     discount = serializers.DecimalField(max_digits=10, decimal_places=2)
-    total_amount = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total_amount = serializers.DecimalField(max_digits=100000, decimal_places=2)
     coupon = serializers.SerializerMethodField()
 
     def get_coupon(self, obj: Cart) -> Optional[Dict[str, Any]]:

@@ -54,8 +54,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'items', 'status', 'coupon', 'country', 'state', 'city',
-                  'postal_code', 'address', 'get_total_cost', '__len__', 'created_at', 'modified_at']
+        fields = ['id', 'customer', 'items', 'status', 'coupon', 'address', 'get_total_cost', '__len__', 'created_at', 'modified_at']
         read_only_fields = ['items', 'customer',
                             'get_total_cost', 'created_at', 'modified_at']
 
@@ -118,8 +117,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class CreateOrderSerializer(serializers.Serializer):
-    products = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Product.objects.all())
+    products = serializers.ListField(write_only=True)
+
     quantity = serializers.ChoiceField(
         choices=[(i, i) for i in range(1, 100)],  # adjust the range as needed
         required=True)
@@ -128,11 +127,12 @@ class CreateOrderSerializer(serializers.Serializer):
     def validate(self,attrs : Dict[str, Any]) -> Dict[str, Any]:
         request = self.context.get("request")
         Cart(request)
-        for product in attrs['products']:
-            if product.available_quantity < attrs['quantity']:
+        products = attrs.get('products')
+        for product_data in products:
+            product = Product.objects.get(id=product_data['id'])
+            if product.available_quantity < product_data['quantity']:
                 raise serializers.ValidationError(
                     f"Product {product.name} is out of stock")
-            return attrs
         return attrs
 
     def create_order_items(self, order: Order, products: List[Product], quantity: int, coupon_code: Optional[str] = None) -> None:
@@ -140,13 +140,14 @@ class CreateOrderSerializer(serializers.Serializer):
         total_price = 0
         coupon = Coupon.objects.filter(code=coupon_code, is_active=True).first() if coupon_code else None
 
-        for product in products:
+        for product_data in products:
+            product = Product.objects.get(id=product_data['id'])
             price = product.price
             if coupon:
                 discounted_price = coupon.calculate_discounted_price(price)
                 price = min(price, discounted_price)
                 
-                
+
             order_item = OrderItem(
                 order=order, product=product, quantity=quantity, price=price)
             order_items.append(order_item)
@@ -183,3 +184,4 @@ class CreateOrderSerializer(serializers.Serializer):
             self.create_order_items(order, products, quantity, coupon_code)
             cart.clear()
             return order
+

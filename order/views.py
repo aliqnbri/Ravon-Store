@@ -24,7 +24,7 @@ from order.serializers import (
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all().select_related(
-        'customer').prefetch_related('order_items')
+        'customer').prefetch_related('items')
     serializer_class = OrderSerializer
     permission_classes = [permissions.AllowAny]
     authentication_classes = [CustomJWTAuthentication]
@@ -41,10 +41,9 @@ class OrderViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        if user.is_staff:
+        if user.is_staff or user.is_superuser:
             return Order.objects.all()
-        user = user.customer_profile
-        return Order.objects.filter(customer=user)
+        return self.queryset
 
     def get_serializer_class(self):
         if self.action in ['create', 'update']:
@@ -85,7 +84,7 @@ class CartViewSet(viewsets.ViewSet):
     serializer_class = CreateOrderSerializer
     permission_classes = [permissions.AllowAny]
     authentication_classes = [CustomJWTAuthentication]
-
+    lookup_field = 'slug'
     def list(self, request):
         """
         Display the current items in the cart, along with the total price and total items.
@@ -99,13 +98,13 @@ class CartViewSet(viewsets.ViewSet):
         """
         Add a product to the cart or update its quantity.
         """
-        product_id: Optional[int] = request.data.get('product_id')
+        product_slug: Optional[str] = request.data.get('product_slug')
         quantity: int = int(request.data.get('quantity', 1))
 
-        if not product_id:
-            return Response({"error": "Product ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+        if not product_slug:
+            return Response({"error": "Product slug is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        product = get_object_or_404(Product, id=product_id)
+        product = get_object_or_404(Product, slug=product_slug)
 
         if product.available_quantity < quantity:
             return Response({"error": "Insufficient product quantity available"}, status=status.HTTP_400_BAD_REQUEST)
