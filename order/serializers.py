@@ -101,23 +101,14 @@ class OrderSerializer(serializers.ModelSerializer):
         data['items'] = items
         return data
 
-    class CouponSerializer(serializers.ModelSerializer):
-        product = ProductSerializer(read_only=True)
-
-        class Meta:
-            model = Coupon
-            fields = ['id', 'product', 'code', 'discount',
-                      'discount_amount', 'valid_from', 'expiration_date', 'count']
-            read_only_fields = ['calculate_discounted_price']
-
-        def to_representation(self, instance):
-            data = super().to_representation(instance)
-            data['calculate_discounted_price'] = instance.calculate_discounted_price()
-            return data
-
 
 class CreateOrderSerializer(serializers.Serializer):
-    products = serializers.ListField(write_only=True)
+    product = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Product.objects.all(),
+        required=True,
+        write_only=True
+    )
 
     quantity = serializers.ChoiceField(
         choices=[(i, i) for i in range(1, 100)],  # adjust the range as needed
@@ -126,13 +117,14 @@ class CreateOrderSerializer(serializers.Serializer):
 
     def validate(self,attrs : Dict[str, Any]) -> Dict[str, Any]:
         request = self.context.get("request")
-        Cart(request)
-        products = attrs.get('products')
-        for product_data in products:
-            product = Product.objects.get(id=product_data['id'])
-            if product.available_quantity < product_data['quantity']:
-                raise serializers.ValidationError(
-                    f"Product {product.name} is out of stock")
+        # Cart(request)
+        product = attrs.get('product')
+        print(product, 'this is product in validate')
+        quantity = attrs.get('quantity')
+      
+        if product.available_quantity < quantity:
+            raise serializers.ValidationError(
+                f"Product {product.name} is out of stock")
         return attrs
 
     def create_order_items(self, order: Order, products: List[Product], quantity: int, coupon_code: Optional[str] = None) -> None:
@@ -185,3 +177,17 @@ class CreateOrderSerializer(serializers.Serializer):
             cart.clear()
             return order
 
+
+    class CouponSerializer(serializers.ModelSerializer):
+        product = ProductSerializer(read_only=True)
+
+        class Meta:
+            model = Coupon
+            fields = ['id', 'product', 'code', 'discount',
+                      'discount_amount', 'valid_from', 'expiration_date', 'count']
+            read_only_fields = ['calculate_discounted_price']
+
+        def to_representation(self, instance):
+            data = super().to_representation(instance)
+            data['calculate_discounted_price'] = instance.calculate_discounted_price()
+            return data

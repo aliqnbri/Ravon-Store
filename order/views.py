@@ -30,15 +30,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     authentication_classes = [CustomJWTAuthentication]
     filter_backends = [filters.SearchFilter]
     search_fields = ['customer__username', 'customer__email']
- 
 
-    def create(self, request, *args, **kwargs):
-        serializer = CreateOrderSerializer(data=request.data, context={ "request":request})
-        serializer.is_valid(raise_exception=True)
-        order = serializer.save()
-        serializer = OrderSerializer(order)
-        return Response(serializer.data)
-    
     def get_queryset(self):
         user = self.request.user
         if user.is_staff or user.is_superuser:
@@ -49,18 +41,17 @@ class OrderViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'update']:
             return CreateOrderSerializer
         return OrderSerializer
-
+ 
     @transaction.atomic
-    def create(self, request, *args, **kwargs) -> Response:
-        serializer = self.get_serializer(data=request.data)
+    def create(self, request, *args, **kwargs):
+        serializer = CreateOrderSerializer(data=request.data, context={ "request":request})
         serializer.is_valid(raise_exception=True)
         order = serializer.save()
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    
 
-        # Recalculate the total cost after creating the order
-        order.total_amount = order.get_total_cost()
-        order.save()
-
-        return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
     @transaction.atomic
     def update(self, request, *args, **kwargs) -> Response:
@@ -98,7 +89,8 @@ class CartViewSet(viewsets.ViewSet):
         """
         Add a product to the cart or update its quantity.
         """
-        product_slug: Optional[str] = request.data.get('product_slug')
+        product_slug: Optional[str] = request.data.get('product')
+        
         quantity: int = int(request.data.get('quantity', 1))
 
         if not product_slug:

@@ -8,6 +8,8 @@ from order.models import Coupon, OrderItem
 from order.serializers import OrderItemSerializer
 
 
+
+
 class CartSerializer(serializers.Serializer):
     items = OrderItemSerializer(many=True, source='order_items')
     subtotal = serializers.DecimalField(max_digits=10, decimal_places=2)
@@ -37,6 +39,6 @@ class CartSerializer(serializers.Serializer):
             'subtotal': instance.get_subtotal(),
             'tax': instance.get_tax(),
             'discount': instance.get_discount(),
-            'total_amount': instance.get_total_price(Decimal(0.1)),
+            'total_amount': instance.get_total_price(tax_rate=Decimal(0.1)),
             'coupon': self.get_coupon(instance),
         }
