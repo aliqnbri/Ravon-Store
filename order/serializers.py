@@ -131,76 +131,58 @@ class CreateOrderSerializer(serializers.Serializer):
     coupon_code = serializers.CharField(required=False, allow_blank=True)
 
     def validate(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
-        coupon_code = attrs.get('coupon_code')
-        if not coupon_code:
-            return None
-        if not (coupon := Coupon.objects.filter(code=coupon_code, is_active=True).first()):
-            raise serializers.ValidationError(
-                "Invalid or inactive coupon code.")
-        attrs['coupon'] = coupon
+        if coupon_code := attrs.get('coupon_code'):
+            if not (coupon := Coupon.objects.filter(code=coupon_code, is_active=True).first()):
+                raise serializers.ValidationError("Invalid or inactive coupon code.")
+            attrs['coupon'] = coupon
         return attrs
 
-    def create_order_items(self, order: Order, products: List[Product], quantity: int, coupon_code: Optional[str] = None) -> None:
-        order_items = []
-        total_price = 0
-        coupon = Coupon.objects.filter(
-            code=coupon_code, is_active=True).first() if coupon_code else None
+    def create_order_items(self, order: Order, cart: Cart) -> Decimal:
 
-        for product_data in products:
-            product = Product.objects.get(id=product_data['id'])
-            price = product.price
-            if coupon:
-                discounted_price = coupon.calculate_discounted_price(price)
-                price = min(price, discounted_price)
-
-            order_item = OrderItem(
-                order=order, product=product, quantity=quantity, price=price)
-            order_items.append(order_item)
-            total_price += price * quantity
-
-            # Update product's available quantity
-            product.available_quantity -= quantity
-            product.save()
-
+        total_price = Decimal(0)
+        order_items = [
+            OrderItem(
+                order=order,
+                product=(product := Product.objects.select_for_update().get(id=item['product']['id'])),
+                quantity=(quantity := item['quantity']),
+                price=(price := item['price']),
+            ) for item in cart ]
+        
+        instance = Product.objects.get(id = product)
+        instance.available_quantity -= quantity
+        instance.save        
+        total_price +=price * quantity
+            
         OrderItem.objects.bulk_create(order_items)
-        order.total_amount = total_price
-        order.save()
-
+        return total_price
+    
     def create(self, validated_data: Dict[str, Any]) -> Order:
         request = self.context.get('request')
-        cart = Cart(request)
-        products = validated_data.get('products')
-        quantity = validated_data.get('quantity', 1)
-
-        coupon_code = validated_data.get("coupon_code", None)
         customer = request.user.customer_profile
-
+        cart = Cart(request)
         with transaction.atomic():
-            coupon = None
-            if coupon_code:
-                coupon = Coupon.objects.filter(
-                    code=coupon_code, is_active=True).first()
-                if not coupon:
-                    raise ValidationError("Invalid coupon code provided.")
-            order = Order.objects.create(customer=customer,
-                                         coupon=coupon, status=Order.OrderStatus.PENDING,
-                                         address=customer.address.get_full_address(),
-                                         total_amount=Decimal(0))
+            # Create the order
+            order = Order.objects.create(
+                customer=customer,
+                coupon=validated_data.get('coupon'),
+                status=Order.OrderStatus.PENDING,
+                address=customer.address.get_full_address(),
+                total_amount=Decimal(0)
+            )
+        total_price = self.create_order_items(order, cart)
+        if coupon := order.coupon:
+                total_price -= (coupon.discount / 100) * total_price
 
-            self.create_order_items(order, products, quantity, coupon_code)
-            cart.save()
-            return order
+        # Calculate tax and final total
+        tax = cart.get_tax()
+        order.total_amount = total_price + tax
+        order.save()
 
-    class CouponSerializer(serializers.ModelSerializer):
-        product = ProductSerializer(read_only=True)
+        # Clear the cart after order is created
+        cart.clear()
 
-        class Meta:
-            model = Coupon
-            fields = ['id', 'product', 'code', 'discount',
-                      'discount_amount', 'valid_from', 'expiration_date', 'count']
-            read_only_fields = ['calculate_discounted_price']
+        return order
 
-        def to_representation(self, instance):
-            data = super().to_representation(instance)
-            data['calculate_discounted_price'] = instance.calculate_discounted_price()
-            return data
+      
+
+       
