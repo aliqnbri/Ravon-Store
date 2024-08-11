@@ -1,15 +1,17 @@
+from typing import Any, Dict, Optional
+from cart.models import Cart  # Assuming you have this Cart model defined somewhere
+from order.models import Coupon, Order, OrderItem
 from django.core.exceptions import ValidationError
 
 from typing import Any, Dict, List, Optional
 from django.db import transaction
 from rest_framework import serializers
 from order.models import Order, Coupon, OrderItem
-
-from customer.models import Address
 from cart.models import Cart
-from cart.serializers import CartSerializer
+
 from product.serializers import ProductSerializer
 from product.models import Product
+from decimal import Decimal
 
 
 class SimpleProductSerializer(serializers.ModelSerializer):
@@ -27,16 +29,17 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ["product","slug", "price", "quantity"]
+        fields = ["product", "slug", "price", "quantity"]
         depth = 1
 
-    def get_slug(self,obj):
-        if obj.product: 
+    def get_slug(self, obj):
+        if obj.product:
             return obj.product.slug
+
     def get_product(self, obj):
         if obj.product:
             return obj.product.name
-        return "Product not in list"    
+        return "Product not in list"
 
     def validate(self, data):
         product = data['product']
@@ -54,24 +57,25 @@ class OrderItemSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-
 class OrderSerializer(serializers.ModelSerializer):
     customer = serializers.StringRelatedField()
-    items = CartSerializer
+    address = serializers.SerializerMethodField()
+    items = OrderItemSerializer(many=True, source='order_items')
     created_at = serializers.SerializerMethodField()
     modified_at = serializers.SerializerMethodField()
-    
 
+    def get_address(self, instance):
+        request = self.context.get('request')
+        customer = request.user.customer_profile
+        return customer.address.get_full_address()
 
     class Meta:
         model = Order
-        fields = ['id', 'created_at', 'modified_at', 'customer','items']
+        fields = ['customer', 'address', 'created_at', 'modified_at', 'items']
+        depth = 1
 
-  
         read_only_fields = ['items', 'customer',
-                            'get_total_cost', 'created_at', 'modified_at','address','status',  'discount', 'tax', 'total_price','coupon', 'total_items_quantity']
-
-    
+                            'get_total_cost', 'created_at', 'modified_at', 'address', 'status',  'discount', 'tax', 'total_price', 'coupon', 'total_items_quantity']
 
     def get_created_at(self, obj):
         try:
@@ -118,34 +122,23 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class CreateOrderSerializer(serializers.Serializer):
-    product = serializers.SlugRelatedField(
-        slug_field='slug',
-        queryset=Product.objects.all(),
-        required=True,
-        write_only=True
-    )
-
-    quantity = serializers.ChoiceField(
-        choices=[(i, i) for i in range(1, 100)],  # adjust the range as needed
-        required=True)
     coupon_code = serializers.CharField(required=False, allow_blank=True)
 
-    def validate(self,attrs : Dict[str, Any]) -> Dict[str, Any]:
-        request = self.context.get("request")
-        # Cart(request)
-        product = attrs.get('product')
-        print(product, 'this is product in validate')
-        quantity = attrs.get('quantity')
-      
-        if product.available_quantity < quantity:
+    def validate(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
+        coupon_code = attrs.get('coupon_code')
+        if not coupon_code:
+            return None
+        if not (coupon := Coupon.objects.filter(code=coupon_code, is_active=True).first()):
             raise serializers.ValidationError(
-                f"Product {product.name} is out of stock")
+                "Invalid or inactive coupon code.")
+        attrs['coupon'] = coupon
         return attrs
 
     def create_order_items(self, order: Order, products: List[Product], quantity: int, coupon_code: Optional[str] = None) -> None:
         order_items = []
         total_price = 0
-        coupon = Coupon.objects.filter(code=coupon_code, is_active=True).first() if coupon_code else None
+        coupon = Coupon.objects.filter(
+            code=coupon_code, is_active=True).first() if coupon_code else None
 
         for product_data in products:
             product = Product.objects.get(id=product_data['id'])
@@ -153,7 +146,6 @@ class CreateOrderSerializer(serializers.Serializer):
             if coupon:
                 discounted_price = coupon.calculate_discounted_price(price)
                 price = min(price, discounted_price)
-                
 
             order_item = OrderItem(
                 order=order, product=product, quantity=quantity, price=price)
@@ -173,6 +165,7 @@ class CreateOrderSerializer(serializers.Serializer):
         cart = Cart(request)
         products = validated_data.get('products')
         quantity = validated_data.get('quantity', 1)
+        cart.add(product=products, quantity=quantity)
 
         coupon_code = validated_data.get("coupon_code", None)
         customer = request.user.customer_profile
@@ -186,12 +179,12 @@ class CreateOrderSerializer(serializers.Serializer):
                     raise ValidationError("Invalid coupon code provided.")
             order = Order.objects.create(customer=customer,
                                          coupon=coupon, status=Order.OrderStatus.PENDING,
-                                         address=customer.address.get_full_address(),)
+                                         address=customer.address.get_full_address(),
+                                         total_amount=Decimal(0))
 
             self.create_order_items(order, products, quantity, coupon_code)
-            cart.clear()
+            cart.save()
             return order
-
 
     class CouponSerializer(serializers.ModelSerializer):
         product = ProductSerializer(read_only=True)
