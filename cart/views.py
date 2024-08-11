@@ -3,13 +3,11 @@ from cart.serializers import CreateOrderItemSerializer, CartSerializer
 from order.models import OrderItem, Order
 from rest_framework import viewsets, permissions, status
 from decimal import Decimal
-from rest_framework import status
 from rest_framework.response import Response
 from typing import Optional
 from cart.models import Cart
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from account.authentications import CustomJWTAuthentication
 from product.models import Product
@@ -57,9 +55,11 @@ class CartViewSet(viewsets.ViewSet):
         """
         Update the quantity of a product in the cart.
         """
+        product_slug = request.query_params.get('slug')
+
         quantity: int = int(request.data.get('quantity', 1))
 
-        product = get_object_or_404(Product, id=pk)
+        product = get_object_or_404(Product, slug=product_slug)
 
         if product.available_quantity < quantity:
             return Response({"error": "Insufficient product quantity available"}, status=status.HTTP_400_BAD_REQUEST)
@@ -74,7 +74,8 @@ class CartViewSet(viewsets.ViewSet):
         """
         Remove a product from the cart.
         """
-        product = get_object_or_404(Product, id=pk)
+        product_slug = request.query_params.get('slug')
+        product = get_object_or_404(Product, slug=product_slug)
         cart = Cart(request)
         cart.remove(product)
         serializer = CartSerializer(cart)

@@ -6,6 +6,8 @@ from django.db import transaction
 from typing import Any, Dict, Optional, TypeAlias, Union
 from product.models import Product
 from order.models import Coupon, Order, OrderItem
+from rest_framework.reverse import reverse_lazy
+
 
 
 # Type aliases for improved readability
@@ -99,15 +101,17 @@ class CreateOrderItemSerializer(serializers.Serializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
+   
     product = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField(read_only=True)
     quantity = serializers.ChoiceField(
         choices=[(i, i) for i in range(1, 100)],  # adjust the range as needed
         required=True)
+    total = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = OrderItem
-        fields = ["product", "slug", "price", "quantity"]
+        fields = ["product", "slug", "price", "quantity", 'total']
         depth = 1
 
     def get_slug(self, obj):
@@ -118,6 +122,13 @@ class OrderItemSerializer(serializers.ModelSerializer):
         if obj.product:
             return obj.product.name
         return "Product not in list"
+    
+    def get_total(self, instance):
+        return instance.get_cost()
+    
+    def get_detail_url(self, instace):
+        request= self.context.get('request')
+        return request.build_absolute_uri(reverse_lazy('cart:order-items-detail' ,kwarg = {'pk': instace.id}))
 
     def validate(self, data):
         product = data['product']

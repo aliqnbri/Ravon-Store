@@ -21,26 +21,51 @@ class Cart:
         """
         Add product to the cart or update its quantity
         """
-
         product_id = str(product.id)
-        if product_id not in self.cart:
-            self.cart[product_id] = {
-                "quantity": 0,
-                "price": str(product.price)
-            }
-        if override_quantity:
-            self.cart[product_id]["quantity"] = quantity
-        else:
-            self.cart[product_id]["quantity"] += quantity
+        cart_item = self.cart.setdefault(product_id, {"quantity": 0, "price": str(product.price)})
+        cart_item["quantity"] = quantity if override_quantity else cart_item["quantity"] + quantity
         self.save()
 
+    def update(self, old_product: Optional[Product] = None, new_product: Optional[Product] = None, quantity: Optional[int] = None) -> None:
+
+        match (old_product, new_product, quantity):
+            # Case 1: Replace old_product with new_product and update quantity
+            case old_product, new_product, quantity if old_product and new_product:
+                old_product_id, new_product_id = str(old_product.id), str(new_product.id)
+
+            # Remove old product if it's different from new product
+                if old_product_id != new_product_id:
+                    self.remove(old_product)
+
+                # Add or update new product
+                self.cart[new_product_id] = {
+                    "quantity": quantity if quantity is not None else self.cart.get(old_product_id, {}).get("quantity", 1),
+                    "price": str(new_product.price)
+                }
+
+            # Case 2: Update the quantity of old_product
+            case old_product, None, quantity if old_product and quantity is not None:
+                if (old_product_id := str(old_product.id)) in self.cart:
+                    self.cart[old_product_id]["quantity"] = quantity
+
+            # Case 3: Add a new product with specified quantity or default quantity 1
+            case None, new_product, quantity if new_product:
+                self.add(new_product, quantity if quantity is not None else 1, override_quantity=True)
+
+            # Case 4: Do nothing when no valid inputs are provided
+            case _:
+                return  # Or handle error
+
+        # Save the cart after updating
+        self.save()
+
+    
+    
     def remove(self, product: Product) -> None:
         """
         Remove a product from the cart
         """
-        product_id = str(product.id)
-
-        if product_id in self.cart:
+        if (product_id := str(product.id)) in self.cart:
             del self.cart[product_id]
             self.save()
 
@@ -50,8 +75,8 @@ class Cart:
         from the database.
         """
         product_ids = self.cart.keys()
-
         products = Product.objects.filter(id__in=product_ids)
+
         for product in products:
             cart_item = self.cart[str(product.id)]
             cart_item["product"] = ProductSerializer(product).data
@@ -75,18 +100,15 @@ class Cart:
         """
         Calculate the tax amount based on the subtotal and tax rate.
         """
-        subtotal = self.get_subtotal()
-        tax = subtotal * tax_rate / 100
-        return round(tax,2)
+        return round((self.get_subtotal()) * tax_rate / 100, 2)
 
-    def get_total_price(self, tax_rate: Decimal) -> Decimal:
+
+    def get_total_price(self, tax_rate = Decimal(0.2)) -> Decimal:
         """
         Calculate the total price of the cart.
         """
-        subtotal = self.get_subtotal()
-        tax = self.get_tax(tax_rate)
-        discount = self.get_discount()
-        return subtotal + tax - discount
+        return (self.get_subtotal()) + (self.get_tax(tax_rate)) - (self.get_discount())
+   
     
     def get_items(self) -> List[OrderItem]:
         """
@@ -94,14 +116,15 @@ class Cart:
         """
         product_ids = self.cart.keys()
         products = Product.objects.filter(id__in=product_ids)
-        items = []
-        for product in products:
-            items.append(OrderItem(
+        items = (
+            OrderItem(
                 product=product,
                 price=Decimal(self.cart[str(product.id)]['price']),
                 quantity=self.cart[str(product.id)]['quantity']
-            ))
-        return items
+            )
+            for product in products
+        )
+        return list(items)
 
     
     def apply_coupon(self, coupon_id: int) -> None:
@@ -112,12 +135,8 @@ class Cart:
 
     @property
     def coupon(self) -> Optional[Coupon]:
-        if self.coupon_id:
-            try:
-                return Coupon.objects.get(id=self.coupon_id)
-            except Coupon.DoesNotExist:
-                return None
-        return None
+        return Coupon.objects.filter(id=self.coupon_id).first() if self.coupon_id else None
+
 
     def get_discount(self) -> Decimal:
         """

@@ -12,7 +12,7 @@ from cart.models import Cart
 from product.serializers import ProductSerializer
 from product.models import Product
 from decimal import Decimal
-
+from django.urls import reverse_lazy
 
 class SimpleProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,16 +21,22 @@ class SimpleProductSerializer(serializers.ModelSerializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    detail_url = serializers.SerializerMethodField(read_only=True)
     product = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField(read_only=True)
     quantity = serializers.ChoiceField(
         choices=[(i, i) for i in range(1, 100)],  # adjust the range as needed
         required=True)
+    total_price = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = OrderItem
         fields = ["product", "slug", "price", "quantity"]
         depth = 1
+
+   
+    
+    
 
     def get_slug(self, obj):
         if obj.product:
@@ -165,7 +171,6 @@ class CreateOrderSerializer(serializers.Serializer):
         cart = Cart(request)
         products = validated_data.get('products')
         quantity = validated_data.get('quantity', 1)
-        cart.add(product=products, quantity=quantity)
 
         coupon_code = validated_data.get("coupon_code", None)
         customer = request.user.customer_profile
