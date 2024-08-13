@@ -23,7 +23,7 @@ class Cart:
         """
         product_id = str(product.id)
         cart_item = self.cart.setdefault(
-            product_id, {"quantity": 0, "price": str(product.price)})
+            product_id, {"quantity": 0, "price": product.price})
         cart_item["quantity"] = quantity if override_quantity else cart_item["quantity"] + quantity
         self.save()
 
@@ -61,6 +61,12 @@ class Cart:
 
         # Save the cart after updating
         self.save()
+        
+    def has_product(self, product: Product) -> bool:
+        """
+        Check if a product is in the cart.
+        """
+        return str(product.id) in self.cart    
 
     def remove(self, product: Product) -> None:
         """
