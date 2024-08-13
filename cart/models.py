@@ -1,6 +1,6 @@
 from decimal import Decimal
 from django.conf import settings
-from product.serializers import ProductSerializer , SimpleProductSerializer
+from product.serializers import SimpleProductSerializer
 from product.models import Product
 from order.models import Coupon, OrderItem
 from typing import Dict, List, Iterator, Optional, Union, Any
