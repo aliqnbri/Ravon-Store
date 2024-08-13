@@ -131,15 +131,4 @@ class CartSerializer(serializers.Serializer):
 
         return representation
 
-        
-        items = [OrderItemSerializer(
-            item).data for item in instance.get_items()]
-        return {
-            'coupon': self.get_coupon(instance),
-            'discount': instance.get_discount(),
-            'subtotal': instance.get_subtotal(),
-            'tax': instance.get_tax(),
-            'total_price': instance.get_total_price(tax_rate=Decimal(0.5)),
-            "total_items_quantity": instance.__len__(),
-            'items': items,
-        }
+    

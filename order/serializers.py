@@ -26,20 +26,11 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    # address = serializers.SerializerMethodField()
-    items = CartSerializer(many=True)
-    created_at = serializers.SerializerMethodField()
-    modified_at = serializers.SerializerMethodField()
-
-    def get_address(self, instance):
-        request = self.context.get('request')
-        customer = request.user
-        print(customer, 'this is cusomer ')
-        return customer.address.get_full_address()
+    items = CartSerializer()
 
     class Meta:
         model = Order
-        fields = ['customer', 'address', 'created_at', 'modified_at', 'items']
+        fields = ['customer', 'address', 'items']
       
 
         read_only_fields = ['items', 'customer',
@@ -59,10 +50,11 @@ class OrderSerializer(serializers.ModelSerializer):
 
    
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
+    # def to_representation(self, instance):
+   
+    #     representation = super().to_representation(instance)
   
-        return representation
+    #     return representation
 
 
 
