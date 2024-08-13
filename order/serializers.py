@@ -1,20 +1,11 @@
-from typing import Any, Dict, Optional
-from cart.models import Cart  # Assuming you have this Cart model defined somewhere
-from order.models import Coupon, Order, OrderItem
-from django.core.exceptions import ValidationError
-
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 from django.db import transaction
 from rest_framework import serializers
-from order.models import Order, Coupon, OrderItem
-from cart.models import Cart
-
+from cart.models import Cart 
 from product.models import Product
-from decimal import Decimal
-from django.urls import reverse_lazy
-
+from order.models import Coupon, Order, OrderItem
 from product.serializers import  SimpleProductSerializer
-from cart.serializers import CartSerializer
+from decimal import Decimal
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product = SimpleProductSerializer()
@@ -26,35 +17,77 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    items = CartSerializer()
-
+    customer= serializers.SerializerMethodField()
+    count_itmes = serializers.SerializerMethodField()
+    sub_total = serializers.SerializerMethodField()
+    tax = serializers.SerializerMethodField()
+    total_price_cost = serializers.SerializerMethodField()
+    items = OrderItemSerializer(many=True, read_only=True)
+    discount = serializers.SerializerMethodField()
+    
     class Meta:
         model = Order
-        fields = ['customer', 'address', 'items']
+        exclude = ['id']  # Exclude the id field
+
+        read_only_fields = ['items', 'customer', 'get_total_cost', 'created_at', 'modified_at', 'address', 'status', 'discount', 'tax', 'total_price', 'coupon', 'count_itmes', 'is_active','payment_id','ref_id' ]
+     
       
+    def get_discount(self,instance: Order) ->Optional[Decimal]:
+        return instance.get_discount()
+    
+    def get_customer(self, instance: Order) -> Optional[str]:
+        return instance.customer.full_name() if instance.customer else None
 
-        read_only_fields = ['items', 'customer',
-                            'get_total_cost', 'created_at', 'modified_at', 'address', 'status',  'discount', 'tax', 'total_price', 'coupon', 'total_items_quantity']
+    def get_count_itmes(self, instance: Order) -> int:
+        return len(instance)
 
-    def get_created_at(self, obj):
-        try:
-            return obj.created_at.strftime("%Y-%m-%d %H:%M:%S")
-        except:
-            return None
+    def get_sub_total(self, instance: Order) -> Decimal:
+        return instance.get_subtotal()
 
-    def get_modified_at(self, obj):
-        try:
-            return obj.modified_at.strftime("%Y-%m-%d %H:%M:%S")
-        except:
-            None
+    def get_tax(self, instance: Order) -> Decimal:
+        return instance.get_tax()
+
+    def get_total_price_cost(self, instance: Order) -> Decimal:
+        return instance.get_total_price_cost()
+
+    def get_created_at(self, instance: Order) -> Optional[str]:
+        return instance.created_at.strftime("%Y-%m-%d %H:%M:%S") if instance.created_at else None
+
+    def get_modified_at(self, instance: Order) -> Optional[str]:
+        return instance.modified_at.strftime("%Y-%m-%d %H:%M:%S") if instance.modified_at else None
+
+
+    # def get_total_price_cost(self,instance):
+    #     return instance.get_total_price_cost()
+    
+    # def get_tax(self,instance):
+    #     return instance.get_tax()    
+    
+    # def get_sub_total(self,instance):
+    #     return instance.get_subtotal()
+    
+    # def get_customer(self, instance):
+    #     return instance.customer.full_name()  # Assuming `full_name` is the field in `CustomerProfile`
+    
+    # def get_count_itmes(self,instance):
+    #     return len(instance)
+
+
+    # def get_created_at(self, obj):
+    #     try:
+    #         return obj.created_at.strftime("%Y-%m-%d %H:%M:%S")
+    #     except:
+    #         return None
+
+    # def get_modified_at(self, obj):
+    #     try:
+    #         return obj.modified_at.strftime("%Y-%m-%d %H:%M:%S")
+    #     except:
+    #         None
+
+
 
    
-
-    # def to_representation(self, instance):
-   
-    #     representation = super().to_representation(instance)
-  
-    #     return representation
 
 
 

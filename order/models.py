@@ -2,9 +2,10 @@ from django.db import models
 from core.models import BaseModel
 from customer.models import CustomerProfile
 from product.models import Product
-
+from decimal import Decimal
 from django.utils.translation import gettext_lazy as _
 # Create your models here.
+from typing import List, Optional
 
 
 class Coupon(BaseModel):
@@ -65,10 +66,27 @@ class Order(BaseModel):
         return f'Order {self.id}'
     
 
-    def get_total_cost(self):
-        return sum(item.get_cost() for item in self.items.all())
+    def get_discount(self) -> Decimal:
+        """
+        Calculate the discount amount.
+        """
+        return (self.coupon.discount / 100) * self.get_subtotal() if self.coupon else Decimal(0)
 
     
+
+    def get_subtotal(self):
+        return sum(item.price * item.quantity for item in self.items.all())
+
+    def get_tax(self, tax_rate: Decimal = Decimal(0.3)) -> Decimal:
+        return round((self.get_subtotal()) * tax_rate / 100, 2)
+
+    def get_total_price_cost(self, tax_rate=Decimal(0.3)) -> Decimal:
+        return Decimal((self.get_subtotal()) + Decimal(self.get_tax(tax_rate)) - Decimal(self.get_discount()))
+
+    def get_items(self) -> List:
+        return self.items.all()
+    
+
 
     
     def __len__(self):
