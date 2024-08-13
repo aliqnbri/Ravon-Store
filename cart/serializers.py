@@ -103,7 +103,6 @@ class CreateOrderItemSerializer(serializers.Serializer):
 class OrderItemSerializer(serializers.ModelSerializer):
    
     product = serializers.SerializerMethodField()
-    slug = serializers.SerializerMethodField(read_only=True)
     quantity = serializers.ChoiceField(
         choices=[(i, i) for i in range(1, 100)],  # adjust the range as needed
         required=True)
@@ -111,7 +110,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ["product", "slug", "price", "quantity", 'total']
+        fields = ["product", "price", "quantity", 'total']
         depth = 1
 
     def get_slug(self, obj):
@@ -171,11 +170,11 @@ class CartSerializer(serializers.Serializer):
         items = [OrderItemSerializer(
             item).data for item in instance.get_items()]
         return {
-            'subtotal': instance.get_subtotal(),
+            'coupon': self.get_coupon(instance),
             'discount': instance.get_discount(),
+            'subtotal': instance.get_subtotal(),
             'tax': instance.get_tax(),
             'total_price': instance.get_total_price(tax_rate=Decimal(0.5)),
-            'coupon': self.get_coupon(instance),
+            "total_items_quantity": instance.__len__(),
             'items': items,
-            "total_items_quantity": instance.__len__()
         }
