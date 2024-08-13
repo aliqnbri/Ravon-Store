@@ -1,6 +1,6 @@
 from decimal import Decimal
 from django.conf import settings
-from product.serializers import ProductSerializer
+from product.serializers import ProductSerializer , SimpleProductSerializer
 from product.models import Product
 from order.models import Coupon, OrderItem
 from typing import Dict, List, Iterator, Optional, Union, Any
@@ -80,10 +80,10 @@ class Cart:
 
         for product in products:
             cart_item = self.cart[str(product.id)]
-            cart_item["product"] = ProductSerializer(product).data
-            cart_item["price"] = Decimal(cart_item["price"])
-            cart_item["total_price"] = cart_item["price"] * \
+            cart_item["price"] = (cart_item["price"])
+            cart_item["total"] = cart_item["price"] * \
                 cart_item["quantity"]
+            cart_item["product"] = SimpleProductSerializer(product).data
             yield cart_item
 
     def __len__(self) -> int:

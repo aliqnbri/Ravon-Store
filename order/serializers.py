@@ -20,53 +20,62 @@ class SimpleProductSerializer(serializers.ModelSerializer):
         fields = ["name"]
 
 
-class OrderItemSerializer(serializers.ModelSerializer):
-    detail_url = serializers.SerializerMethodField(read_only=True)
-    product = serializers.SerializerMethodField()
-    slug = serializers.SerializerMethodField(read_only=True)
-    quantity = serializers.ChoiceField(
-        choices=[(i, i) for i in range(1, 100)],  # adjust the range as needed
-        required=True)
-    total_price = serializers.SerializerMethodField(read_only=True)
+# class OrderItemSerializer(serializers.ModelSerializer):
+#     detail_url = serializers.SerializerMethodField(read_only=True)
+#     product = serializers.SerializerMethodField()
+#     slug = serializers.SerializerMethodField(read_only=True)
+#     quantity = serializers.ChoiceField(
+#         choices=[(i, i) for i in range(1, 100)],  # adjust the range as needed
+#         required=True)
+#     total_price = serializers.SerializerMethodField(read_only=True)
 
-    class Meta:
-        model = OrderItem
-        fields = ["product", "slug", "price", "quantity"]
-        depth = 1
+#     class Meta:
+#         model = OrderItem
+#         fields = ["product", "slug", "price", "quantity"]
+#         depth = 1
 
    
     
     
 
-    def get_slug(self, obj):
-        if obj.product:
-            return obj.product.slug
+#     def get_slug(self, obj):
+#         if obj.product:
+#             return obj.product.slug
 
-    def get_product(self, obj):
-        if obj.product:
-            return obj.product.name
-        return "Product not in list"
+#     def get_product(self, obj):
+#         if obj.product:
+#             return obj.product.name
+#         return "Product not in list"
 
-    def validate(self, data):
-        product = data['product']
-        quantity = data['quantity']
-        if product.available_quantity < quantity:
-            raise serializers.ValidationError(
-                f"Insufficient quantity for product {product.name}")
-        return data
+#     def validate(self, data):
+#         product = data['product']
+#         quantity = data['quantity']
+#         if product.available_quantity < quantity:
+#             raise serializers.ValidationError(
+#                 f"Insufficient quantity for product {product.name}")
+#         return data
 
-    def create(self, validated_data):
-        product = validated_data['product']
-        quantity = validated_data['quantity']
-        product.available_quantity -= quantity
-        product.save()
-        return super().create(validated_data)
+#     def create(self, validated_data):
+#         product = validated_data['product']
+#         quantity = validated_data['quantity']
+#         product.available_quantity -= quantity
+#         product.save()
+#         return super().create(validated_data)
+
+from product.serializers import  SimpleProductSerializer
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    Product = SimpleProductSerializer()
+    class Meta:
+        model = OrderItem 
+        fields = ["id", "product", "price","quantity"]
+        depth = 1
+
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    customer = serializers.StringRelatedField()
     address = serializers.SerializerMethodField()
-    items = OrderItemSerializer(many=True, source='order_items')
+    items = OrderItemSerializer(many=True)
     created_at = serializers.SerializerMethodField()
     modified_at = serializers.SerializerMethodField()
 
