@@ -47,7 +47,6 @@ class Order(BaseModel):
     address = models.TextField(null = True , blank = True) 
     payment_id = models.CharField(max_length = 100 ,null = True , blank = True )
     ref_id = models.CharField(max_length = 25,null = True , blank = True)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     discount = models.IntegerField(null=True, blank=True)
     coupon = models.ForeignKey(Coupon,related_name='orders',on_delete = models.SET_NULL,null=True,blank = True)
     status = models.CharField(max_length=10,
