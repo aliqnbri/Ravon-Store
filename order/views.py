@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from account.authentications import CustomJWTAuthentication
 from order.models import Order
-from order.serializers import OrderSerializer
+from order.serializers import OrderSerializer ,CreateOrderSerializer
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -16,8 +16,16 @@ class OrderViewSet(viewsets.ModelViewSet):
     authentication_classes = [CustomJWTAuthentication]
     filter_backends = [filters.SearchFilter]
     search_fields = ['customer__username', 'customer__email']
-    queryset = Order.objects.all().select_related(
-        'customer').prefetch_related('items')
+    queryset = Order.objects.all()
+
+
+    def create(self, request, *args, **kwargs):
+        serializer = CreateOrderSerializer(data=request.data, context={ "request":request})
+        serializer.is_valid(raise_exception=True)
+        order = serializer.save()
+        serializer = OrderSerializer(order)
+        return Response(serializer.data)
+    
     
     
     # def get_queryset(self):
