@@ -46,6 +46,8 @@ class CartViewSet(viewsets.ViewSet):
             return Response({"error": "Insufficient product quantity available"}, status=status.HTTP_400_BAD_REQUEST)
 
         cart = Cart(request)
+
+        print(cart, 'this is cart in the cartviewset')
         cart.add(product=product, quantity=quantity)
         serializer = CartSerializer(cart)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

@@ -114,7 +114,10 @@ class ProductSerializer(serializers.ModelSerializer):
                 data.pop('detail_url', None)        
         return data        
 
-
+class SimpleProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ["id","name", "price"]   
     
 
 
