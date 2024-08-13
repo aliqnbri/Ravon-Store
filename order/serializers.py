@@ -57,33 +57,6 @@ class OrderSerializer(serializers.ModelSerializer):
         return instance.modified_at.strftime("%Y-%m-%d %H:%M:%S") if instance.modified_at else None
 
 
-    # def get_total_price_cost(self,instance):
-    #     return instance.get_total_price_cost()
-    
-    # def get_tax(self,instance):
-    #     return instance.get_tax()    
-    
-    # def get_sub_total(self,instance):
-    #     return instance.get_subtotal()
-    
-    # def get_customer(self, instance):
-    #     return instance.customer.full_name()  # Assuming `full_name` is the field in `CustomerProfile`
-    
-    # def get_count_itmes(self,instance):
-    #     return len(instance)
-
-
-    # def get_created_at(self, obj):
-    #     try:
-    #         return obj.created_at.strftime("%Y-%m-%d %H:%M:%S")
-    #     except:
-    #         return None
-
-    # def get_modified_at(self, obj):
-    #     try:
-    #         return obj.modified_at.strftime("%Y-%m-%d %H:%M:%S")
-    #     except:
-    #         None
 
 
 
