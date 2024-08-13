@@ -8,8 +8,6 @@ from product.models import Product
 from order.models import Coupon, Order, OrderItem
 from rest_framework.reverse import reverse_lazy
 
-
-
 # Type aliases for improved readability
 ValidatedData: TypeAlias = Dict[str, Any]
 
@@ -96,16 +94,16 @@ class CreateOrderItemSerializer(serializers.Serializer):
             # Update order total amount
             order.total_amount += price * quantity
             order.save()
-
+            print(order_item, 'this is order items in createorderitemseralizer')
             return order_item
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
-   
     product = serializers.SerializerMethodField()
     quantity = serializers.ChoiceField(
         choices=[(i, i) for i in range(1, 100)],  # adjust the range as needed
         required=True)
+
     total = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -113,21 +111,17 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = ["product", "price", "quantity", 'total']
         depth = 1
 
-    def get_slug(self, obj):
-        if obj.product:
-            return obj.product.slug
-
     def get_product(self, obj):
         if obj.product:
             return obj.product.name
         return "Product not in list"
-    
+
     def get_total(self, instance):
         return instance.get_cost()
-    
+
     def get_detail_url(self, instace):
-        request= self.context.get('request')
-        return request.build_absolute_uri(reverse_lazy('cart:order-items-detail' ,kwarg = {'pk': instace.id}))
+        request = self.context.get('request')
+        return request.build_absolute_uri(reverse_lazy('cart:order-items-detail', kwarg={'pk': instace.id}))
 
     def validate(self, data):
         product = data['product']
@@ -137,21 +131,14 @@ class OrderItemSerializer(serializers.ModelSerializer):
                 f"Insufficient quantity for product {product.name}")
         return data
 
-    def create(self, validated_data):
-        product = validated_data['product']
-        quantity = validated_data['quantity']
-        product.available_quantity -= quantity
-        product.save()
-        return super().create(validated_data)
-
 
 class CartSerializer(serializers.Serializer):
     items = OrderItemSerializer(many=True, source='order_items')
-    subtotal = serializers.DecimalField(max_digits=10, decimal_places=2)
-    tax = serializers.DecimalField(max_digits=10, decimal_places=2)
-    discount = serializers.DecimalField(max_digits=10, decimal_places=2)
+    subtotal = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    tax = serializers.DecimalField(max_digits=10, decimal_places=2,read_only=True)
+    discount = serializers.DecimalField(max_digits=10, decimal_places=2,read_only=True)
     total_amount = serializers.DecimalField(
-        max_digits=100000, decimal_places=2)
+        max_digits=100000, decimal_places=2,read_only=True)
     coupon = serializers.SerializerMethodField()
 
     def get_coupon(self, obj: Cart) -> Optional[Dict[str, Any]]:
@@ -170,6 +157,7 @@ class CartSerializer(serializers.Serializer):
         items = [OrderItemSerializer(
             item).data for item in instance.get_items()]
         return {
+            'subtotal': instance.get_subtotal(),
             'coupon': self.get_coupon(instance),
             'discount': instance.get_discount(),
             'subtotal': instance.get_subtotal(),

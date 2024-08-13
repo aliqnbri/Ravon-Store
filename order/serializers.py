@@ -1,130 +1,65 @@
-from typing import Any, Dict, Optional
-from cart.models import Cart  # Assuming you have this Cart model defined somewhere
-from order.models import Coupon, Order, OrderItem
-from django.core.exceptions import ValidationError
 
 from typing import Any, Dict, List, Optional
 from django.db import transaction
 from rest_framework import serializers
 from order.models import Order, Coupon, OrderItem
 from cart.models import Cart
-
+from cart.serializers import CartSerializer
 from product.serializers import ProductSerializer
 from product.models import Product
 from decimal import Decimal
 from django.urls import reverse_lazy
-
-class SimpleProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = ["name"]
-
-
-class OrderItemSerializer(serializers.ModelSerializer):
-    detail_url = serializers.SerializerMethodField(read_only=True)
-    product = serializers.SerializerMethodField()
-    slug = serializers.SerializerMethodField(read_only=True)
-    quantity = serializers.ChoiceField(
-        choices=[(i, i) for i in range(1, 100)],  # adjust the range as needed
-        required=True)
-    total_price = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = OrderItem
-        fields = ["product", "slug", "price", "quantity"]
-        depth = 1
-
-   
-    
-    
-
-    def get_slug(self, obj):
-        if obj.product:
-            return obj.product.slug
-
-    def get_product(self, obj):
-        if obj.product:
-            return obj.product.name
-        return "Product not in list"
-
-    def validate(self, data):
-        product = data['product']
-        quantity = data['quantity']
-        if product.available_quantity < quantity:
-            raise serializers.ValidationError(
-                f"Insufficient quantity for product {product.name}")
-        return data
-
-    def create(self, validated_data):
-        product = validated_data['product']
-        quantity = validated_data['quantity']
-        product.available_quantity -= quantity
-        product.save()
-        return super().create(validated_data)
+from cart.serializers import OrderItemSerializer
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(source='get_status_display')
     customer = serializers.StringRelatedField()
     address = serializers.SerializerMethodField()
     items = OrderItemSerializer(many=True, source='order_items')
     created_at = serializers.SerializerMethodField()
-    modified_at = serializers.SerializerMethodField()
-
-    def get_address(self, instance):
-        request = self.context.get('request')
-        customer = request.user.customer_profile
-        return customer.address.get_full_address()
 
     class Meta:
         model = Order
-        fields = ['customer', 'address', 'created_at', 'modified_at', 'items']
-        depth = 1
+        fields = [
+            'customer', 'address', 'status', 'payment_id',  'items',
+            'created_at',
+        ]
+        read_only_fields = [
+            'items', 'customer', 'created_at',
+            'modified_at', 'address', 'status', 'payment_id',
+        ]
 
-        read_only_fields = ['items', 'customer',
-                            'get_total_cost', 'created_at', 'modified_at', 'address', 'status',  'discount', 'tax', 'total_price', 'coupon', 'total_items_quantity']
+    def get_address(self, instance):
+        return instance.customer.address.get_full_address()
 
     def get_created_at(self, obj):
-        try:
-            return obj.created_at.strftime("%Y-%m-%d %H:%M:%S")
-        except:
-            return None
+        return obj.created_at.strftime("%Y-%m-%d %H:%M:%S") if obj.created_at else None
 
     def get_modified_at(self, obj):
-        try:
-            return obj.modified_at.strftime("%Y-%m-%d %H:%M:%S")
-        except:
-            None
+        return obj.modified_at.strftime("%Y-%m-%d %H:%M:%S") if obj.modified_at else None
 
-    def create(self, validated_data):
-        items_data = validated_data.pop('items')
-        order = Order.objects.create(**validated_data)
-        for item_data in items_data:
-            OrderItem.objects.create(order=order, **item_data)
-        return order
+    def get_tax(self, obj):
+        # Assuming you have a method to calculate tax
+        return obj.get_total_cost() * Decimal(0.05)  # Example tax calculation
 
-    def update(self, instance, validated_data):
-        items_data = validated_data.pop('items', [])
-        instance.status = validated_data.get('status', instance.status)
-        instance.coupon = validated_data.get('coupon', instance.coupon)
-        instance.discount = validated_data.get('discount', instance.discount)
-        instance.save()
-        for item_data in items_data:
-            order_item = OrderItem.objects.filter(
-                id=item_data['id'], order=instance).first()
-            if order_item:
-                order_item.quantity = item_data.get(
-                    'quantity', order_item.quantity)
-                order_item.price = item_data.get('price', order_item.price)
-                order_item.save()
-            else:
-                OrderItem.objects.create(order=instance, **item_data)
-        return instance
+    def get_coupon(self, obj):
+        if obj.coupon:
+            return {
+                'code': obj.coupon.code,
+                'discount': obj.coupon.discount,
+                'valid_from': obj.coupon.valid_from,
+                'expiration_date': obj.coupon.expiration_date,
+            }
+        return None
 
     def to_representation(self, instance):
-        data = super().to_representation(instance)
-        items = data.pop('items')
-        data['items'] = items
-        return data
+        representation = super().to_representation(instance)
+        # Assuming Cart is session-based and initialized with request
+        cart = Cart(self.context['request'])
+        representation['items'] = CartSerializer(cart).data
+
+        return representation
 
 
 class CreateOrderSerializer(serializers.Serializer):
@@ -133,29 +68,32 @@ class CreateOrderSerializer(serializers.Serializer):
     def validate(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
         if coupon_code := attrs.get('coupon_code'):
             if not (coupon := Coupon.objects.filter(code=coupon_code, is_active=True).first()):
-                raise serializers.ValidationError("Invalid or inactive coupon code.")
+                raise serializers.ValidationError(
+                    "Invalid or inactive coupon code.")
             attrs['coupon'] = coupon
         return attrs
 
     def create_order_items(self, order: Order, cart: Cart) -> Decimal:
-
         total_price = Decimal(0)
+
         order_items = [
             OrderItem(
                 order=order,
-                product=(product := Product.objects.select_for_update().get(id=item['product']['id'])),
+                product=(product := item['product']),
                 quantity=(quantity := item['quantity']),
                 price=(price := item['price']),
-            ) for item in cart ]
-        
-        instance = Product.objects.get(id = product)
-        instance.available_quantity -= quantity
-        instance.save        
-        total_price +=price * quantity
-            
+            ) for item in cart if not (
+                setattr(product, 'available_quantity',
+                        product.available_quantity - quantity) or product.save()
+            ) and not ((total_price := total_price + price * quantity))]
+
+        product.available_quantity -= quantity
+        product.save
+        total_price += price * quantity
+
         OrderItem.objects.bulk_create(order_items)
         return total_price
-    
+
     def create(self, validated_data: Dict[str, Any]) -> Order:
         request = self.context.get('request')
         customer = request.user.customer_profile
@@ -170,8 +108,9 @@ class CreateOrderSerializer(serializers.Serializer):
                 total_amount=Decimal(0)
             )
         total_price = self.create_order_items(order, cart)
+        
         if coupon := order.coupon:
-                total_price -= (coupon.discount / 100) * total_price
+            total_price -= (coupon.discount / 100) * total_price
 
         # Calculate tax and final total
         tax = cart.get_tax()
@@ -182,7 +121,3 @@ class CreateOrderSerializer(serializers.Serializer):
         cart.clear()
 
         return order
-
-      
-
-       

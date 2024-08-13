@@ -67,6 +67,7 @@ class Order(BaseModel):
     
 
     def get_total_cost(self):
+        return sum(item.get_cost() for item in self.order_items.all())
         return sum(item.get_cost() for item in self.items.all())
 
     
@@ -76,15 +77,17 @@ class Order(BaseModel):
         """
         Count all items in the order
         """
+        return sum(item["quantity"] for item in self.order_items.values())
+
         return sum(item["quantity"] for item in self.items.values())
 
 
 class OrderItem(BaseModel):
     order = models.ForeignKey(Order,
-                              related_name='items',
+                              related_name='order_items',
                               on_delete=models.CASCADE)
     product = models.ForeignKey(Product,
-                                related_name='order_items',
+                                related_name='items',
                                 on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=1000,
                                 decimal_places=2)
