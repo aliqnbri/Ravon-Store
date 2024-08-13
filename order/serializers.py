@@ -75,51 +75,21 @@ class CreateOrderSerializer(serializers.Serializer):
 
     def create_order_items(self, order: Order, cart: Cart) -> Decimal:
         total_price = Decimal(0)
-        order_items = []
 
-        for cart_item in cart.get_items():
-            product_id = cart_item['product']['id']
-            product= Product.objects.get(id=product_id)
-            quantity = cart_item["quantity"]
-            price = cart_item["price"]
-
-            if product.available_quantity < quantity:
-                raise serializers.ValidationError(
-                    f"Insufficient quantity for product {product.name}"
-                )
-
-            # Update product stock
-            product.available_quantity -= quantity
-            product.save()
-
-            # Create OrderItem
-            OrderItem.objects.create(
+        order_items = [
+            OrderItem(
                 order=order,
-                product=product,
-                quantity=quantity,
-                price=price,
-            )
+                product=(product := item['product']),
+                quantity=(quantity := item['quantity']),
+                price=(price := item['price']),
+            ) for item in cart if not (
+                setattr(product, 'available_quantity',
+                        product.available_quantity - quantity) or product.save()
+            ) and not ((total_price := total_price + price * quantity))]
 
-            # Accumulate total price
-            total_price += price * quantity
-
-        return total_price
-     
-
-        # order_items = [
-        #     OrderItem(
-        #         order=order,
-        #         product=(product := item['product']),
-        #         quantity=(quantity := item['quantity']),
-        #         price=(price := item['price']),
-        #     ) for item in cart if not (
-        #         setattr(product, 'available_quantity',
-        #                 product.available_quantity - quantity) or product.save()
-        #     ) and not ((total_price := total_price + price * quantity))]
-
-        # product.available_quantity -= quantity
-        # product.save
-        # total_price += price * quantity
+        product.available_quantity -= quantity
+        product.save
+        total_price += price * quantity
 
         OrderItem.objects.bulk_create(order_items)
         return total_price
