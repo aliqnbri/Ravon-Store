@@ -165,7 +165,7 @@ class CartSerializer(serializers.Serializer):
         representation['discount']= instance.get_discount()
         representation['subtotal']= instance.get_subtotal()
         representation['tax']= instance.get_tax()
-        representation['total_price_cost'] =instance.get_total_price(tax_rate=Decimal(0.5))
+        representation['total_price_cost'] =Decimal(instance.get_total_price(tax_rate=Decimal(0.5)))
     
         representation["total_items_quantity"]= instance.__len__()
         representation['items'] = instance.__iter__()
