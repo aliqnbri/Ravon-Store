@@ -1,40 +1,41 @@
 from typing import Any, Dict, List, Optional, Union
 from django.db import transaction
 from rest_framework import serializers
-from cart.models import Cart 
+from cart.models import Cart
 from product.models import Product
 from order.models import Coupon, Order, OrderItem
-from product.serializers import  SimpleProductSerializer
+from product.serializers import SimpleProductSerializer
 from decimal import Decimal
+
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product = SimpleProductSerializer()
+
     class Meta:
-        model = OrderItem 
-        fields = ["id", "product", "price","quantity"]
+        model = OrderItem
+        fields = ["id", "product", "price", "quantity"]
         depth = 1
 
 
-
 class OrderSerializer(serializers.ModelSerializer):
-    customer= serializers.SerializerMethodField()
+    customer = serializers.SerializerMethodField()
     count_itmes = serializers.SerializerMethodField()
     sub_total = serializers.SerializerMethodField()
     tax = serializers.SerializerMethodField()
     total_price_cost = serializers.SerializerMethodField()
     items = OrderItemSerializer(many=True, read_only=True)
     discount = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Order
-        exclude = ['id']  # Exclude the id field
+        exclude = ['id', 'is_active']  # Exclude the id field
 
-        read_only_fields = ['items', 'customer', 'get_total_cost', 'created_at', 'modified_at', 'address', 'status', 'discount', 'tax', 'total_price', 'coupon', 'count_itmes', 'is_active','payment_id','ref_id' ]
-     
-      
-    def get_discount(self,instance: Order) ->Optional[Decimal]:
+        read_only_fields = ['items', 'customer', 'get_total_cost', 'created_at', 'modified_at', 'address',
+                            'status', 'discount', 'tax', 'total_price', 'coupon', 'count_itmes', 'is_active', 'payment_id', 'ref_id']
+
+    def get_discount(self, instance: Order) -> Optional[Decimal]:
         return instance.get_discount()
-    
+
     def get_customer(self, instance: Order) -> Optional[str]:
         return instance.customer.full_name() if instance.customer else None
 
@@ -57,13 +58,6 @@ class OrderSerializer(serializers.ModelSerializer):
         return instance.modified_at.strftime("%Y-%m-%d %H:%M:%S") if instance.modified_at else None
 
 
-
-
-
-   
-
-
-
 class CreateOrderSerializer(serializers.Serializer):
 
     def save(self, **kwargs):
@@ -72,28 +66,26 @@ class CreateOrderSerializer(serializers.Serializer):
             user = request.user.customer_profile
             address = user.address.get_full_address()
 
-            order = Order.objects.create(customer = user,
-                                         address = address,
-                    
+            order = Order.objects.create(customer=user,
+                                         address=address,
+
                                          )
             cart = Cart(request)
             order_items = [
-                OrderItem(order=order, 
-                    product=Product.objects.get(id = item['product']['id']), 
-                    quantity=item['quantity'],
-                    price = item['price']
-                    )
-            for item in cart
+                OrderItem(order=order,
+                          product=Product.objects.get(
+                              id=item['product']['id']),
+                          quantity=item['quantity'],
+                          price=item['price']
+                          )
+                for item in cart
             ]
             OrderItem.objects.bulk_create(order_items)
             cart.clear()
             return order
-        
+
+
 class UpdateOrderSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Order 
+        model = Order
         fields = ["status"]
-
-
-
-
