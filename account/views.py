@@ -17,6 +17,17 @@ from typing import Any, Dict, Optional, Union
 
 # Create your views here.
 
+
+
+class SignUpView(TemplateView):
+    template_name = 'signup.html'
+
+class CustomLoginView(TemplateView):
+    template_name='login.html'
+    
+class VerifyTemplateView(TemplateView):
+    template_name = 'verifyotp.html'
+
 class RegisterUserView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = serializers.RegisterSerializer

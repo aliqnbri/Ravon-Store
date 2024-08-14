@@ -10,12 +10,11 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('',include('core.urls')),
-    # path('api-auth/', include('rest_framework.urls')),
-    path('', include('account.urls', namespace='account')),
-    path('', include('product.urls', namespace='product')),
-    path('', include('order.urls', namespace='order')),
-    path('', include('cart.urls', namespace='cart')),
+    path('',include('core.urls',namespace='core')),
+    path('account/', include('account.urls', namespace='account')),
+    path('product/', include('product.urls', namespace='product')),
+    path('order/', include('order.urls', namespace='order')),
+    path('cart/', include('cart.urls', namespace='cart')),
     path('payment/', include('payment.urls', namespace='payment')),
 
 ] 

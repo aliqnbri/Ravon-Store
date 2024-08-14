@@ -11,6 +11,24 @@ from django.db import transaction
 from rest_framework.decorators import action
 from account.authentications import CustomJWTAuthentication
 from product.models import Product
+from django.views.generic import TemplateView
+
+from django.urls import reverse_lazy
+from django.shortcuts import redirect
+
+class CartTemplateView(TemplateView):
+    template_name = "cart.html"
+
+
+class CheckOutTemplateView(TemplateView):
+    template_name = "checkout.html"
+    
+    def dispatch(self, request, *args, **kwargs):
+        if request.COOKIES.get('username') != None:
+            
+            return super().dispatch(request, *args, **kwargs)
+        else :
+            return redirect(reverse_lazy('login'))
 
 
 class CartViewSet(viewsets.ViewSet):
