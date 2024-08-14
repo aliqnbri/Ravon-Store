@@ -30,7 +30,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     
     # def get_queryset(self):
     #     user = self.request.user
-    #     if user.is_staff or user.is_superuser:
+    #     if user.is_staff() or user.is_admin():
     #         return Order.objects.all().select_related('customer').prefetch_related('items')
     #     else:
     #         return Order.objects.filter(customer=user.customer_profile).select_related('customer').prefetch_related('items')

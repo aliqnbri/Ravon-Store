@@ -14,13 +14,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         CUSTOMER = 'customer', _('Customer')
 
     class StaffRoles(models.TextChoices):
-        PRODUCT_MANAGER = "PM" , _("ProductManager")    
         SUPERVISOR = "SV" , _("Supervisor")
+        PRODUCT_MANAGER = "PM" , _("ProductManager")    
         OPERATOR = "OP", _("Operator")    
 
     username = models.CharField(max_length = 20, unique = True, null=True, blank=True)
     email = models.EmailField(max_length=255, unique=True)
     phone_number = models.CharField(max_length=13,null=True)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)

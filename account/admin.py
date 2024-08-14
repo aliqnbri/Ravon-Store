@@ -17,7 +17,7 @@ class CustomUserAdmin(UserAdmin):
     add_form= CustomUserCreationForm
     model = CustomUser
     list_display = ('email', 'role', 'is_active',)
-    list_filter = ('is_staff', 'is_active','role' ,'staff_role')
+    list_filter = ('is_active','role' ,'staff_role')
     fieldsets = (
         (_('Account Info'), {'fields': ('id', 'username', 'email', 'phone_number')}),
         # (_('Personal info'), {'fields': ('first_name', 'last_name')}),
