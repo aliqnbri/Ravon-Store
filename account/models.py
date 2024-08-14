@@ -41,6 +41,32 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self) -> str:
         return f"user : {self.email} with {self.role} Role"
     
+
+    def clean(self) -> None:
+        """Validates model data before saving."""
+        if self.role != self.Role.STAFF and self.staff_role:
+            raise ValueError("Non-staff users should not have a staff_role.")
+        if self.role == self.Role.STAFF and not self.staff_role:
+            raise ValueError("Staff users must have a staff_role.")
+        super().clean()
+
+    def is_admin(self) -> bool:
+        """Check if the user is an admin."""
+        return self.role == self.Role.ADMIN
+
+    def is_staff_member(self) -> bool:
+        """Check if the user is a staff member."""
+        return self.role == self.Role.STAFF
+
+    def is_customer(self) -> bool:
+        """Check if the user is a customer."""
+        return self.role == self.Role.CUSTOMER
+
+    def save(self, *args, **kwargs) -> None:
+        """Override the save method to add custom logic."""
+        self.full_clean()  # Validate model before saving
+        super().save(*args, **kwargs)
+    
     
 
 
