@@ -8,14 +8,9 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import EmailValidator, RegexValidator
 from typing import Any, Dict
 
+class BaseUserSerializer(serializers.ModelSerializer):
+    """Base serializer to handle common user validation."""
 
-class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True,  style={'input_type': 'password'},
-        min_length=8, max_length=128,)
-    
-    password2 = serializers.CharField(
-        write_only=True, style={'input_type': 'password'})
-    
     email = serializers.EmailField(
         validators=[EmailValidator()]
     )
@@ -25,32 +20,41 @@ class RegisterSerializer(serializers.ModelSerializer):
             message=_("Invalid phone number format for Iran. It should start with '+98' followed by 10 digits.")
         )]
     )
+    def validate_email_phone_unique(self, email: str, phone_number: str) -> None:
+        """Check if the email or phone number already exists in the database."""
+        if CustomUser.objects.filter(Q(email=email) | Q(phone_number=phone_number)).exists():
+            raise serializers.ValidationError({
+                'email': _('Email or phone number already exists.')
+            })
 
+
+class RegisterSerializer(BaseUserSerializer):
+    password = serializers.CharField(write_only=True, style={'input_type': 'password'}, min_length=8, max_length=128)
+    password2 = serializers.CharField(write_only=True, style={'input_type': 'password'})
+    
     class Meta:
         model = CustomUser
         fields = ('email', 'phone_number', 'password', 'password2')
 
     def validate(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
-
         # Check if both passwords match
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({'password': _('Passwords do not match.')})
-        
-        # Check for existing email or phone number
-        if CustomUser.objects.filter(Q(email=attrs['email']) | Q(phone_number=attrs['phone_number'])).exists():
-            raise serializers.ValidationError({
-                'email': _('Email or phone number already exists.')
-            })
+
+        # Validate email and phone number uniqueness
+        self.validate_email_phone_unique(attrs['email'], attrs['phone_number'])
 
         attrs.pop('password2')
-        return attrs
-
+        return attrs    
+       
 
     def create(self, validated_data: Dict[str, Any]) -> CustomUser:
+        """Create a new CustomUser instance."""
         user = CustomUser.objects._create_user(**validated_data)
         return user
 
     def update(self, instance: CustomUser, validated_data: Dict[str, Any]) -> CustomUser:
+        """Update an existing CustomUser instance."""
         instance.email = validated_data.get('email', instance.email)
         instance.phone_number = validated_data.get('phone_number', instance.phone_number)
         if 'password' in validated_data:
@@ -82,24 +86,24 @@ class LoginSerializer(serializers.Serializer):
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """Custom serializer for obtaining JWT tokens with additional claims."""
 
     @classmethod
-    def get_access_token(cls, user)-> str:
+    def get_access_token(cls, user: CustomUser) -> str:
         access_token = super().get_token(user)
+        # Add custom claims
         access_token['email'] = user.email
         access_token['phone_number'] = user.phone_number
-
         return str(access_token)
 
-    @classmethod
-    def get_refresh_token(cls, user):
-        refresh_token = RefreshToken.for_user(user)
-        return str(refresh_token)
 
     @classmethod
-    def get_access_refresh_token(cls, user):
-        access_token = cls.get_access_token(user)
-        refresh_token = cls.get_refresh_token(user)
+    def get_refresh_token(cls, user: CustomUser) -> str:
+        return str(RefreshToken.for_user(user))
+
+    @classmethod
+    def get_access_refresh_token(cls, user: CustomUser) -> Dict[str, str]:
         return {
-            'refresh_token': str(refresh_token),
-            'access_token': str(access_token), }
+            'refresh_token': cls.get_refresh_token(user),
+            'access_token': cls.get_access_token(user),
+        }
