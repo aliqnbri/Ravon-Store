@@ -2,7 +2,6 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 import re
-from account.models import CustomUser
 from typing import Any
 
 class CustomUserManager(BaseUserManager):
@@ -13,7 +12,7 @@ class CustomUserManager(BaseUserManager):
 """
 
 
-    def _create_user(self,email: str, phone_number: str, password: str, **extra_fields) -> CustomUser:
+    def _create_user(self,email: str, phone_number: str, password: str, **extra_fields) -> object:
         """
         Create and save a user with the given email and password.
         """
