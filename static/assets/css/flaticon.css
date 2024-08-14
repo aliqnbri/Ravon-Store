@@ -4,7 +4,7 @@
   	*/
 
 @font-face {
-  font-family: "Flaticon";
+  font-family:  "Flaticon";
   src: url("../fonts/Flaticon.eot");
   src: url("../fonts/Flaticon.eot?#iefix") format("embedded-opentype"),
        url("../fonts/Flaticon.woff2") format("woff2"),
@@ -24,7 +24,7 @@
 
 [class^="flaticon-"]:before, [class*=" flaticon-"]:before,
 [class^="flaticon-"]:after, [class*=" flaticon-"]:after {   
-  font-family: Flaticon;
+  font-family: 'Edu VIC WA NT Beginner', Flaticon;
 font-style: normal;
 }
 

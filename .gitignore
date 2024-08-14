@@ -6,8 +6,9 @@
 db.sqlite3
 media
 
-*/templates
-*/static
+*/templates/*
+*/static/*
+templates/*
 
 # Backup files # 
 *.bak 
