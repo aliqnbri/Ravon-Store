@@ -252,6 +252,12 @@ INTERNAL_IPS = [
     # ...
 ]
 
+'''ZarinPal Configs'''
+MERCHANT = config('MERCHANT')
+
+SANDBOX = True
+
+
 
 # Redis settings
 REDIS_HOST = config('REDIS_HOST', default='127.0.0.1')
