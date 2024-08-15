@@ -19,7 +19,7 @@ canvas,
 video {
     display: inline-block;
     *display: inline;
-    *zoom: 1
+    *zoom: 1;
 }
 
 audio:not([controls]) {
@@ -216,7 +216,7 @@ legend {
     border: 0;
     padding: 0;
     white-space: normal;
-    *margin-left: -7px
+    *margin-left: -7px;
 }
 
 button,
@@ -226,7 +226,7 @@ textarea {
     font-size: 100%;
     margin: 0;
     vertical-align: baseline;
-    *vertical-align: middle
+    *vertical-align: middle;
 }
 
 button,
@@ -245,7 +245,7 @@ input[type="reset"],
 input[type="submit"] {
     -webkit-appearance: button;
     cursor: pointer;
-    *overflow: visible
+    *overflow: visible;
 }
 
 button[disabled],

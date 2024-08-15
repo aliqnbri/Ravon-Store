@@ -34,7 +34,7 @@ class RegisterSerializer(BaseUserSerializer):
     
     class Meta:
         model = CustomUser
-        fields = ('email', 'phone_number', 'password', 'password2')
+        fields = ('first_name','last_name','email', 'phone_number', 'password', 'password2')
 
     def validate(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
         # Check if both passwords match

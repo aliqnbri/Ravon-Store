@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, logout
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import permissions, status, generics
-from rest_framework.generics import GenericAPIView
+
 from account import serializers, utils, authentications
 from account.authentications import CustomJWTAuthentication
 from rest_framework.response import Response
@@ -18,20 +18,23 @@ from typing import Any, Dict, Optional, Union
 # Create your views here.
 
 
-
-class SignUpView(TemplateView):
-    template_name = 'signup.html'
-
 class CustomLoginView(TemplateView):
     template_name='login.html'
     
 class VerifyTemplateView(TemplateView):
     template_name = 'verifyotp.html'
 
-class RegisterUserView(generics.CreateAPIView):
+class RegisterUserView(generics.CreateAPIView, TemplateView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = serializers.RegisterSerializer
     authentication_classes = (CustomJWTAuthentication, )
+    template_name = 'signup.html'
+
+    def get(self, request: Any, *args: Any, **kwargs: Any) -> Response:
+        """
+        Handle GET requests and render the signup template.
+        """
+        return self.render_to_response(self.get_context_data())
 
     def post(self, request: Any) -> Response:
         serializer = self.serializer_class(data=request.data)
