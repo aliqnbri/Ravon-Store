@@ -6,6 +6,10 @@
 db.sqlite3
 media
 
+*/templates/*
+*/static/*
+templates/*
+
 # Backup files # 
 *.bak 
 
@@ -145,3 +149,6 @@ GitHub.sublime-settings
 #static & templates
 ./static/
 Ecommerce/static/
+Ecommerce/templates/
+./Frontend/
+Raven-store/Frontend/

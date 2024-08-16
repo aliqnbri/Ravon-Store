@@ -1,0 +1,26 @@
+for dumping data to fixtures use this code From DataBase -> Fixture
+python manage.py dumpdata <app_name> --indent=2 --output=<app_name>/fixtures/<app_name>.json
+
+for loading data from fixture use this code  From Fixture -> DataBase
+python manage.py loaddata <app_name>/fixtures/<app_name>.json
+
+
+for product
+python manage.py dumpdata product --indent=2 --output=product/fixtures/product.json
+
+for account
+python manage.py dumpdata account --indent=2 --output=account/fixtures/account.json
+
+for customer
+python manage.py dumpdata customer --indent=2 --output=customer/fixtures/customer.json
+
+for order
+python manage.py dumpdata order --indent=2 --output=order/fixtures/order.json
+
+for product
+python manage.py dumpdata product --indent=2 --output=product/fixtures/product.json
+
+
+
+
+
