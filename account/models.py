@@ -26,7 +26,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default = True)
     date_joined = models.DateField(default=timezone.now)
-    role = models.CharField(max_length=8, choices=Role.choices, default=Role.CUSTOMER)
+    role = models.CharField(max_length=9, choices=Role.choices, default=Role.CUSTOMER)
     staff_role = models.CharField(choices = StaffRoles, max_length = 2, null=True, blank=True, default=None)
 
 
@@ -67,10 +67,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         """Returns the user's full name"""
         return f"{self.first_name} {self.last_name}"
 
-    def save(self, *args, **kwargs) -> None:
-        """Override the save method to add custom logic."""
-        self.full_clean()  # Validate model before saving
-        super().save(*args, **kwargs)
     
     
 

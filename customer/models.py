@@ -16,7 +16,7 @@ class Address(BaseModel):
     """
     Address Model for user's address 
     """
-    customer_profile = models.ForeignKey('CustomerProfile', on_delete=models.CASCADE)
+    customer_profile = models.ForeignKey('CustomerProfile', on_delete=models.CASCADE, related_name='addresses')
     country = models.CharField(max_length=200, null=True, blank=True)
     state = models.CharField(max_length=200, null=True, blank=True)
     city = models.CharField(max_length=50)
@@ -28,8 +28,6 @@ class Address(BaseModel):
         max_digits=9, decimal_places=2, null=True, blank=True)
     secondary_address = models.TextField(null=True, blank=True)
     is_default = models.BooleanField(default=False)
-
-
 
 
     def get_full_address(self) -> str:
@@ -50,8 +48,6 @@ class CustomerProfile(models.Model):
 
     customer = models.OneToOneField(
         CustomUser, on_delete=models.CASCADE, related_name='customer_profile')
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
     gender = models.CharField(
         max_length=6, choices=Gender.choices, null=True, blank=True)
     avatar = models.ImageField(
@@ -65,7 +61,7 @@ class CustomerProfile(models.Model):
     
     def get_default_address(self) -> Address:
         """Returns the customer's default address"""
-        if (default_address := self.address_set.filter(is_default=True).first()):
+        if (default_address := self.addresses.filter(is_default=True).first()):
             return default_address.get_full_address()
         return None
     

@@ -16,7 +16,8 @@ from django.conf import settings
 from typing import Any, Dict, Optional, Union
 
 # Create your views here.
-
+class SignUp(TemplateView):
+    template_name = 'signup.html'
 
 class CustomLoginView(TemplateView):
     template_name='login.html'
@@ -24,17 +25,11 @@ class CustomLoginView(TemplateView):
 class VerifyTemplateView(TemplateView):
     template_name = 'verifyotp.html'
 
-class RegisterUserView(generics.CreateAPIView, TemplateView):
+class RegisterUserView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = serializers.RegisterSerializer
-    authentication_classes = (CustomJWTAuthentication, )
-    template_name = 'signup.html'
-
-    def get(self, request: Any, *args: Any, **kwargs: Any) -> Response:
-        """
-        Handle GET requests and render the signup template.
-        """
-        return self.render_to_response(self.get_context_data())
+    authentication_classes = ()
+ 
 
     def post(self, request: Any) -> Response:
         serializer = self.serializer_class(data=request.data)
@@ -49,7 +44,7 @@ class RegisterUserView(generics.CreateAPIView, TemplateView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-        response = self._create_response_with_tokens(reverse('account:verify-otp'), access_token, refresh_token)
+        response = self._create_response_with_tokens(access_token, refresh_token)
         return response
     
     def _send_verification_email(self, email: str) -> bool:
@@ -61,8 +56,8 @@ class RegisterUserView(generics.CreateAPIView, TemplateView):
             print(f"Error sending verification email: {error}")
             return False
 
-    def _create_response_with_tokens(self, redirect_url: str, access_token: str, refresh_token: str) -> Response:
-        response = redirect(redirect_url)
+    def _create_response_with_tokens(self, access_token: str, refresh_token: str) -> Response:
+        response = Response()
         response.set_cookie(key='access_token', value=access_token, httponly=True, secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'])
         response.set_cookie(key='refresh_token', value=refresh_token, httponly=True, secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'])
         return response

@@ -12,7 +12,7 @@ class CustomUserManager(BaseUserManager):
 """
 
 
-    def _create_user(self,email: str, phone_number: str, password: str, **extra_fields) -> object:
+    def _create_user(self,email: str, phone_number: str, password: str, username:str=None, **extra_fields) -> object:
         """
         Create and save a user with the given email and password.
         """
@@ -37,7 +37,7 @@ class CustomUserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_staffuser(self, email:str, password:str, **extra_fields:Any):
+    def create_staff(self, email:str, password:str, **extra_fields:Any):
         """
         Create and save a SuperUser with the given email and password.
         """
@@ -54,7 +54,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('staff_role', self.model.StaffRoles.SUPERVISOR)
 
 
-        return self._create_user(None, email, phone_number,  password, **extra_fields)
+        return self._create_user(email, phone_number,  password, **extra_fields)
 
     def update_user(self, user_instance, **update_fields):
         for field, value in update_fields.items():
