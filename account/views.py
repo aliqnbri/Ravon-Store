@@ -57,12 +57,12 @@ class RegisterUserView(generics.CreateAPIView):
             return False
 
     def _create_response_with_tokens(self, access_token: str, refresh_token: str) -> Response:
-        response = Response()
+        response = Response(status=status.HTTP_201_CREATED)
         response.set_cookie(key='access_token', value=access_token, httponly=True, secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'])
         response.set_cookie(key='refresh_token', value=refresh_token, httponly=True, secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'])
         return response
 
-
+from django.contrib.auth import login
 
 class VerifyOtp(APIView):
     serializer_class = serializers.VerifyOtpSerialiser
@@ -84,6 +84,8 @@ class VerifyOtp(APIView):
         
         if not self._verify_user(payload['email'], serializer.validated_data['otp']):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        user = CustomUser.objects.get(email=payload['email'])
+        login(request, user)  # Use Django's built-in login function
 
         return Response({"message": "Your account has been verified"}, status=status.HTTP_202_ACCEPTED)
         
@@ -141,6 +143,7 @@ class MyTokenObtainPairView(TokenObtainPairView):  # I use this for login user.
             return self._create_verification_response(user)
 
         self._set_login_cookies(response, response.data['access'], response.data['refresh'])
+        login(request , user)
         response.data = {"message": "Login successful"}
         response.status_code = status.HTTP_200_OK
         return response

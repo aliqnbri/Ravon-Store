@@ -120,10 +120,7 @@ class Product(BaseModel):
         return reverse('product:product_detail', args=[self.slug])
 
 
-
-
-
-
 class WishListItem(BaseModel):
     customer = models.OneToOneField(CustomerProfile,on_delete=models.CASCADE)
-    product = models.ForeignKey(Product,on_delete = models.PROTECT)        
+    product = models.ForeignKey(Product,on_delete = models.PROTECT)    
+

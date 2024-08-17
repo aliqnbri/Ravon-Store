@@ -8,7 +8,8 @@ from rest_framework import permissions,filters,viewsets
 # from django_filters.rest_framework import DjangoFilterBackend
 from account.authentications import CustomJWTAuthentication
 from customer.serializers import AddressSerializer,WishListItemSerializer
-from customer.models import Address,WishListItem
+from customer.models import Address
+from product.models import WishListItem
 # Create your views here.
 
 class ProfileTemplateView(TemplateView):

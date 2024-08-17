@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
 
 
+
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 
@@ -37,6 +38,8 @@ class Address(BaseModel):
     def __str__(self) -> str:
         return self.get_full_address()
 
+
+    
 
 class CustomerProfile(models.Model):
     """
