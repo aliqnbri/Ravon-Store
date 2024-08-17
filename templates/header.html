@@ -1,4 +1,5 @@
-{% load static%}
+{% load static %}
+
 <style>
     .ali{
         margin:0 7px;
@@ -44,107 +45,110 @@
     
     .dropdown:hover .dropbtn {background-color: #3e8e41;}
     </style>
-<!-- Preloader Start -->
-    <header>
-        <!-- Header Start -->
-        <div class="header-area">
-            <div class="main-header header-sticky">
-                <div class="container-fluid">
-                    <div class="menu-wrapper">
-                        <!-- Logo -->
-                        <div class="logo">
-                            <a href="{% url 'core:home' %}"><img src={% static "assets/img/logo/logo.png"%} alt=""></a>
-                        </div>
-                        <!-- Main-menu -->
-                        <div class="main-menu d-none d-lg-block">
-                            <nav>                                                
-                                <ul id="navigation">  
-                                    <li><a href="{% url 'core:home' %}"">Home</a></li>
-                                    <li><a href="{% url 'product:products-list'  %}"">shop</a></li>
-                                    <li><a href="about.html">about</a></li>
-                                    <li class="hot"><a href="#">Latest</a>
-                                        <ul class="submenu">
-                                            <li><a href="{% url 'product:products-list'  %}"> Product list</a></li>
-                                            <li><a href="product_details.html"> Product Details</a></li>
-                                        </ul>
-                                    </li>
-                                    <li><a href="blog.html">Blog</a>
-                                        <ul class="submenu">
-                                            <li><a href="blog.html">Blog</a></li>
-                                            <li><a href="blog-details.html">Blog Details</a></li>
-                                        </ul>
-                                    </li>
-                                    <li><a href="#">Pages</a>
-                                        <ul class="submenu">
-                                            <li><a href="login.html">Login</a></li>
-                                            <li><a href="cart.html">Cart</a></li>
-                                            <li><a href="elements.html">Element</a></li>
-                                            <li><a href="confirmation.html">Confirmation</a></li>
-                                            <li><a href="checkout.html">Product Checkout</a></li>
-                                        </ul>
-                                    </li>
-                                    <li><a href="contact.html">Contact</a></li>
-                                </ul>
-                            </nav>
-                        </div>
-                        <!-- Header Right -->
-                        <div class="header-right">
-                            <ul>
-                                <li>
-                                    <div class="nav-search search-switch">
-                                        <span class="flaticon-search"></span>
-                                    </div>
-                                </li>
-                                {% if request.COOKIES.username %}
-                                {% comment %} <li><a class="ali" href="#"></a></li> {% endcomment %}
-                                <div class="dropdown">
-                                    <span >Welcome, {{request.COOKIES.username}}</span>
-                                    <div class="dropdown-content">
-                                        <a href="{% url 'account:profile'  %}">Profile</a>
-                                        <a href="{% url 'customer:address'  %}">Address</a>
-                                      <a href="{% url 'order:orders'  %}">Orders</a>
-                                      <a href="#">Wish List</a>
-                                    </div>
-                                  </div>
-                                
-                                <li><a class="ali" onclick="logout()" href="#" >Log Out</a></li>
-                                {% else %}
-                                <li> <a href="{% url 'account:login'  %}"><span class="flaticon-user"></span></a></li>
-                                {% endif %}
-                                <li><a href="{% url 'cart:cart' %}">
-                                    <div style = "padding:0;margin-left : 7px">
-                                    <span class="flaticon-shopping-cart " style="padding:0;font-size : 20px;"></span></a> </li>
-                                        <div id="cartCount" style="display : flex;justify-content : center;align-items : center;color:white; position: relative ;width :18px ; height: 18px;background:red;padding: 1px;border-radius:100% ;right :1px ;top:-10px;">
-                                            
-                                        </div>
-                                </div>
 
+
+<header>
+    <!-- Header Start -->
+    <div class="header-area">
+        <div class="main-header header-sticky">
+            <div class="container-fluid">
+                <div class="menu-wrapper">
+                    <!-- Logo -->
+                    <div class="logo">
+                        <a href="{% url 'core:home' %}"><img src="{% static 'assets/img/logo/logo.png' %}" alt=""></a>
+                    </div>
+                    <!-- Main-menu -->
+                    <div class="main-menu d-none d-lg-block">
+                        <nav>                                                
+                            <ul id="navigation">  
+                                <li><a href="{% url 'core:home' %}">Home</a></li>
+                                <li><a href="{% url 'product:products-list' %}">shop</a></li>
+                                {% comment %} <li><a href='about.html'>about</a></li> {% endcomment %}
+                                <li class="hot"><a href="{% static '#' %}">Latest</a>
+                                    <ul class="submenu">
+                                        <li><a href="{% url 'product:products-list' %}"> Product list</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="{% static 'blog.html' %}">Blog</a>
+                                    <ul class="submenu">
+                                        <li><a href='blog.html'>Blog</a></li>
+                                        <li><a href='blog-details.html'>Blog Details</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="{% static '#' %}">Pages</a>
+                                    <ul class="submenu">
+                                        <li><a href="{% url 'account:login' %}">Login</a></li>
+                                        <li><a href="{% static 'cart:cart' %}">Cart</a></li>
+                               
+                                        <li><a href='confirmation.html'>Confirmation</a></li>
+                                        <li><a href='checkout.html'>Product Checkout</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href='contact.html'>Contact</a></li>
                             </ul>
-                        </div>
+                        </nav>
                     </div>
-                    <!-- Mobile Menu -->
-                    <div class="col-12">
-                        <div class="mobile_menu d-block d-lg-none"></div>
+                    <!-- Header Right -->
+                    <div class="header-right">
+                        <ul>
+                            <li>
+                                <div class="nav-search search-switch">
+                                    <span class="flaticon-search"></span>
+                                </div>
+                            </li>
+                            {% if user_fristname %}
+                            <div class="dropdown">
+                                <span>Welcome, {{user_fristname}}</span>
+                                <div class="dropdown-content">
+                                    <a href="{% url 'account:profile' %}">Profile</a>
+                                   
+                                    <a href={% url 'address'  %}>Address</a>
+                                    <a href={% url 'orders'  %}>Orders</a>
+                                    <a href="#">Wish List</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <li><a class="ali" onclick="logout()" href="#" >Log Out</a></li>
+                            {% else %}
+                            <li> <a href="{% url 'account:login' %}"><span class="flaticon-user"></span></a></li>
+                            
+
+                            {% endif %}
+                            <li><a href={% url "cart:cart" %}>
+                                <div style = "padding:0;margin-left : 7px">
+                                <span class="flaticon-shopping-cart " style="padding:0;font-size : 20px;"></span></a> </li>
+                                    <div id="cartCount" style="display : flex;justify-content : center;align-items : center;color:white; position: relative ;width :18px ; height: 18px;background:red;padding: 1px;border-radius:100% ;right :1px ;top:-10px;">
+                                        
+                                    </div>
+                            </div>
+
+                        </ul>
                     </div>
+                </div>
+                <!-- Mobile Menu -->
+                <div class="col-12">
+                    <div class="mobile_menu d-block d-lg-none"></div>
                 </div>
             </div>
         </div>
-        <!-- Header End -->
-    </header>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    </div>
+</header>
+    <!-- Header End -->
 
-<script>
-    const getCount = async () => {
-        const cart_url = `http://localhost:80/cart/api/`
-        async function makeGetRequest(path) {
-            const response = await axios.get(path)
-            return response.data
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-        }
-        const cart = await makeGetRequest(cart_url);
-        const cartCount = document.getElementById('cartCount');
-        cartCount.innerHTML = cart.count;
-    };
-    
-    getCount()
-</script>
+{% comment %} <script>    
+const getCount = async () => {
+    const cart_url = `http://localhost:80/cart/cart/`
+    async function makeGetRequest(path) {
+        const response = await axios.get(path)
+        return response.data
+
+    }
+    const cart = await makeGetRequest(cart_url);
+    const cartCount = document.getElementById('cartCount');
+    cartCount.innerHTML = cart.count;
+}; {% endcomment %}
+
+{% comment %} getCount()
+</script> {% endcomment %}

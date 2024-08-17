@@ -7,12 +7,13 @@ from typing import Any
 
 
 @receiver(post_save, sender=CustomUser)
-def create_customer_profile(sender, instance, created, **kwargs):
+def create_customer_profile(sender , instance, created, **kwargs):
     """
     Signal receiver function that creates a CustomerProfile instance when a CustomUser is created with role 'cu'.
 
     """
-    if created and instance.Role.CUSTOMER :
+    if created and instance.role == instance.Role.CUSTOMER:
+
         CustomerProfile.objects.create(customer=instance)
 
 

@@ -15,9 +15,6 @@ from django.shortcuts import redirect
 from django.conf import settings
 from typing import Any, Dict, Optional, Union
 
-# Create your views here.
-class SignUp(TemplateView):
-    template_name = 'signup.html'
 
 class CustomLoginView(TemplateView):
     template_name='login.html'
@@ -25,9 +22,10 @@ class CustomLoginView(TemplateView):
 class VerifyTemplateView(TemplateView):
     template_name = 'verifyotp.html'
 
-class RegisterUserView(generics.CreateAPIView):
+class RegisterUserView(generics.CreateAPIView,TemplateView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = serializers.RegisterSerializer
+    template_name = 'signup.html'
     authentication_classes = ()
  
 
@@ -63,10 +61,11 @@ class RegisterUserView(generics.CreateAPIView):
         return response
 
 
-class VerifyOtp(APIView):
+class VerifyOtp(APIView, TemplateView):
     serializer_class = serializers.VerifyOtpSerialiser
     permission_classes = [permissions.AllowAny,]
     authentication_classes = (CustomJWTAuthentication,)
+    template_name = 'verify-otp.html'
 
     def post(self, request: Any) -> Response:
         serializer = self.serializer_class(data=request.data)
@@ -87,21 +86,24 @@ class VerifyOtp(APIView):
         
 
 
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)  
+    
+    # def get(self, request: Any) -> Response:
+    #     access_token = request.COOKIES.get('access_token')
+    #     refresh_token = request.COOKIES.get('refresh_token')
+    #     return Response({"message": "register successful ! Verify code sent to Email",
+    #                      'access_toke': str(access_token),
+    #                      'refresh_token': str(refresh_token)}, status=status.HTTP_201_CREATED)
 
-    def get(self, request: Any) -> Response:
-        access_token = request.COOKIES.get('access_token')
-        refresh_token = request.COOKIES.get('refresh_token')
-        return Response({"message": "register successful ! Verify code sent to Email",
-                         'access_toke': str(access_token),
-                         'refresh_token': str(refresh_token)}, status=status.HTTP_201_CREATED)
-
-    def _verify_user(self, email: str, otp: str) -> bool:
-        if utils.check_otp(email=email, otp=otp):
-            user = CustomUser.objects.get(email=email)
-            user.is_verified = True
-            user.save()
-            return True
-        return False
+    # def _verify_user(self, email: str, otp: str) -> bool:
+    #     if utils.check_otp(email=email, otp=otp):
+    #         user = CustomUser.objects.get(email=email)
+    #         user.is_verified = True
+    #         user.save()
+    #         return True
+    #     return False
 
 class LogoutView(APIView):
     authentication_classes = [CustomJWTAuthentication,]
