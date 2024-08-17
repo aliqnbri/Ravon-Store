@@ -23,7 +23,7 @@ class CustomLoginView(TemplateView):
     template_name='account/login.html'
     
 class VerifyTemplateView(TemplateView):
-    template_name = 'account/verifyotp.html'
+    template_name = 'account/verify-otp.html'
 
 class RegisterUserView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
