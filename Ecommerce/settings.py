@@ -241,9 +241,9 @@ CORS_ALLOWED_ORIGINS = [
     # Add other trusted origins as needed
 ]
 
-# LOGIN_URL = 'login'
-# LOGIN_REDIRECT_URL = 'home'
-# LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'login'
 
 
 INTERNAL_IPS = [
