@@ -19,33 +19,21 @@ def create_customer_profile(sender , instance, created, **kwargs):
 
 
 @receiver(pre_save, sender=CustomUser)
-def set_role_privileges(sender: Any, instance: CustomUser, **kwargs: Any) -> None:
+def set_role_privileges(sender: type[CustomUser], instance: CustomUser, **kwargs: Any) -> None:
     """
     Signal to set the role privileges for a user before saving.
-    Adjusts is_staff, is_superuser, and staff_role based on the user's role.
+    Adjusts role-related settings based on the user's role.
     """
-    instance.role = get_set_role(instance)
-
-
-def get_set_role(user_instance: CustomUser) -> str:
-    """
-    Sets the user instance's privileges based on their role.
-    Returns a string representing the role, or an error message if the role is invalid.
-    """
-    match user_instance.role:
+    match instance.role:
         case CustomUser.Role.ADMIN:
-            user_instance.is_staff = True
-            user_instance.is_superuser = True
-            user_instance.staff_role = None
-            return "ADMIN"
+            instance.is_superuser = True
+            instance.staff_role = CustomUser.StaffRoles.SUPERVISOR  # Admins are supervisor too have a specific staff role
         case CustomUser.Role.STAFF:
-            user_instance.is_staff = True
-            user_instance.is_superuser = False
-            return "STAFF"
+            instance.is_superuser = False
+            if not instance.staff_role:
+                instance.staff_role = CustomUser.StaffRoles.OPERATOR  # Default staff role if not set
         case CustomUser.Role.CUSTOMER:
-            user_instance.is_staff = False
-            user_instance.is_superuser = False
-            user_instance.staff_role = None
-            return "CUSTOMER"
+            instance.is_superuser = False
+            instance.staff_role = None  # Customers do not have a staff role
         case _:
-            return "Invalid role ID"
+            raise ValueError(f"Invalid role ID: {instance.role}")

@@ -7,6 +7,22 @@ from rest_framework.decorators import action
 from account.authentications import CustomJWTAuthentication
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
+from django.views.generic import TemplateView
+
+
+class ProductTemplateView(TemplateView):
+    template_name = 'product/product-list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        products = Product.objects.filter(is_available=True).order_by('-created_at')
+        context['products'] = products
+        return context
+
+class ProductDetailTemplateView(TemplateView):
+    template_name = 'product/product_details.html'
+
+
 
 
 class StandardResultsSetPagination(PageNumberPagination):

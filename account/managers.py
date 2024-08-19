@@ -29,22 +29,29 @@ class CustomUserManager(BaseUserManager):
             if not re.match(r'^(\+98|0)?9\d{9}$', phone_number):
                 raise ValidationError(_("Invalid phone_number number format for Iran. It should start with '+98' followed by 10 digits.")
                     )
-
+            
         email = self.normalize_email(email)
         user = self.model(
             email=email, phone_number=phone_number, **extra_fields)
         user.set_password(password)  # change user passwoed
         user.save()
         return user
+    
+    def create_user(self, email: str, phone_number: str, password: str = None, **extra_fields: Any) -> object:
+        """
+        Create and save a regular user with the given email, phone number, and password.
+        """
+        extra_fields.setdefault('role', self.model.Role.CUSTOMER)
+        return self._create_user(email, phone_number, password, **extra_fields)
 
-    def create_staff(self, email:str, password:str, **extra_fields:Any):
+    def create_staff(self, email:str, password:str, phone_number:str,**extra_fields:Any):
         """
         Create and save a SuperUser with the given email and password.
         """
         extra_fields.setdefault('role' , self.model.Role.STAFF)
         extra_fields.setdefault('staff_role' , self.model.StaffRoles.OPERATOR)
 
-        return self._create_user(email, password, **extra_fields)
+        return self._create_user(email, password, phone_number,**extra_fields)
 
     def create_superuser(self, email, phone_number, password, **extra_fields):
         """
@@ -52,6 +59,12 @@ class CustomUserManager(BaseUserManager):
         """
         extra_fields.setdefault('role', self.model.Role.ADMIN)
         extra_fields.setdefault('staff_role', self.model.StaffRoles.SUPERVISOR)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('is_verified', True)
+
+        if extra_fields.get('role') != self.model.Role.ADMIN:
+            raise ValueError('Superuser must have role of Admin')
 
 
         return self._create_user(email, phone_number,  password, **extra_fields)

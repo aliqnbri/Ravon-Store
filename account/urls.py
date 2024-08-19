@@ -5,8 +5,8 @@ app_name = 'account'
 
 urlpatterns = [
     path('api/register/', views.RegisterUserView.as_view(), name='register'),
-    path('api/login/', views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/logout/', views.LogoutView.as_view(), name='token_obtain_pair'),
+    path('api/login/', views.MyTokenObtainPairView.as_view(), name='login'),
+    path('api/logout/', views.LogoutView.as_view(), name='logout'),
     path('api/verify-otp/', views.VerifyOtp.as_view(), name='verify-otp'),
     path('register/', views.SignUpView.as_view(), name='register'),
     path('login/',views.CustomLoginView.as_view() , name='login'),

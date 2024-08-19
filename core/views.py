@@ -13,19 +13,18 @@ def user_context_processor(request):
                 jwt_token, settings.SECRET_KEY, algorithms=['HS256'])
             user_id = payload['user_id']
             user = User.objects.get(id=user_id)
-            return user
+            return {'user': user}
         except jwt.ExpiredSignatureError:
             # Handle expired token
-            None
+            return {}
         except jwt.InvalidTokenError:
             # Handle invalid token
-            None
-    None
+            return {}
+    return {}
 
 # Create your views here.
 
 
 def home(request):
-    user = user_context_processor(request)
-
-    return render(request, 'index.html', context={'user': user})
+    context = user_context_processor(request)
+    return render(request, 'index.html', context=context)

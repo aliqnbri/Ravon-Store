@@ -53,6 +53,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def is_admin(self) -> bool:
         """Check if the user is an admin."""
         return self.role == self.Role.ADMIN
+    
+    @property
+    def is_staff(self) -> bool:
+        """Check if the user is a staff member or an admin."""
+        return self.role in {self.Role.ADMIN, self.Role.STAFF}
 
     def is_staff_member(self) -> bool:
         """Check if the user is a staff member."""

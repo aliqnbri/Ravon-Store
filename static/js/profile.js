@@ -1,6 +1,6 @@
 const userId = getCookie('username');
 const base_url = `http://localhost:80`
-const user_url = `${base_url}/accounts/users/${userId}/`
+const user_url = `${base_url}/account/users/${userId}/`
 
 async function makeGetRequest(path) {
     const response = await axios.get(path)

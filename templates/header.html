@@ -13,15 +13,15 @@
                     </div>
                     <!-- Main-menu -->
                     <div class="main-menu d-none d-lg-block">
-                        <nav>                                                
-                            <ul id="navigation">  
+                        <nav>
+                            <ul id="navigation">
                                 <li><a href="{% static 'assets/img/logo/logo.png'  %}">Home</a></li>
-                                <li><a href="{% url 'product:products-list'  %}">shop</a></li>
+                                <li><a href="{% url 'product:product-list'  %}">shop</a></li>
                                 <li><a href="about.html">about</a></li>
                                 <li class="hot"><a href="#">Latest</a>
                                     <ul class="submenu">
-                                        <li><a href="{% url 'product:products-list'  %}"> Product list</a></li>
-                                   
+                                        <li><a href="{% url 'product:product-list'  %}"> Product list</a></li>
+
                                     </ul>
                                 </li>
                                 <li><a href="blog.html">Blog</a>
@@ -50,57 +50,73 @@
                                     <span class="flaticon-search"></span>
                                 </div>
                             </li>
-                            {% if user %}
+                            {% if user.first_name %}
                             <div class="dropdown">
-                                <span >Welcome, {{ user.first_name }}</span>
+                                <span>Welcome, {{ user.first_name }}</span>
                                 <div class="dropdown-content">
-                                  <!-- <a href="{% url 'customer:profile'  %}">Profile</a>
-                                  <a href="{% url 'customer:address'  %}">Address</a>
-                                  <a href="{% url 'customer:orders'  %}">Orders</a>
-                                  <a href="#">Wish List</a> -->
+                                    <a href="{% url 'customer:profile'  %}">Profile</a>
+                                    <a href="{% url 'customer:address'  %}">Address</a>
+                                    <a href="{% url 'customer:orders'  %}">Orders</a>
+                                    <a href="#">Wish List</a>
                                 </div>
-                              </div>
-                            
-                            <li><a class="ali" onclick="logout()" href="#" >Log Out</a></li>
+                            </div>
+
+                            <li><a class="ali" onclick="logout()"href="{% url 'core:home'  %}">Log Out</a></li>
                             {% else %}
                             <li> <a href="{% url 'account:login'  %}"><span class="flaticon-user"></span></a></li>
                             {% endif %}
                             <li><a href="{% url 'cart:cart'  %}">
-                                <div style = "padding:0;margin-left : 7px">
-                                <span class="flaticon-shopping-cart " style="padding:0;font-size : 20px;"></span></a> </li>
-                                    <div id="cartCount" style="display : flex;justify-content : center;align-items : center;color:white; position: relative ;width :18px ; height: 18px;background:rgb(15, 219, 246);padding: 1px;border-radius:100% ;right :1px ;top:-10px;">
-                                        
-                                    </div>
-                            </div>
+                                    <div style="padding:0;margin-left : 7px">
+                                        <span class="flaticon-shopping-cart "
+                                            style="padding:0;font-size : 20px;"></span>
+                                </a> </li>
+                            <div id="cartCount"
+                                style="display : flex;justify-content : center;align-items : center;color:white; position: relative ;width :18px ; height: 18px;background:rgb(15, 219, 246);padding: 1px;border-radius:100% ;right :1px ;top:-10px;">
 
-                        </ul>
+                            </div>
                     </div>
+
+                    </ul>
                 </div>
-                <!-- Mobile Menu -->
-                <div class="col-12">
-                    <div class="mobile_menu d-block d-lg-none"></div>
-                </div>
+            </div>
+            <!-- Mobile Menu -->
+            <div class="col-12">
+                <div class="mobile_menu d-block d-lg-none"></div>
             </div>
         </div>
     </div>
-</header>
+    </div>
+    </header>
     <!-- Header End -->
 
-<!-- Script -->
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<link rel="stylesheet" href="{% static 'assets/css/header.css' %}" />
-<script>
-    const getCount = async () => {
-        const cart_url = `http://localhost:80/cart/api/`
-        async function makeGetRequest(path) {
-            const response = await axios.get(path)
-            return response.data
+    <!-- Scripts and Styles -->
+    <link rel="stylesheet" href="{% static 'assets/css/header.css' %}" />
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        // Logout function
+        async function logout() {
+            try {
+                const response = await axios.post('http://localhost:80/account/api/logout/');
+                window.location.href = "{% url 'core:home' %}";
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
-        const cart = await makeGetRequest(cart_url);
-        const cartCount = document.getElementById('cartCount');
-        cartCount.innerHTML = cart.count;
-    };
 
-    getCount()
-</script>
+        // Get cart count function
+        async function getCartCount() {
+            try {
+                const cartUrl = 'http://localhost:80/cart/api/';
+                const response = await axios.get(cartUrl);
+                const cartCount = document.getElementById('cartCount');
+                cartCount.innerHTML = response.data.count;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Call getCartCount function
+        getCartCount();
+    </script>

@@ -50,7 +50,7 @@ class RegisterSerializer(BaseUserSerializer):
 
     def create(self, validated_data: Dict[str, Any]) -> CustomUser:
         """Create a new CustomUser instance."""
-        user = CustomUser.objects._create_user(**validated_data)
+        user = CustomUser.objects.create_user(**validated_data)
         return user
 
     def update(self, instance: CustomUser, validated_data: Dict[str, Any]) -> CustomUser:
