@@ -1,6 +1,6 @@
 from rest_framework import viewsets, permissions ,status
-from product.models import Product , Category ,Review
-from product.serializers import ProductSerializer , CategorySerializer
+from product.models import Product , Category ,Review , Brand
+from product.serializers import ProductSerializer , CategorySerializer , BrandSerializer
 from rest_framework.response import Response
 from django.utils.text import slugify
 from rest_framework.decorators import action
@@ -93,3 +93,18 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 
 
+   
+class CategoryViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly] 
+    authentication_classes = [CustomJWTAuthentication]
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    filterset_fields = ['name','parent']
+    search_fields=['name','parent']
+
+class BrandViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly] 
+    authentication_classes = [CustomJWTAuthentication]
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+    

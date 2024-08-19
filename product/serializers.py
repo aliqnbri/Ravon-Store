@@ -11,6 +11,8 @@ from typing import Dict, Any
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
         model = Brand
+        depth = 2
+
         fields = ['name']
         read_only_fields = ['id']
 

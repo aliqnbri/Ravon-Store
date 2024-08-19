@@ -8,7 +8,7 @@ router.register(r'order-items', views.OrderItemViewSet, basename='order-items')
 
 app_name = 'cart'
 urlpatterns = [
-    path('', include(router.urls)),
+    path('api/', include(router.urls)),
     path('carts/',views.CartTemplateView.as_view(),name= 'cart'),
     path('checkout/',views.CheckOutTemplateView.as_view(),name="checkout")
 
