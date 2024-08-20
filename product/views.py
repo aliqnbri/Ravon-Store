@@ -13,14 +13,9 @@ from django.views.generic import TemplateView
 class ProductTemplateView(TemplateView):
     template_name = 'product/product-list.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        products = Product.objects.filter(is_available=True).order_by('-created_at')
-        context['products'] = products
-        return context
 
 class ProductDetailTemplateView(TemplateView):
-    template_name = 'product/product_details.html'
+    template_name = 'product/product-detail.html'
 
 
 

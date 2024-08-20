@@ -1,52 +1,22 @@
-/* Aliases */
-.ali {
-    margin: 0 7px;
-    color: black;
+/* Base style for icons */
+.header-right .icon-button {
+    color: #000000; /* Default color for the icons */
+    text-decoration: none; /* Remove underline from links */
+    font-size: 20px; /* Adjust icon size if needed */
+    transition: color 0.3s ease; /* Smooth transition for color change */
 }
 
-.ali:hover {
-    color: red;
-    cursor: pointer;
+/* Hover effect for icons */
+.header-right .icon-button:hover {
+    color: #12dae1; /* Color when hovered over */
 }
 
-/* Dropdown */
-.dropbtn {
-    background-color: #04AA6D;
-    color: white;
-    padding: 16px;
-    font-size: 16px;
-    border: none;
+/* Optional: Active or selected state */
+.header-right .icon-button.active {
+    color: #ffc107; /* Color for active state (optional) */
 }
 
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f1f1f1;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-}
-
-.dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-}
-
-.dropdown-content a:hover {
-    background-color: #ddd;
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-.dropdown:hover .dropbtn {
-    background-color: #3e8e41;
+/* Custom spacing class for icons */
+.icon-spacing {
+    margin-right: 30px; /* Adjust spacing as needed */
 }

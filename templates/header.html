@@ -1,122 +1,297 @@
 {% load static %}
+<!-- CSS here -->
+<link rel="stylesheet" href="{% static 'assets/css/all.css' %}">
+<link rel="stylesheet" href="{% static ' assets/css/animate.min.css' %}">
+<link rel="stylesheet" href="{% static ' assets/css/aos.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/flaticon.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/fontawesome-all.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/lightslider.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/magnific-popup.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/nice-select.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/owl.carousel.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/price_rangs.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/slick-theme.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/slick.css' %}">
+<link rel="stylesheet" href="{% static ' assets/css/slick.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/slicknav.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/style.map' %}">
+<link rel="stylesheet" href="{% static 'assets/css/swiper.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/themify-icons.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/header.css' %}">
+
+<!-- Scss here -->
+<link rel="stylesheet" href="{% static 'assets/scss/_about_us.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_banner.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_best-product.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_best_seller.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_blog_page.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_blog_part.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_blog.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_bradcam.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_breadcrumb.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_button.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_category.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_client_logo.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_client_review.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_color.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_common.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_confirmation_part.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_contact.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_copyright_part.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_cource_details.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_cta_part.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_elements.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_extend.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_feature_part.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_footer.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_gallery.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_h1-hero.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_headerMenu.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_instagram_photo.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_latest_products.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_mixins.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_new_arrival.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_new-product.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_our_offer.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_overlay.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_popular-items.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_product_list.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_product.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_recent.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_review.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_services.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_shipping_details.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_shop-method.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_single_blog.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_single_product.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_special_cource.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/style.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_subscribe_part.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_team.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_testimonial.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_trending_items.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_variables.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_video_area.scss' %}">
+<link rel="stylesheet" href="{% static 'assets/scss/_view-list-grid.scss' %}">
+
+<!-- JS here -->
+<script src="{% static 'assets/js/vendor/modernizr-3.5.0.min.js' %}"></script>
+<!-- Jquery, Popper, Bootstrap -->
+<script src="{% static './assets/js/vendor/jquery-1.12.4.min.js' %}"></script>
+<script src="{% static './assets/js/popper.min.js' %}"></script>
+<script src="{% static './assets/js/bootstrap.min.js' %}"></script>
+<!-- Jquery Mobile Menu -->
+<script src="{% static './assets/js/jquery.slicknav.min.js' %}"></script>
+
+<!-- Jquery Slick , Owl-Carousel Plugins -->
+<script src="{% static './assets/js/owl.carousel.min.js' %}"></script>
+<script src="{% static './assets/js/slick.min.js' %}"></script>
+
+<!-- One Page, Animated-HeadLin -->
+<script src="{% static './assets/js/wow.min.js' %}"></script>
+<script src="{% static './assets/js/animated.headline.js' %}"></script>
+<script src="{% static './assets/js/jquery.magnific-popup.js' %}"></script>
+
+<!-- Scrollup, nice-select, sticky -->
+<script src="{% static './assets/js/jquery.scrollUp.min.js' %}"></script>
+<script src="{% static './assets/js/jquery.nice-select.min.js' %}"></script>
+<script src="{% static './assets/js/jquery.sticky.js' %}"></script>
+
+<!-- contact js -->
+<script src="{% static './assets/js/contact.js' %}"></script>
+<script src="{% static './assets/js/jquery.form.js' %}"></script>
+<script src="{% static './assets/js/jquery.validate.min.js' %}"></script>
+<script src="{% static './assets/js/mail-script.js' %}"></script>
+<script src="{% static './assets/js/jquery.ajaxchimp.min.js' %}"></script>
+
+<!-- Jquery Plugins, main Jquery -->
+<script src="{% static './assets/js/plugins.js' %}"></script>
+<script src="{% static './assets/js/main.js' %}"></script>
+
 
 <!-- Header -->
-<<header>
+<header>
     <!-- Header Start -->
     <div class="header-area">
         <div class="main-header header-sticky">
             <div class="container-fluid">
-                <div class="menu-wrapper">
+                <div class="d-flex justify-content-between align-items-center">
                     <!-- Logo -->
-                    <div class="logo">
-                        <a href="{% url 'core:home'  %}"><img src="{% static 'assets/img/logo/logo.png' %}" alt=""></a>
-                    </div>
-                    <!-- Main-menu -->
-                    <div class="main-menu d-none d-lg-block">
-                        <nav>
-                            <ul id="navigation">
-                                <li><a href="{% static 'assets/img/logo/logo.png'  %}">Home</a></li>
-                                <li><a href="{% url 'product:product-list'  %}">shop</a></li>
-                                <li><a href="about.html">about</a></li>
-                                <li class="hot"><a href="#">Latest</a>
-                                    <ul class="submenu">
-                                        <li><a href="{% url 'product:product-list'  %}"> Product list</a></li>
+                    <a class="logo" href="{% url 'core:home' %}">
+                        <img src="{% static 'assets/img/logo/logo.png' %}" alt="Logo">
+                    </a>
 
-                                    </ul>
-                                </li>
-                                <li><a href="blog.html">Blog</a>
-                                    <ul class="submenu">
-                                        <li><a href="blog.html">Blog</a></li>
-                                        <li><a href="blog-details.html">Blog Details</a></li>
-                                    </ul>
-                                </li>
-                                <li><a href="#">Pages</a>
-                                    <ul class="submenu">
-                                        <li><a href="login.html">Login</a></li>
-                                        <li><a href="cart.html">Cart</a></li>
-                                        <li><a href="confirmation.html">Confirmation</a></li>
-                                        <li><a href="checkout.html">Product Checkout</a></li>
-                                    </ul>
-                                </li>
-                                <li><a href="contact.html">Contact</a></li>
-                            </ul>
-                        </nav>
-                    </div>
-                    <!-- Header Right -->
-                    <div class="header-right">
-                        <ul>
-                            <li>
-                                <div class="nav-search search-switch">
-                                    <span class="flaticon-search"></span>
-                                </div>
+                    <!-- Main Menu -->
+                    <nav class="navbar navbar-expand-lg navbar-light d-none d-lg-block">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'core:home' %}">Home</a>
                             </li>
-                            {% if user.first_name %}
-                            <div class="dropdown">
-                                <span>Welcome, {{ user.first_name }}</span>
-                                <div class="dropdown-content">
-                                    <a href="{% url 'customer:profile'  %}">Profile</a>
-                                    <a href="{% url 'customer:address'  %}">Address</a>
-                                    <a href="{% url 'customer:orders'  %}">Orders</a>
-                                    <a href="#">Wish List</a>
-                                </div>
-                            </div>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="{% url 'product:productlist' %}"
+                                    id="shopDropdown" role="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false">Shop</a>
+                                <ul class="dropdown-menu" aria-labelledby="shopDropdown">
+                                    <li><a class="dropdown-item" href="{% url 'product:productlist' %}">Product List</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="about.html">About</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="latestDropdown" role="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">Latest</a>
+                                <ul class="dropdown-menu" aria-labelledby="latestDropdown">
+                                    <li><a class="dropdown-item" href="{% url 'product:productlist' %}">Product List</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="blogDropdown" role="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">Blog</a>
+                                <ul class="dropdown-menu" aria-labelledby="blogDropdown">
+                                    <li><a class="dropdown-item" href="blog.html">Blog</a></li>
+                                    <li><a class="dropdown-item" href="blog-details.html">Blog Details</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">Pages</a>
+                                <ul class="dropdown-menu" aria-labelledby="pagesDropdown">
+                                    <li><a class="dropdown-item" href="login.html">Login</a></li>
+                                    <li><a class="dropdown-item" href="cart.html">Cart</a></li>
+                                    <li><a class="dropdown-item" href="confirmation.html">Confirmation</a></li>
+                                    <li><a class="dropdown-item" href="checkout.html">Product Checkout</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="contact.html">Contact</a>
+                            </li>
+                        </ul>
+                    </nav>
 
-                            <li><a class="ali" onclick="logout()"href="{% url 'core:home'  %}">Log Out</a></li>
-                            {% else %}
-                            <li> <a href="{% url 'account:login'  %}"><span class="flaticon-user"></span></a></li>
-                            {% endif %}
-                            <li><a href="{% url 'cart:cart'  %}">
-                                    <div style="padding:0;margin-left : 7px">
-                                        <span class="flaticon-shopping-cart "
-                                            style="padding:0;font-size : 20px;"></span>
-                                </a> </li>
-                            <div id="cartCount"
-                                style="display : flex;justify-content : center;align-items : center;color:white; position: relative ;width :18px ; height: 18px;background:rgb(15, 219, 246);padding: 1px;border-radius:100% ;right :1px ;top:-10px;">
+                    <!-- Header Right -->
+                    <div class="header-right d-flex align-items-center">
+                        <!-- Search Icon -->
+                        <a class="icon-button me-3 icon-spacing" href="#" data-bs-toggle="modal"
+                            data-bs-target="#searchModal">
+                            <span class="flaticon-search"></span>
+                        </a>
 
-                            </div>
+                        <!-- Cart Icon -->
+                        <a class="icon-button position-relative me-3 icon-spacing" href="{% url 'cart:cart' %}">
+                            <span class="flaticon-shopping-cart"></span>
+                            <span id="cartCount"
+                                class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill"></span>
+                        </a>
+
+                        {% if user.first_name %}
+                        <!-- User Dropdown -->
+                        <div class="dropdown">
+                            <a class="icon-button dropdown-toggle" href="#" id="userDropdown" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                Welcome, {{ user.first_name }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="{% url 'customer:profile' %}">Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'customer:address' %}">Address</a></li>
+                                <li><a class="dropdown-item" href="{% url 'customer:orders' %}">Orders</a></li>
+                                <li><a class="dropdown-item" href="#">Wish List</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'core:home' %}" onclick="logout()">Log Out</a>
+                                </li>
+                            </ul>
+                        </div>
+                        {% else %}
+                        <!-- Login Button -->
+                        <a class="icon-button icon-spacing" href="{% url 'account:login' %}">
+                            <span class="flaticon-user"></span>
+                        </a>
+                        {% endif %}
                     </div>
-
-                    </ul>
                 </div>
-            </div>
-            <!-- Mobile Menu -->
-            <div class="col-12">
-                <div class="mobile_menu d-block d-lg-none"></div>
             </div>
         </div>
     </div>
-    </div>
-    </header>
     <!-- Header End -->
+
+    <!-- Search Modal -->
+    <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="searchModalLabel">Search</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="#" method="get">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="q"
+                                placeholder="Search for products, brands, etc." aria-label="Search" required>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Search Modal -->
 
     <!-- Scripts and Styles -->
     <link rel="stylesheet" href="{% static 'assets/css/header.css' %}" />
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Logout function
+        // Function to handle user logout
         async function logout() {
             try {
-                const response = await axios.post('http://localhost:80/account/api/logout/');
+                const response = await fetch('http://localhost:8000/account/api/logout/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',  // Ensure cookies are included in the request
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Logout failed');
+                }
+
+                const { message } = await response.json();
+                console.log(message);  // Log the success message
+
+                // Redirect the user after successful logout
                 window.location.href = "{% url 'core:home' %}";
             } catch (error) {
-                console.error('Error:', error);
+                console.error('An error occurred during logout:', error.message);
+                alert('Failed to logout. Please try again.');
             }
         }
 
-        // Get cart count function
-        async function getCartCount() {
-            try {
-                const cartUrl = 'http://localhost:80/cart/api/';
-                const response = await axios.get(cartUrl);
-                const cartCount = document.getElementById('cartCount');
-                cartCount.innerHTML = response.data.count;
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
 
-        // Call getCartCount function
-        getCartCount();
+        // // // Get cart count function
+        // // async function getCartCount() {
+        // //     try {
+        // //         const cartUrl = 'http://localhost:80/cart/api/';
+        // //         const response = await axios.get(cartUrl);
+        // //         const cartCount = document.getElementById('cartCount');
+        // //         cartCount.textContent = response.data.count;
+        // //     } catch (error) {
+        // //         console.error('Error:', error);
+        // //     }
+        // // }
+
+        // // Call getCartCount function
+        // getCartCount();
     </script>
+  

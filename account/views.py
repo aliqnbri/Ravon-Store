@@ -111,6 +111,7 @@ class LogoutView(APIView):
 
     def post(self, request: Any) -> Response:
         if request.user.is_authenticated:
+                print("yes its authenticated")
                 logout(request)
                 response = self._create_logout_response()
                 return response

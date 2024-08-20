@@ -1,72 +1,161 @@
 {% load static %}
 <!DOCTYPE html>
 <html class="no-js" lang="zxx">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>
-      {% block title %}
-      {% endblock title %}
-    </title>
-    <meta name="description" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="manifest" href="{% static 'site.webmanifest' %}">
 
-    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/favicon.ico' %}" />
-
-    <!-- CSS here -->
-    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/owl.carousel.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/flaticon.css' %}" >
-    <link rel="stylesheet" href="{% static 'assets/css/slicknav.css' %}" >
-    <link rel="stylesheet" href="{% static ' assets/css/animate.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/magnific-popup.css' %}" >
-    <link rel="stylesheet" href="{% static 'assets/css/fontawesome-all.min.css' %}" >
-    <link rel="stylesheet" href="{% static 'assets/css/themify-icons.css' %}" >
-    <link rel="stylesheet" href="{% static ' assets/css/slick.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/nice-select.css' %}" >
-    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" >
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <title>
+    {% block title %}
+    {% endblock title %}
+  </title>
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
-  </head>
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/favicon.ico' %}" />
 
-  <body>
-    {% block content %}
+  <!-- CSS here -->
+  <link rel="stylesheet" href="{% static 'assets/css/all.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/animate.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/aos.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/flaticon.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/fontawesome-all.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/lightslider.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/magnific-popup.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/nice-select.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/owl.carousel.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/price_rangs.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/slick-theme.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/slick.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/slick.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/slicknav.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/style.map' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/swiper.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/themify-icons.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/header.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/ajax-loader.gif' %}">
 
-    {% endblock content %}
+  <!-- Scss here -->
+  <link rel="stylesheet" href="{% static 'assets/scss/_about_us.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_banner.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_best-product.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_best_seller.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_blog_page.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_blog_part.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_blog.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_bradcam.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_breadcrumb.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_button.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_category.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_client_logo.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_client_review.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_color.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_common.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_confirmation_part.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_contact.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_copyright_part.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_cource_details.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_cta_part.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_elements.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_extend.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_feature_part.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_footer.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_gallery.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_h1-hero.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_headerMenu.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_instagram_photo.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_latest_products.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_mixins.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_new_arrival.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_new-product.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_our_offer.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_overlay.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_popular-items.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_product_list.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_product.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_recent.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_review.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_services.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_shipping_details.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_shop-method.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_single_blog.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_single_product.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_special_cource.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/style.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_subscribe_part.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_team.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_testimonial.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_trending_items.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_variables.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_video_area.scss' %}">
+  <link rel="stylesheet" href="{% static 'assets/scss/_view-list-grid.scss' %}">
 
-    <!-- JS here -->
-    <script src="{% static 'assets/js/vendor/modernizr-3.5.0.min.js' %}"></script>
-    <!-- Jquery, Popper, Bootstrap -->
-    <script src="{% static './assets/js/vendor/jquery-1.12.4.min.js' %}"></script>
-    <script src="{% static './assets/js/popper.min.js' %}"></script>
-    <script src="{% static './assets/js/bootstrap.min.js' %}"></script>
-    <!-- Jquery Mobile Menu -->
-    <script src="{% static './assets/js/jquery.slicknav.min.js' %}"></script>
+  <!-- Bootstap online -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 
-    <!-- Jquery Slick , Owl-Carousel Plugins -->
-    <script src="{% static './assets/js/owl.carousel.min.js' %}"></script>
-    <script src="{% static './assets/js/slick.min.js' %}"></script>
+  <!-- Edu Vic Wa Nt font -->
+  <link href="https://fonts.googleapis.com/css2?family=Edu+VIC+WA+NT+Beginner&display=swap" rel="stylesheet">
 
-    <!-- One Page, Animated-HeadLin -->
-    <script src="{% static './assets/js/wow.min.js' %}"></script>
-    <script src="{% static './assets/js/animated.headline.js' %}"></script>
-    <script src="{% static './assets/js/jquery.magnific-popup.js' %}"></script>
 
-    <!-- Scrollup, nice-select, sticky -->
-    <script src="{% static './assets/js/jquery.scrollUp.min.js' %}"></script>
-    <script src="{% static './assets/js/jquery.nice-select.min.js' %}"></script>
-    <script src="{% static './assets/js/jquery.sticky.js' %}"></script>
+</head>
 
-    <!-- contact js -->
-    <script src="{% static './assets/js/contact.js' %}"></script>
-    <script src="{% static './assets/js/jquery.form.js' %}"></script>
-    <script src="{% static './assets/js/jquery.validate.min.js' %}"></script>
-    <script src="{% static './assets/js/mail-script.js' %}"></script>
-    <script src="{% static './assets/js/jquery.ajaxchimp.min.js' %}"></script>
+<body>
+  {% block content %}
 
-    <!-- Jquery Plugins, main Jquery -->
-    <script src="{% static './assets/js/plugins.js' %}"></script>
-    <script src="{% static './assets/js/main.js' %}"></script>
-  </body>
+  {% endblock content %}
+
+  <!-- JS here -->
+  <script src="{% static 'assets/js/vendor/modernizr-3.5.0.min.js' %}"></script>
+
+  <!-- Jquery, Popper, Bootstrap -->
+  <script src="{% static 'assets/js/vendor/jquery-1.12.4.min.js' %}"></script>
+  <script src="{% static 'assets/js/popper.min.js' %}"></script>
+  <script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'assets/js/waypoints.min.js' %}"></script>
+  <script src="{% static 'assets/js/theme.js' %}"></script>
+  <script src="{% static 'assets/js/swiper.min.js' %}"></script>
+  <script src="{% static 'assets/js/swiper.jquery.js' %}"></script>
+  <script src="{% static 'assets/js/swiper_custom.js' %}"></script>
+  <script src="{% static 'assets/js/stellar.js' %}"></script>
+  <script src="{% static 'assets/js/mixitup.min.js' %}"></script>
+  <script src="{% static 'assets/js/one-page-nav-min.js' %}"></script>
+  <script src="{% static 'assets/js/jquery.paroller.min.js' %}"></script>
+  <script src="{% static 'assets/js/jquery.downCount.js' %}"></script>
+  <script src="{% static 'assets/js/jquery.counterup.min.js' %}"></script>
+  <script src="{% static 'assets/js/gmaps.min.js' %}"></script>
+  <script src="{% static 'assets/js/cells-by-column.js' %}"></script>
+  <script src="{% static 'assets/js/aos.js' %}"></script>
+  <!-- Jquery Mobile Menu -->
+  <script src="{% static 'assets/js/jquery.slicknav.min.js' %}"></script>
+
+  <!-- Jquery Slick , Owl-Carousel Plugins -->
+  <script src="{% static 'assets/js/owl.carousel.min.js' %}"></script>
+  <script src="{% static 'assets/js/slick.min.js' %}"></script>
+
+  <!-- One Page, Animated-HeadLin -->
+  <script src="{% static 'assets/js/wow.min.js' %}"></script>
+  <script src="{% static 'assets/js/animated.headline.js' %}"></script>
+  <script src="{% static 'assets/js/jquery.magnific-popup.js' %}"></script>
+
+  <!-- Scrollup, nice-select, sticky -->
+  <script src="{% static 'assets/js/jquery.scrollUp.min.js' %}"></script>
+  <script src="{% static 'assets/js/jquery.nice-select.min.js' %}"></script>
+  <script src="{% static 'assets/js/jquery.sticky.js' %}"></script>
+
+  <!-- contact js -->
+  <script src="{% static 'assets/js/contact.js' %}"></script>
+  <script src="{% static 'assets/js/jquery.form.js' %}"></script>
+  <script src="{% static 'assets/js/jquery.validate.min.js' %}"></script>
+  <script src="{% static 'assets/js/mail-script.js' %}"></script>
+  <script src="{% static 'assets/js/jquery.ajaxchimp.min.js' %}"></script>
+
+  <!-- Jquery Plugins, main Jquery -->
+  <script src="{% static 'assets/js/plugins.js' %}"></script>
+  <script src="{% static 'assets/js/main.js' %}"></script>
+
+</body>
+
 </html>

@@ -51,6 +51,7 @@ class CartViewSet(viewsets.ViewSet):
         """
         Add a product to the cart or update its quantity.
         """
+        print(request.data , 'this is in create cart view')
         product_slug: Optional[str] = request.data.get('product')
 
         quantity: int = int(request.data.get('quantity', 1))

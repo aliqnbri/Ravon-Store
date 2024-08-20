@@ -13,8 +13,8 @@ router.register(r'brand',views.BrandViewSet)
 
 
 urlpatterns = [
-     path('',views.ProductTemplateView.as_view(),name='product-list'),
-    path('detail/<str:slug>',views.ProductDetailTemplateView.as_view(),name='productdetail'),
+     path('',views.ProductTemplateView.as_view(),name='productlist'),
+    path('<str:slug>/',views.ProductDetailTemplateView.as_view(),name='productdetail'),
 
     path('api/', include(router.urls)),
 ]

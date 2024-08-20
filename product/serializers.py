@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from product.models import Category, Product, Review ,Brand
+from django.urls import reverse
 
 from django.utils.text import slugify
 from rest_framework.reverse import reverse_lazy
@@ -37,14 +38,15 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     detail_url = serializers.SerializerMethodField(read_only=True)
+    url = serializers.SerializerMethodField(read_only=True)
     brand = BrandSerializer()
 
-    # category = CategorySerializer(many=True)
+   
 
     class Meta:
         model = Product
         fields = '__all__'
-        read_only_fields = ['id', 'slug']
+        read_only_fields = ['id', 'slug', 'url']
         extra_kwargs = {
             'name': {'required': True},
             'category': {'required': True},
@@ -52,6 +54,9 @@ class ProductSerializer(serializers.ModelSerializer):
             'description': {'required': True},
             'image': {'required': True}
         }
+
+    def get_url(self,obj:Product) -> str:
+        return reverse('product:productdetail', kwargs={'slug': obj.slug})
 
     def get_detail_url(self, obj: Product) -> str:
         """Returns the detail URL for the product."""
