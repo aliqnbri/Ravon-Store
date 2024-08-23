@@ -1,4 +1,4 @@
-const base_url = `http://localhost:80`
+const base_url = `http://127.0.0.1:8000`
 const order_url = `${base_url}/orders/api/order/`
 const filter = `?payment_id=${getCookie('order')}`;
 // console.log(filter);

@@ -58,8 +58,8 @@ class RegisterUserView(generics.CreateAPIView):
 
     def _create_response_with_tokens(self, access_token: str, refresh_token: str) -> Response:
         response = Response(status=status.HTTP_201_CREATED)
-        response.set_cookie(key='access_token', value=access_token, httponly=True, secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'])
-        response.set_cookie(key='refresh_token', value=refresh_token, httponly=True, secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'])
+        response.set_cookie(key='access_token', value=access_token, httponly=False, secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'])
+        response.set_cookie(key='refresh_token', value=refresh_token, httponly=False, secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'])
         return response
 
 from django.contrib.auth import login
@@ -161,22 +161,22 @@ class MyTokenObtainPairView(TokenObtainPairView):  # I use this for login user.
     def _create_verification_response(self, user: CustomUser) -> Response:
         access_token, refresh_token = utils.generate_tokens(user)
         response = redirect(reverse('account:verify-otp'))
-        response.set_cookie(key='access_token', value=access_token, httponly=True, secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'])
-        response.set_cookie(key='refresh_token', value=refresh_token, httponly=True, secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'])
+        response.set_cookie(key='access_token', value=access_token, httponly=False, secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'])
+        response.set_cookie(key='refresh_token', value=refresh_token, httponly=False, secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'])
         return response
 
     def _set_login_cookies(self, response: Response, access_token: str, refresh_token: str) -> None:
         response.set_cookie(
             key='access_token',
             value=access_token,
-            httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+            httponly= False ,#settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
             max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
             secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE']
         )
         response.set_cookie(
             key='refresh_token',
             value=refresh_token,
-            httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+            httponly=False ,#settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
             max_age=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
             secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE']
         )
@@ -196,7 +196,7 @@ class CustomTokenRefreshView(TokenRefreshView):
         response.set_cookie(
             key='access_token',
             value=access_token,
-            httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+            httponly=False, #settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
             max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
             secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE']
         )

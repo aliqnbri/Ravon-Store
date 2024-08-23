@@ -1,4 +1,4 @@
-const base_url = `http://localhost:80`
+const base_url = `http://127.0.0.1:8000`
 document.addEventListener("DOMContentLoaded", () => {
     
     axios.get(`${base_url}/zarinpal/verify/`).then(response => {

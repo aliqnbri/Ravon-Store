@@ -17,11 +17,11 @@ from django.urls import reverse_lazy
 from django.shortcuts import redirect
 
 class CartTemplateView(TemplateView):
-    template_name = "cart.html"
+    template_name = "cart/cart.html"
 
 
 class CheckOutTemplateView(TemplateView):
-    template_name = "checkout.html"
+    template_name = "cart/checkout.html"
     
     def dispatch(self, request, *args, **kwargs):
         if request.COOKIES.get('username') != None:

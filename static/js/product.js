@@ -1,7 +1,7 @@
-const base_url = `http://localhost:80`
+const base_url = `http://127.0.0.1:8000`
 const categories_url = `${base_url}/products/api/category/`
 const product_url = `${base_url}/products/api/product/`
-const cart_url = `${base_url}/cart/api/`
+const cart_url = `${base_url}/cart/api/cart/`
 
 async function makeGetRequest(path,prams) {
     const response = await axios.get(path)

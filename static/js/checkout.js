@@ -1,5 +1,5 @@
-const base_url = `http://localhost:80`
-const cart_url = `${base_url}/cart/api/`
+const base_url = `http://127.0.0.1:8000`
+const cart_url = `${base_url}/cart/api/cart/`
 const order_url = `${base_url}/orders/api/order/`
 const address_url = `${base_url}/customer/api/addresses/`
 async function makeGetRequest(path) {

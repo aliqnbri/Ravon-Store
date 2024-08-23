@@ -1,5 +1,5 @@
 const userId = getCookie('username');
-const base_url = `http://localhost:80`
+const base_url = `http://127.0.0.1:8000`
 const user_url = `${base_url}/account/users/${userId}/`
 
 async function makeGetRequest(path) {
