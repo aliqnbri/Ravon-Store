@@ -16,19 +16,20 @@ from django.views.generic import TemplateView
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
 
+
 class CartTemplateView(TemplateView):
     template_name = "cart/cart.html"
 
 
 class CheckOutTemplateView(TemplateView):
     template_name = "cart/checkout.html"
-    
+
     def dispatch(self, request, *args, **kwargs):
-        if request.COOKIES.get('username') != None:
-            
+        if request.COOKIES.get('access_token') != None:
+
             return super().dispatch(request, *args, **kwargs)
-        else :
-            return redirect(reverse_lazy('login'))
+        else:
+            return redirect(reverse_lazy('account:login'))
 
 
 class CartViewSet(viewsets.ViewSet):
@@ -46,12 +47,20 @@ class CartViewSet(viewsets.ViewSet):
         serializer = CartSerializer(cart)
         return Response(serializer.data)
 
+    def retrieve(self, request, slug=None):
+        """
+        Retrieve cart details.
+        """
+        cart = Cart(request)
+        serializer = CartSerializer(cart)
+        return Response(serializer.data)
+
     @transaction.atomic
     def create(self, request, *args, **kwargs) -> Response:
         """
         Add a product to the cart or update its quantity.
         """
-        print(request.data , 'this is in create cart view')
+
         product_slug: Optional[str] = request.data.get('product')
 
         quantity: int = int(request.data.get('quantity', 1))
@@ -72,11 +81,11 @@ class CartViewSet(viewsets.ViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @transaction.atomic
-    def update(self, request, pk: Optional[int] = None) -> Response:
+    def update(self, request, *args, **kwargs) -> Response:
         """
         Update the quantity of a product in the cart.
         """
-        product_slug = request.query_params.get('slug')
+        product_slug = kwargs.get('slug')
 
         quantity: int = int(request.data.get('quantity', 1))
 
@@ -86,21 +95,37 @@ class CartViewSet(viewsets.ViewSet):
             return Response({"error": "Insufficient product quantity available"}, status=status.HTTP_400_BAD_REQUEST)
 
         cart = Cart(request)
-        cart.add(product=product, quantity=quantity, overide_quantity=True)
+        cart.update(old_product=product, quantity=quantity)
+        # cart.add(product=product, quantity=quantity, overide_quantity=True)
         serializer = CartSerializer(cart)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @transaction.atomic
-    def destroy(self, request, pk: Optional[int] = None) -> Response:
+    def destroy(self, request, *args, **kwargs) -> Response:
         """
         Remove a product from the cart.
         """
-        product_slug = request.query_params.get('slug')
+        product_slug = kwargs.get('slug')
         product = get_object_or_404(Product, slug=product_slug)
         cart = Cart(request)
         cart.remove(product)
         serializer = CartSerializer(cart)
         return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=['post'])
+    def clear_cart(self, request) -> Response:
+        """
+        Clear the cart and delete the session.
+        """
+        # Clear the cart
+        cart = Cart(request)
+        cart.clear()
+
+        # Clear the session (if needed)
+        request.session.flush()  # or request.session.clear()
+
+        # Respond back to the client
+        return Response({"message": "Cart has been cleared and session deleted."}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'])
     def get_total(self, request) -> Response:
@@ -116,13 +141,13 @@ class CartViewSet(viewsets.ViewSet):
 class OrderItemViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
+
     def get_order(self):
         # Retrieve or create the current user's pending order
         request = self.request
         order, created = Order.objects.get_or_create(
             customer=request.user.customer_profile,
             status=Order.OrderStatus.PENDING,
-            defaults={'total_amount': Decimal(0)}
         )
         return order
 

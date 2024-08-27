@@ -81,8 +81,9 @@ class Cart:
         for product in products:
             cart_item = self.cart[str(product.id)]
             cart_item["product"] = SimpleProductSerializer(product).data
-            cart_item["price"] =cart_item["price"]
-            cart_item['total'] = str(Decimal(cart_item["price"]) * cart_item['quantity'])
+            cart_item["price"] = cart_item["price"]
+            cart_item['total'] = str(
+                Decimal(cart_item["price"]) * cart_item['quantity'])
             yield cart_item
 
     def __len__(self) -> int:
